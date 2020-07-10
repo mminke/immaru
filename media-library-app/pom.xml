@@ -11,5 +11,12 @@
 
     <artifactId>media-library-app</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.earthrevealed.media-library</groupId>
+            <artifactId>media-library-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
