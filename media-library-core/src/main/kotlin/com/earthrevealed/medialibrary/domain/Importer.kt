@@ -1,5 +1,6 @@
 package com.earthrevealed.medialibrary.domain
 
+import com.earthrevealed.medialibrary.persistence.AssetRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.file.Files
@@ -8,7 +9,8 @@ import java.nio.file.StandardCopyOption
 
 @Component
 class Importer(
-        @Value("media-library.library.path") libraryPathValue: String
+        @Value("media-library.library.path") libraryPathValue: String,
+        val assetRepository: AssetRepository
 ) {
     private val libraryPath: Path
 
@@ -20,20 +22,22 @@ class Importer(
     fun importFrom(importLocation: Path) {
         Files.walk(importLocation)
                 .filter { isImage(it) || isVideo(it) }
-                .map { (it to Media(it)) }
-                .forEach { (source, media) ->
-                    println("Importing: $media")
+                .map { (it to asset { originalFilename = it.fileName.toString() }) }
+                .forEach { (source, asset) ->
+                    println("Importing: $asset")
 //                    val contentType = Files.probeContentType(source)
                     val extension = source.extension()?.toLowerCase() ?: ""
 
                     val destinationPath = libraryPath
-                            .resolve(media.folders())
+                            .resolve(asset.destinationFolders())
                     val destination = destinationPath
-                            .resolve("${media.id}.${extension}")
+                            .resolve("${asset.id}.${extension}")
 
                     println("Copying $source TO $destination")
                     Files.createDirectories(destinationPath)
                     Files.copy(source, destination, StandardCopyOption.COPY_ATTRIBUTES)
+
+                    assetRepository.save(asset)
                 }
     }
 
@@ -51,11 +55,17 @@ class Importer(
     }
 }
 
-
-fun Media.folders(): Path {
+/**
+ * Determine the destination folder to store the asset in.
+ * Sub folders are determined by the first 6 digits of the UUID:
+ * id = a4e6d238-39eb-4efc-b23d-be6ac0f05e75
+ * destination folder = /a4/e6/d2/38/
+ */
+fun Asset.destinationFolders(): Path {
     var subFolders = Path.of("")
     (0..3).forEach {
-        subFolders = subFolders.resolve(id.toString().substring((it * 2) + 0..(it * 2) + 1))
+        val offset = (it * 2)
+        subFolders = subFolders.resolve(id.value.toString().substring(offset + 0..offset + 1))
     }
     return subFolders
 }
