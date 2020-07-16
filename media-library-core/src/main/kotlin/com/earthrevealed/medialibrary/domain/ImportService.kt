@@ -2,14 +2,14 @@ package com.earthrevealed.medialibrary.domain
 
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-@Component
-class Importer(
-        @Value("media-library.library.path") libraryPathValue: String,
+@Service
+class ImportService(
+        @Value("\${media-library.library.path}") libraryPathValue: String,
         val assetRepository: AssetRepository
 ) {
     private val libraryPath: Path

@@ -42,6 +42,11 @@
                 <version>6.5.0</version>
             </dependency>
             <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.14</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jetbrains.exposed</groupId>
                 <artifactId>exposed-spring-boot-starter</artifactId>
                 <version>${springboot.exposed.version}</version>
