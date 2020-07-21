@@ -18,7 +18,7 @@ import java.time.Clock
 import java.util.stream.Collectors
 
 @ExtendWith(MockitoExtension::class)
-internal class ImportServiceTest {
+internal class AssetServiceTest {
     @TempDir lateinit var temporaryFolder: Path
 
     @Mock lateinit var assetRepositoryMock: AssetRepository
@@ -30,7 +30,7 @@ internal class ImportServiceTest {
 
     @Test
     fun testImport() {
-        val importer = ImportService(temporaryFolder.toString(), assetRepositoryMock)
+        val importer = AssetService(temporaryFolder.toString(), assetRepositoryMock)
 
         importer.importFrom(Path.of("./src/test/resources/images"))
 

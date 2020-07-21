@@ -8,7 +8,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 @Service
-class ImportService(
+class AssetService(
         @Value("\${media-library.library.path}") libraryPathValue: String,
         val assetRepository: AssetRepository
 ) {
@@ -26,20 +26,22 @@ class ImportService(
                 .forEach { (source, asset) ->
                     println("Importing: $asset")
 //                    val contentType = Files.probeContentType(source)
-                    val extension = source.extension()?.toLowerCase() ?: ""
 
-                    val destinationPath = libraryPath
-                            .resolve(asset.destinationFolders())
-                    val destination = destinationPath
-                            .resolve("${asset.id}.${extension}")
+                    val destination = libraryPath
+                            .resolve(asset.internalFilelocation())
 
                     println("Copying $source TO $destination")
-                    Files.createDirectories(destinationPath)
+                    Files.createDirectories(libraryPath.resolve(asset.destinationFolders()))
                     Files.copy(source, destination, StandardCopyOption.COPY_ATTRIBUTES)
 
                     assetRepository.save(asset)
                 }
     }
+
+    fun assetPath(id: AssetId) =
+        assetRepository.get(id)?.let {
+            libraryPath.resolve(it.internalFilelocation())
+        }
 
 
     private fun isImage(path: Path): Boolean {
@@ -53,21 +55,6 @@ class ImportService(
         return path.toString().toLowerCase().endsWith("avi") ||
                 path.toString().toLowerCase().endsWith("mov")
     }
-}
-
-/**
- * Determine the destination folder to store the asset in.
- * Sub folders are determined by the first 6 digits of the UUID:
- * id = a4e6d238-39eb-4efc-b23d-be6ac0f05e75
- * destination folder = /a4/e6/d2/38/
- */
-fun Asset.destinationFolders(): Path {
-    var subFolders = Path.of("")
-    (0..3).forEach {
-        val offset = (it * 2)
-        subFolders = subFolders.resolve(id.value.toString().substring(offset + 0..offset + 1))
-    }
-    return subFolders
 }
 
 private fun Path.extension(): String? {

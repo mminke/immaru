@@ -10,14 +10,14 @@ import java.nio.file.Path
 import java.util.stream.Collectors
 
 @SpringBootTest
-class ImportServiceIT {
-    @Autowired lateinit var importService: ImportService
+class AssetServiceIT {
+    @Autowired lateinit var assetService: AssetService
     @Value("\${media-library.library.path}") lateinit var libraryPathValue: String
 
 
     @Test
     fun testImport() {
-        importService.importFrom(Path.of("./src/test/resources/images"))
+        assetService.importFrom(Path.of("./src/test/resources/images"))
 
         assertThat {
             Files.walk(Path.of(libraryPathValue))

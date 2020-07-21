@@ -26,3 +26,6 @@ internal fun ResultRow.toDomain() = Asset(
         originalFilename = this[AssetTable.originalFilename],
         createdAt = OffsetDateTime.ofInstant(this[AssetTable.createdAt], ZoneId.systemDefault())
 )
+
+internal fun AssetId.toEntityId() =
+        EntityID(this.value, AssetTable)
