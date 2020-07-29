@@ -4,7 +4,7 @@ import com.earthrevealed.medialibrary.domain.Asset
 import com.earthrevealed.medialibrary.domain.AssetId
 import com.earthrevealed.medialibrary.persistence.exposed.AssetTable
 import com.earthrevealed.medialibrary.persistence.exposed.from
-import com.earthrevealed.medialibrary.persistence.exposed.toDomain
+import com.earthrevealed.medialibrary.persistence.exposed.toAsset
 import com.earthrevealed.medialibrary.persistence.exposed.toEntityId
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -21,9 +21,9 @@ class AssetRepository {
 
     fun all() =
         AssetTable.selectAll()
-                .map { it.toDomain() }
+                .map { it.toAsset() }
 
     fun get(id: AssetId) =
-        AssetTable.select { AssetTable.id eq id.toEntityId() }
-                .firstOrNull()?.let { it.toDomain() }
+            AssetTable.select { AssetTable.id eq id.toEntityId() }
+                    .firstOrNull()?.toAsset()
 }

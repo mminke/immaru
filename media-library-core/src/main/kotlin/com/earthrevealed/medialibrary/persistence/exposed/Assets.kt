@@ -21,7 +21,7 @@ internal fun InsertStatement<Number>.from(asset: Asset) {
     this[AssetTable.createdAt] = asset.createdAt.toInstant()
 }
 
-internal fun ResultRow.toDomain() = Asset(
+internal fun ResultRow.toAsset() = Asset(
         id = AssetId(this[AssetTable.id].value),
         originalFilename = this[AssetTable.originalFilename],
         createdAt = OffsetDateTime.ofInstant(this[AssetTable.createdAt], ZoneId.systemDefault())

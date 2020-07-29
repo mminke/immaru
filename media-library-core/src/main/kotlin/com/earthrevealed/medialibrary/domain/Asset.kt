@@ -1,6 +1,7 @@
 package com.earthrevealed.medialibrary.domain
 
 import com.earthrevealed.medialibrary.common.ClockProvider
+import com.earthrevealed.medialibrary.common.MediaLibraryBuilder
 import java.nio.file.Path
 import java.time.OffsetDateTime
 import java.util.*
@@ -46,9 +47,6 @@ data class Asset(
 
 fun asset(initialization: AssetBuilder.() -> Unit) =
         AssetBuilder().apply(initialization).build()
-
-@DslMarker
-annotation class MediaLibraryBuilder
 
 @MediaLibraryBuilder
 class AssetBuilder {
