@@ -7,3 +7,9 @@ spring:
 media-library:
   library:
     path: /tmp/images
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger
