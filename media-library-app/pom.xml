@@ -15,7 +15,10 @@
         <dependency>
             <groupId>com.earthrevealed.media-library</groupId>
             <artifactId>media-library-core</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.earthrevealed.media-library</groupId>
+            <artifactId>media-library-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
