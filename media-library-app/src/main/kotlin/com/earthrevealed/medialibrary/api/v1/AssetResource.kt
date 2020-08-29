@@ -1,15 +1,15 @@
 package com.earthrevealed.medialibrary.api.v1
 
+import com.earthrevealed.medialibrary.AssetService
+import com.earthrevealed.medialibrary.domain.Asset
 import com.earthrevealed.medialibrary.domain.AssetId
-import com.earthrevealed.medialibrary.domain.AssetService
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Files
 import java.util.*
 
@@ -38,4 +38,23 @@ class AssetResource(
 
         return ResponseEntity(fileContents, responseHeaders, HttpStatus.OK)
     }
+
+    @PostMapping("/assets")
+    fun createAsset(@RequestParam("files") files: List<MultipartFile>): ResponseEntity<AssetCreationResult> {
+        println("Processing new asset.")
+        val createdAssets = mutableSetOf<Asset>()
+        files
+                .filter { !it.isEmpty }
+                .forEach {
+                    println("uploaded file: ${it.originalFilename}")
+                    createdAssets.add(assetService.import(it.bytes, it.originalFilename))
+                }
+
+        val locations = createdAssets
+                .map { "/assets/${it.id.value}" }
+
+        return ResponseEntity<AssetCreationResult>(AssetCreationResult(locations), HttpStatus.CREATED)
+    }
 }
+
+data class AssetCreationResult(val locations: List<String>)

@@ -3,6 +3,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/medialibrary
     username: medialibrary
     password: medialibrary
+  servlet.multipart:
+    max-file-size: 100GB
+    max-request-size: 100GB
 
 media-library:
   library:

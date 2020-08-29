@@ -1,5 +1,8 @@
-package com.earthrevealed.medialibrary.domain
+package com.earthrevealed.medialibrary
 
+import com.earthrevealed.medialibrary.domain.Asset
+import com.earthrevealed.medialibrary.domain.AssetId
+import com.earthrevealed.medialibrary.domain.asset
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -17,6 +20,19 @@ class AssetService(
     init {
         libraryPath = Path.of(libraryPathValue)
         Files.createDirectories(libraryPath)
+    }
+
+    fun import(fileContent: ByteArray, filename: String): Asset {
+        val asset = asset { originalFilename = filename }
+        val destination = libraryPath
+                .resolve(asset.internalFilelocation())
+
+        Files.createDirectories(libraryPath.resolve(asset.destinationFolders()))
+        Files.write(destination, fileContent)
+
+        assetRepository.save(asset)
+
+        return asset
     }
 
     fun importFrom(importLocation: Path) {

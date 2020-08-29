@@ -1,5 +1,6 @@
 package com.earthrevealed.medialibrary.domain
 
+import com.earthrevealed.medialibrary.AssetService
 import com.earthrevealed.medialibrary.common.ClockProvider
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import com.nhaarman.mockitokotlin2.times

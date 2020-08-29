@@ -1,5 +1,6 @@
 package com.earthrevealed.medialibrary.domain
 
+import com.earthrevealed.medialibrary.AssetService
 import com.earthrevealed.medialibrary.persistence.exposed.AssetTable
 import org.amshove.kluent.`should be equal to`
 import org.jetbrains.exposed.sql.deleteAll
