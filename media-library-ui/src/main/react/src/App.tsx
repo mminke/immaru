@@ -1,5 +1,4 @@
 import React from 'react';
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
@@ -13,9 +12,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
-  title: {
-    flexGrow: 1,
-  },
   content: {
     flexGrow: 1,
     height: '100vh',
@@ -25,9 +21,6 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
-  },
-  fixedHeight: {
-    height: 240,
   },
 }));
 
@@ -45,7 +38,7 @@ function App() {
     <div className={classes.root}>
         <Router>
             <MainAppBar open={open} handleDrawerOpen={handleDrawerOpen}/>
-            <MainDrawer open={open}  handleDrawerClose={handleDrawerClose}/>
+            <MainDrawer open={open} handleDrawerClose={handleDrawerClose}/>
 
             <main className={classes.content}>
                 <Container maxWidth="xl" className={classes.container}>

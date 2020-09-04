@@ -18,10 +18,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const headers: HeadersInit = {
-         'Accept': 'application/json'
-         }
-
 class AssetRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json'}
