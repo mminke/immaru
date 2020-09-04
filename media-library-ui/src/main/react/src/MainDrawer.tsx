@@ -13,7 +13,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom"
+import {Link} from "react-router-dom"
 
 export const drawerWidth = 240;
 

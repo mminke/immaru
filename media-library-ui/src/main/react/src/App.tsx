@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
-import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom"
+import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 
 import MainAppBar from './MainAppBar'
 import MainDrawer from './MainDrawer'
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const handleDrawerOpen = () => {
     setOpen(true);
   };
