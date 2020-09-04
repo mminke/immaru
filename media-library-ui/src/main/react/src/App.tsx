@@ -7,6 +7,7 @@ import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom"
 import MainAppBar from './MainAppBar'
 import MainDrawer from './MainDrawer'
 import ImageList from './ImageList'
+import FileUpload from './FileUpload'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +43,14 @@ function App() {
 
             <main className={classes.content}>
                 <Container maxWidth="xl" className={classes.container}>
-                    <ImageList/>
+                    <Switch>
+                        <Route path="/upload">
+                            <FileUpload/>
+                        </Route>
+                       <Route path={["/", "/media"]}>
+                            <ImageList/>
+                        </Route>
+                    </Switch>
                 </Container>
             </main>
         </Router>
