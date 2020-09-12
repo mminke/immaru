@@ -1,61 +1,74 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import Toolbar from '@material-ui/core/Toolbar';
+import Box from '@material-ui/core/Box';
 
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 
 import MainAppBar from './MainAppBar'
 import MainDrawer from './MainDrawer'
 import ImageList from './ImageList'
+import ImageDetails from './ImageDetails'
 import FileUpload from './FileUpload'
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    height: '100vh'
   },
   content: {
     flexGrow: 1,
-    height: '100vh',
     overflow: 'auto',
-    paddingTop: '20px'
-  },
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    padding: theme.spacing(2),
   },
 }));
 
-function App() {
+export default function App() {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
-  const handleDrawerOpen = () => {
-    setOpen(true);
+  const [mainDrawerOpen, setMainDrawerOpen] = useState(false);
+  const toggleMainDrawer = () => {
+    setMainDrawerOpen(!mainDrawerOpen);
   };
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+
+  const [imageDetailsOpen, setImageDetailsOpen] = useState(false);
+  const openImageDetails = () => {
+    setImageDetailsOpen(true);
+  }
+  const closeImageDetails = () => {
+    setImageDetailsOpen(false);
+  }
+
+  const [selectedAsset, setSelectedAsset] = useState(null);
+  const handleImageSelected = (asset: any) => {
+
+console.log(asset);
+    setSelectedAsset(asset);
+    openImageDetails();
+  }
 
   return (
     <div className={classes.root}>
+        <CssBaseline/>
         <Router>
-            <MainAppBar open={open} handleDrawerOpen={handleDrawerOpen}/>
-            <MainDrawer open={open} handleDrawerClose={handleDrawerClose}/>
+            <MainAppBar toggleMainDrawer={toggleMainDrawer}/>
+            <MainDrawer open={mainDrawerOpen}/>
+
+            <ImageDetails asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
 
             <main className={classes.content}>
-                <Container maxWidth="xl" className={classes.container}>
-                    <Switch>
-                        <Route path="/upload">
-                            <FileUpload/>
-                        </Route>
-                       <Route path={["/", "/media"]}>
-                            <ImageList/>
-                        </Route>
-                    </Switch>
-                </Container>
+                <Toolbar/>
+                <Switch>
+                    <Route path="/upload">
+                        <FileUpload/>
+                    </Route>
+                   <Route path={["/", "/media"]}>
+                          <ImageList onImageSelected={handleImageSelected}/>
+                    </Route>
+                </Switch>
             </main>
         </Router>
     </div>
   );
 }
-
-export default App;

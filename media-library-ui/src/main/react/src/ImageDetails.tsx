@@ -11,17 +11,16 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Toolbar from '@material-ui/core/Toolbar';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import Toolbar from '@material-ui/core/Toolbar';
 import {Link} from "react-router-dom"
 
-export const drawerWidth = 240;
+export const drawerWidth = 350;
 
 const useStyles = makeStyles((theme) => ({
   drawerPaper: {
     position: 'relative',
-    whiteSpace: 'nowrap',
     width: drawerWidth,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
@@ -34,47 +33,39 @@ const useStyles = makeStyles((theme) => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(7),
-    },
+    width: 0,
   },
 }));
 
-type MainDrawerProps = {
+type ImageDetailsProps = {
+    asset: any,
     open: boolean,
+    onClose: () => void
 }
 
-export default function MainDrawer({open}: MainDrawerProps) {
+export default function ImageDetails({asset, open, onClose}: ImageDetailsProps) {
     const classes = useStyles();
 
     return <>
         <Drawer
             variant="permanent"
+            anchor="left"
             open={open}
             classes={{
-            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+                paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
             }}
         >
             <Toolbar/>
-            <List>{mainListItems}</List>
+            <div>
+                <IconButton onClick={onClose}>
+                    <ChevronLeftIcon />
+                </IconButton>
+            </div>
+            <Divider />
+
+            <h1>Image details</h1>
+            Name: {asset !== null ? asset.originalFilename: ""}
+
         </Drawer>
     </>
 }
-
-const mainListItems = (
-    <>
-        <ListItem button component={Link} to="/media">
-            <ListItemIcon>
-                <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Media" />
-        </ListItem>
-        <ListItem button component={Link} to="/upload">
-            <ListItemIcon>
-                <SaveAltIcon />
-            </ListItemIcon>
-            <ListItemText primary="Upload" />
-        </ListItem>
-    </>
-);

@@ -12,67 +12,45 @@ import Typography from '@material-ui/core/Typography';
 import { drawerWidth } from './MainDrawer'
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    flexGrow: 1,
-  },
+    mainAppBar: {
+        zIndex: theme.zIndex.drawer + 1,
+    },
+    menuButton: {
+        marginRight: 36,
+    },
+    title: {
+        flexGrow: 1,
+    },
 }));
 
 type MainAppBarProps = {
-    open: boolean,
-    handleDrawerOpen: () => void
+    toggleMainDrawer: () => void
 }
 
-export default function MainAppBar({open, handleDrawerOpen}: MainAppBarProps) {
+export default function MainAppBar({toggleMainDrawer}: MainAppBarProps) {
     const classes = useStyles();
 
     return <>
-          <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
-            <Toolbar className={classes.toolbar}>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-                Media Manager
-              </Typography>
-              <IconButton color="inherit">
-                <Badge badgeContent={4} color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
+        <AppBar className={classes.mainAppBar}>
+            <Toolbar>
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="open drawer"
+                    onClick={toggleMainDrawer}
+                    className={classes.menuButton}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+                    Media Manager
+                </Typography>
+                <IconButton color="inherit">
+                    <Badge badgeContent={4} color="secondary">
+                        <NotificationsIcon />
+                    </Badge>
+                </IconButton>
             </Toolbar>
-          </AppBar>
+        </AppBar>
     </>
 }

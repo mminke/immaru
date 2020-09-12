@@ -30,7 +30,11 @@ class AssetRepository {
     }
 }
 
-export default function ImageList() {
+type ImageListProps = {
+    onImageSelected: (asset: any ) => void
+}
+
+export default function ImageList({onImageSelected}: ImageListProps) {
   const classes = useStyles();
   const assetRepository = new AssetRepository();
 
@@ -47,12 +51,9 @@ export default function ImageList() {
 
   return (
       <GridList cellHeight={180} className={classes.gridList} cols={4}>
-        <GridListTile key="Subheader" cols={4} style={{ height: 'auto' }}>
-          <ListSubheader component="div">December</ListSubheader>
-        </GridListTile>
         {assets.map( (asset:any) => (
-          <GridListTile key={asset.id.value}>
-            <img src={'assets/' + asset.id.value} alt={asset.originaFileName} />
+          <GridListTile key={asset.id.value} onClick={() => onImageSelected(asset)}>
+            <img src={'assets/' + asset.id.value} alt={asset.originalFilename} />
             <GridListTileBar
               title={asset.originalFileName}
               subtitle={<span>file: {asset.originalFilename}</span>}
