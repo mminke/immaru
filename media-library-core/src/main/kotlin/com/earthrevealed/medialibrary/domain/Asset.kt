@@ -12,6 +12,7 @@ data class AssetId(
 
 data class Asset(
         val id: AssetId,
+        val collectionId: CollectionId,
         val originalFilename: String,
         val createdAt: OffsetDateTime
 ) {
@@ -51,11 +52,13 @@ fun asset(initialization: AssetBuilder.() -> Unit) =
 @MediaLibraryBuilder
 class AssetBuilder {
     var id: AssetId = AssetId()
+    lateinit var collectionId: CollectionId
     lateinit var originalFilename: String
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
 
     fun build() = Asset(
             id = id,
+            collectionId = collectionId,
             originalFilename = originalFilename,
             createdAt = creationDateTime
     )

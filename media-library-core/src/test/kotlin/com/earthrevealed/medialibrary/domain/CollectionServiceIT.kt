@@ -1,6 +1,6 @@
 package com.earthrevealed.medialibrary.domain
 
-import com.earthrevealed.medialibrary.AssetService
+import com.earthrevealed.medialibrary.CollectionService
 import com.earthrevealed.medialibrary.persistence.exposed.AssetTable
 import org.amshove.kluent.`should be equal to`
 import org.jetbrains.exposed.sql.deleteAll
@@ -16,8 +16,8 @@ import java.nio.file.Path
 import java.util.stream.Collectors
 
 @SpringBootTest
-class AssetServiceIT {
-    @Autowired lateinit var assetService: AssetService
+class CollectionServiceIT {
+    @Autowired lateinit var collectionService: CollectionService
     @Value("\${media-library.library.path}") lateinit var libraryPathValue: String
 
     private val importFromLocation = Path.of("./src/test/resources/images")
@@ -32,7 +32,8 @@ class AssetServiceIT {
 
     @Test
     fun testImport() {
-        assetService.importFrom(importFromLocation)
+        val collection = collection { }
+        collectionService.importFrom(importFromLocation) into collection
 
         assertThat {
             Files.walk(Path.of(libraryPathValue))
