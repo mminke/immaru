@@ -29,7 +29,9 @@ class AssetResource(
 ) {
 
     @GetMapping("/assets", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun assets(@PathVariable("collectionId") collectionId: CollectionId): List<Asset> {
+    fun assets(
+            @PathVariable("collectionId") collectionId: CollectionId
+    ): List<Asset> {
         if(collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
@@ -41,11 +43,11 @@ class AssetResource(
     fun asset(
             @PathVariable("collectionId") collectionId: CollectionId,
             @PathVariable("id") id: AssetId
-    ): Asset? {
+    ): Asset {
         if(collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
-        return assetRepository.get(collectionId, id)
+        return assetRepository.get(collectionId, id)?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
     }
 
     @GetMapping("/assets/{id}")
@@ -71,7 +73,7 @@ class AssetResource(
     fun createAsset(
             @PathVariable("collectionId") collectionId: CollectionId,
             @RequestParam("files") files: List<MultipartFile>
-    ): ResponseEntity<AssetCreationResult> {
+    ): ResponseEntity<CreationResult> {
         if(collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
@@ -88,8 +90,6 @@ class AssetResource(
         val locations = createdAssets
                 .map { "/collections/${collectionId.value}/assets/${it.id.value}" }
 
-        return ResponseEntity<AssetCreationResult>(AssetCreationResult(locations), HttpStatus.CREATED)
+        return ResponseEntity(CreationResult(locations), HttpStatus.CREATED)
     }
 }
-
-data class AssetCreationResult(val locations: List<String>)

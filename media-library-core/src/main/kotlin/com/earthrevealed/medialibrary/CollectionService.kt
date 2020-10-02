@@ -70,8 +70,7 @@ class Importer(val libraryPath: Path,
                val save: (Asset) -> Unit) {
 
     infix fun into(collection: Collection): Asset {
-        val asset = asset {
-            collectionId = collection.id
+        val asset = asset(collection.id) {
             originalFilename = filename
         }
         val destination = libraryPath
@@ -90,8 +89,7 @@ class PathImporter(val libraryPath: Path, val importLocation: Path, val save: (A
     infix fun into(collection: Collection) {
         Files.walk(importLocation)
                 .filter { isImage(it) || isVideo(it) }
-                .map { (it to asset {
-                    collectionId = collection.id
+                .map { (it to asset(collection.id) {
                     originalFilename = it.fileName.toString()
                 }) }
                 .forEach { (source, asset) ->

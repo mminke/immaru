@@ -11,21 +11,23 @@ data class TagId(
 
 data class Tag(
         val id: TagId,
+        val collectionId: CollectionId,
         val name: String,
         val createdAt: OffsetDateTime
 )
 
-fun tag(initialization: TagBuilder.() -> Unit) =
-        TagBuilder().apply(initialization).build()
+fun tag(collectionId: CollectionId, initialization: TagBuilder.() -> Unit) =
+        TagBuilder(collectionId).apply(initialization).build()
 
 @MediaLibraryBuilder
-class TagBuilder {
+class TagBuilder(val collectionId: CollectionId) {
     var id: TagId = TagId()
     lateinit var name: String
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
 
     fun build() = Tag(
             id = id,
+            collectionId = collectionId,
             name = name,
             createdAt = creationDateTime
     )

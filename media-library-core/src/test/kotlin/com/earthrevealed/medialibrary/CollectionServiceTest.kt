@@ -1,7 +1,7 @@
-package com.earthrevealed.medialibrary.domain
+package com.earthrevealed.medialibrary
 
-import com.earthrevealed.medialibrary.CollectionService
 import com.earthrevealed.medialibrary.common.ClockProvider
+import com.earthrevealed.medialibrary.domain.collection
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import com.earthrevealed.medialibrary.persistence.CollectionRepository
 import com.nhaarman.mockitokotlin2.times

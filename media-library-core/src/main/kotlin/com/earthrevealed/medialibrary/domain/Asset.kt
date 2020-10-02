@@ -46,13 +46,12 @@ data class Asset(
     }
 }
 
-fun asset(initialization: AssetBuilder.() -> Unit) =
-        AssetBuilder().apply(initialization).build()
+fun asset(collectionId: CollectionId, initialization: AssetBuilder.() -> Unit) =
+        AssetBuilder(collectionId).apply(initialization).build()
 
 @MediaLibraryBuilder
-class AssetBuilder {
+class AssetBuilder(val collectionId: CollectionId) {
     var id: AssetId = AssetId()
-    lateinit var collectionId: CollectionId
     lateinit var originalFilename: String
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
 

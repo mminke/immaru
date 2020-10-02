@@ -19,6 +19,7 @@ internal object AssetTable : UUIDTable("assets") {
 
 internal fun InsertStatement<Number>.from(asset: Asset) {
     this[AssetTable.id] = EntityID(asset.id.value, AssetTable)
+    this[AssetTable.collectionId] = asset.collectionId.value
     this[AssetTable.originalFilename] = asset.originalFilename
     this[AssetTable.createdAt] = asset.createdAt.toInstant()
 }
