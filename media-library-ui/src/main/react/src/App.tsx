@@ -11,6 +11,7 @@ import MainDrawer from './MainDrawer'
 import ImageList from './ImageList'
 import ImageDetails from './ImageDetails'
 import FileUpload from './FileUpload'
+import CollectionSelector from './CollectionSelector'
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 const useStyles = makeStyles((theme) => ({
@@ -42,33 +43,35 @@ export default function App() {
 
   const [selectedAsset, setSelectedAsset] = useState(null);
   const handleImageSelected = (asset: any) => {
-
-console.log(asset);
     setSelectedAsset(asset);
     openImageDetails();
   }
 
   return (
-    <div className={classes.root}>
-        <CssBaseline/>
-        <Router>
-            <MainAppBar toggleMainDrawer={toggleMainDrawer}/>
-            <MainDrawer open={mainDrawerOpen}/>
+    <CollectionSelector/>
+  )
 
-            <ImageDetails asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
-
-            <main className={classes.content}>
-                <Toolbar/>
-                <Switch>
-                    <Route path="/upload">
-                        <FileUpload/>
-                    </Route>
-                   <Route path={["/", "/media"]}>
-                          <ImageList onImageSelected={handleImageSelected}/>
-                    </Route>
-                </Switch>
-            </main>
-        </Router>
-    </div>
-  );
+//   return (
+//     <div className={classes.root}>
+//         <CssBaseline/>
+//         <Router>
+//             <MainAppBar toggleMainDrawer={toggleMainDrawer}/>
+//             <MainDrawer open={mainDrawerOpen}/>
+//
+//             <ImageDetails asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
+//
+//             <main className={classes.content}>
+//                 <Toolbar/>
+//                 <Switch>
+//                     <Route path="/upload">
+//                         <FileUpload/>
+//                     </Route>
+//                    <Route path={["/", "/media"]}>
+//                           <ImageList onImageSelected={handleImageSelected}/>
+//                     </Route>
+//                 </Switch>
+//             </main>
+//         </Router>
+//     </div>
+//   );
 }
