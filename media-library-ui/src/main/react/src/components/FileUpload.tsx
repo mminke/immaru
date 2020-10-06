@@ -5,6 +5,7 @@ import {DropzoneArea} from 'material-ui-dropzone';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import Fab from '@material-ui/core/Fab'
 import Zoom from '@material-ui/core/Zoom';
+import AssetRepository from '../repositories/AssetRepository'
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -14,38 +15,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-
-class AssetRepository {
-
-    static headers: HeadersInit = {'Accept': 'application/json'}
-
-    async save(files: File[]) {
-        const formData = new FormData()
-
-        files.forEach( (file: File) => {
-            console.log('File:', file)
-            formData.append(
-                "files",
-                file,
-                file.name
-            )
-        })
-
-        console.log('formData: ', formData)
-
-        let result = fetch('/assets', {
-                method: 'POST',
-                headers: AssetRepository.headers,
-                body: formData
-            })
-            .then(response => response.json())
-            .catch(error => {
-                console.error('Error uploading files:', error)
-            })
-
-        console.log('Successfully uploaded files: ', result)
-    }
-}
 
 export default function FileUpload() {
     const classes = useStyles();

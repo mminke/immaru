@@ -8,7 +8,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
-import BackgroundImage from './images/background.jpg';
+import BackgroundImage from '../images/background.jpg';
+import CollectionRepository, { Collection } from '../repositories/CollectionRepository'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -26,23 +27,6 @@ const useStyles = makeStyles((theme) => ({
         minWidth: '0px',
     }
 }));
-
-class CollectionRepository {
-
-    static headers: HeadersInit = {'Accept': 'application/json'}
-
-    async collections() {
-        let collections = fetch('/collections', {headers: CollectionRepository.headers})
-            .then(response => response.json())
-
-        return collections
-    }
-}
-
-type Collection = {
-    id: string,
-    name: string,
-}
 
 export default function CollectionSelector() {
     const classes = useStyles();

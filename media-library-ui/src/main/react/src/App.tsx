@@ -6,12 +6,12 @@ import Box from '@material-ui/core/Box';
 
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 
-import MainAppBar from './MainAppBar'
-import MainDrawer from './MainDrawer'
-import ImageList from './ImageList'
-import ImageDetails from './ImageDetails'
-import FileUpload from './FileUpload'
-import CollectionSelector from './CollectionSelector'
+import MainAppBar from './components/MainAppBar'
+import MainDrawer from './components/MainDrawer'
+import ImageList from './components/ImageList'
+import ImageDetails from './components/ImageDetails'
+import FileUpload from './components/FileUpload'
+import CollectionSelector from './components/CollectionSelector'
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 const useStyles = makeStyles((theme) => ({

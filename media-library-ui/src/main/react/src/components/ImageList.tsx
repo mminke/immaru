@@ -6,6 +6,7 @@ import GridListTileBar from '@material-ui/core/GridListTileBar';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
+import AssetRepository from '../repositories/AssetRepository'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -17,18 +18,6 @@ const useStyles = makeStyles((theme) => ({
     color: 'rgba(255, 255, 255, 0.54)',
   },
 }));
-
-class AssetRepository {
-
-    static headers: HeadersInit = {'Accept': 'application/json'}
-
-    async assets() {
-        let assets = fetch('/assets', {headers: AssetRepository.headers})
-            .then(response => response.json())
-
-        return assets
-    }
-}
 
 type ImageListProps = {
     onImageSelected: (asset: any ) => void
