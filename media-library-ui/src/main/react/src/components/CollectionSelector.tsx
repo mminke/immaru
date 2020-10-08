@@ -10,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
 import BackgroundImage from '../images/background.jpg';
 import CollectionRepository, { Collection } from '../repositories/CollectionRepository'
+import NewCollectionDialog from './NewCollectionDialog'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -36,12 +37,31 @@ export default function CollectionSelector() {
     const [collections, setCollections] = useState()
     const [activeCollection, setActiveCollection] = useState<Collection>()
 
+    const [reloadCollections, setReloadCollections] = useState()
     useEffect( () => {
         collectionRepository.collections()
             .then(items => {
                 setCollections(items)
             })
-    }, [])
+    }, [reloadCollections])
+
+    const handleCollectionSelected = (collection: Collection) => {
+        setActiveCollection(collection);
+        alert("Active collection: " + collection.name)
+    }
+
+    const addNewCollection = () => {
+        setOpenNewCollectionDialog(true)
+    }
+    const handleNewCollectionDialogClose = () => {
+        setOpenNewCollectionDialog(false)
+    }
+    const handleCollectionCreated = () => {
+        setReloadCollections({})
+        setOpenNewCollectionDialog(false)
+    }
+
+    const [openNewCollectionDialog, setOpenNewCollectionDialog] = React.useState(false);
 
     if(collections === undefined) return null;
 
@@ -56,18 +76,19 @@ export default function CollectionSelector() {
             <Paper className={classes.collectionContainer}>
                 <List component="nav" aria-label="Photo collections">
                     { collections.map( (collection: Collection) => (
-                          <ListItem button>
-                            <ListItemText primary={collection.name} secondary="Collection" key={collection.id}/>
+                          <ListItem button onClick={() => handleCollectionSelected(collection)} key={collection.id}>
+                            <ListItemText primary={collection.name} secondary="Collection"/>
                           </ListItem>
                     ))}
 
-                    <ListItem button className={classes.addItem}>
+                    <ListItem button className={classes.addItem} onClick={addNewCollection} key="new_collection">
                         <ListItemIcon className={classes.addItemIcon}>
                             <AddIcon />
                         </ListItemIcon>
                     </ListItem>
                 </List>
             </Paper>
+            <NewCollectionDialog open={openNewCollectionDialog} onCreate={handleCollectionCreated} onClose={handleNewCollectionDialogClose}/>
         </Box>
     </>
 }
