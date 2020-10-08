@@ -4,7 +4,13 @@ export default class CollectionRepository {
 
     async collections() {
         let collections = fetch('/collections', {headers: CollectionRepository.headers})
-            .then(response => response.json())
+            .then(response => {
+                if(!response.ok) {
+                    return []
+                } else {
+                    return response.json()
+                }
+            })
 
         return collections
     }

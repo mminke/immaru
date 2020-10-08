@@ -9,6 +9,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Typography from '@material-ui/core/Typography';
 
+import { Collection } from '../repositories/CollectionRepository'
 import { drawerWidth } from './MainDrawer'
 
 const useStyles = makeStyles((theme) => ({
@@ -24,10 +25,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type MainAppBarProps = {
+    activeCollection: Collection
     toggleMainDrawer: () => void
 }
 
-export default function MainAppBar({toggleMainDrawer}: MainAppBarProps) {
+export default function MainAppBar({activeCollection, toggleMainDrawer}: MainAppBarProps) {
     const classes = useStyles();
 
     return <>
@@ -43,7 +45,7 @@ export default function MainAppBar({toggleMainDrawer}: MainAppBarProps) {
                     <MenuIcon />
                 </IconButton>
                 <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-                    Media Manager
+                    {activeCollection.name}
                 </Typography>
                 <IconButton color="inherit">
                     <Badge badgeContent={4} color="secondary">

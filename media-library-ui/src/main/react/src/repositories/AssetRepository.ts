@@ -4,7 +4,16 @@ export default class AssetRepository {
 
     async assets() {
         let assets = fetch('/assets', {headers: AssetRepository.headers})
-            .then(response => response.json())
+            .then(response => {
+                if(!response.ok) {
+                    return []
+                } else {
+                    response.json()
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving assets:', error)
+            })
 
         return assets
     }
@@ -35,4 +44,10 @@ export default class AssetRepository {
 
         console.log('Successfully uploaded files: ', result)
     }
+}
+
+export type Asset = {
+    id: string,
+    collectionId: string
+    originalFilename: string,
 }

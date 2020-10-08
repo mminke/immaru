@@ -29,7 +29,11 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function CollectionSelector() {
+type CollectionSelectorProps = {
+    onSelected: (collection: Collection) => void
+}
+
+export default function CollectionSelector({onSelected}: CollectionSelectorProps) {
     const classes = useStyles();
     const theme = useTheme();
     const collectionRepository = new CollectionRepository();
@@ -47,7 +51,7 @@ export default function CollectionSelector() {
 
     const handleCollectionSelected = (collection: Collection) => {
         setActiveCollection(collection);
-        alert("Active collection: " + collection.name)
+        onSelected(collection)
     }
 
     const addNewCollection = () => {
