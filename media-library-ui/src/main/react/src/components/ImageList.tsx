@@ -7,7 +7,7 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import AssetRepository, {Asset} from '../repositories/AssetRepository'
-
+import {Collection} from '../repositories/CollectionRepository'
 
 const useStyles = makeStyles((theme) => ({
   gridList: {
@@ -20,19 +20,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type ImageListProps = {
+    activeCollection: Collection
     onImageSelected: (asset: Asset ) => void
 }
 
-export default function ImageList({onImageSelected}: ImageListProps) {
+export default function ImageList({activeCollection, onImageSelected}: ImageListProps) {
     const classes = useStyles();
     const assetRepository = new AssetRepository();
 
     const [assets, setAssets] = useState()
 
     useEffect( () => {
-        assetRepository.assets()
-            .then(assets => {
-                setAssets(assets)
+        assetRepository.assetsFor(activeCollection)
+            .then(assetsRetrieved => {
+                setAssets(assetsRetrieved)
             })
     }, [])
 
@@ -41,13 +42,13 @@ export default function ImageList({onImageSelected}: ImageListProps) {
     return (
         <GridList cellHeight={180} className={classes.gridList} cols={4}>
             {assets.map( (asset:any) => (
-            <GridListTile key={asset.id.value} onClick={() => onImageSelected(asset)}>
-                <img src={'assets/' + asset.id.value} alt={asset.originalFilename} />
+            <GridListTile key={asset.id} onClick={() => onImageSelected(asset)}>
+                <img src={'collections/' + activeCollection.id + '/assets/' + asset.id} alt={asset.originalFilename} />
                     <GridListTileBar
                         title={asset.originalFileName}
                         subtitle={<span>file: {asset.originalFilename}</span>}
                         actionIcon={
-                            <IconButton aria-label={`info about ${asset.id.value}`} className={classes.icon}>
+                            <IconButton aria-label={`info about ${asset.id}`} className={classes.icon}>
                                 <InfoIcon />
                             </IconButton>
                         }

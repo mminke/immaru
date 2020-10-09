@@ -1,14 +1,17 @@
+import {Collection} from '../repositories/CollectionRepository'
+
 export default class AssetRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json'}
 
-    async assets() {
-        let assets = fetch('/assets', {headers: AssetRepository.headers})
+    async assetsFor(collection: Collection) {
+        let assets = fetch('/collections/' + collection.id + '/assets', {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
-                    return []
+                    console.error("Error retrieving assets")
+                    return response.json()
                 } else {
-                    response.json()
+                    return response.json()
                 }
             })
             .catch(error => {
@@ -18,7 +21,7 @@ export default class AssetRepository {
         return assets
     }
 
-    async save(files: File[]) {
+    async saveIn(collection: Collection, files: File[]) {
         const formData = new FormData()
 
         files.forEach( (file: File) => {
@@ -32,7 +35,7 @@ export default class AssetRepository {
 
         console.log('formData: ', formData)
 
-        let result = fetch('/assets', {
+        let result = fetch('/collections/' + collection.id + '/assets', {
                 method: 'POST',
                 headers: AssetRepository.headers,
                 body: formData

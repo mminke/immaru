@@ -70,10 +70,10 @@ export default function App() {
                         <Toolbar/>
                         <Switch>
                             <Route path="/upload">
-                                <FileUpload/>
+                                <FileUpload activeCollection={activeCollection}/>
                             </Route>
                            <Route path={["/", "/media"]}>
-                                  <ImageList onImageSelected={handleImageSelected}/>
+                                  <ImageList activeCollection={activeCollection} onImageSelected={handleImageSelected}/>
                             </Route>
                         </Switch>
                     </main>

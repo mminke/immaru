@@ -6,6 +6,7 @@ import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import Fab from '@material-ui/core/Fab'
 import Zoom from '@material-ui/core/Zoom';
 import AssetRepository from '../repositories/AssetRepository'
+import {Collection} from '../repositories/CollectionRepository'
 
 const useStyles = makeStyles((theme) => ({
   fab: {
@@ -15,8 +16,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+type FileUploadProps = {
+    activeCollection: Collection
+}
 
-export default function FileUpload() {
+export default function FileUpload({activeCollection}: FileUploadProps) {
     const classes = useStyles();
     const theme = useTheme();
     const assetRepository = new AssetRepository();
@@ -30,7 +34,7 @@ export default function FileUpload() {
     }
 
     const handleUploadFiles = () =>  {
-        assetRepository.save(files)
+        assetRepository.saveIn(activeCollection, files)
         setFiles([])
         setReloadKey(reloadKey+1)
     }
