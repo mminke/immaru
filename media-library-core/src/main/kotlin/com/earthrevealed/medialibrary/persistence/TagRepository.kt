@@ -10,7 +10,6 @@ import com.earthrevealed.medialibrary.persistence.exposed.toTag
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 
@@ -22,7 +21,7 @@ class TagRepository {
     }
 
     fun all(collectionId: CollectionId) =
-        TagTable.selectAll()
+        TagTable.select { TagTable.collectionId eq collectionId.value }
                 .map { it.toTag() }
 
     fun get(collectionId: CollectionId, id: TagId) =

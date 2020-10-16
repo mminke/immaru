@@ -5,6 +5,7 @@ import com.earthrevealed.medialibrary.domain.AssetId
 import com.earthrevealed.medialibrary.domain.Collection
 import com.earthrevealed.medialibrary.domain.CollectionId
 import com.earthrevealed.medialibrary.domain.asset
+import com.earthrevealed.medialibrary.exceptions.AssetNotFoundException
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import com.earthrevealed.medialibrary.persistence.CollectionRepository
 import org.springframework.beans.factory.annotation.Value
@@ -49,10 +50,10 @@ class CollectionService(
     fun importFrom(importLocation: Path): PathImporter
         = PathImporter(libraryPath, importLocation) { assetRepository.save(it) }
 
-    fun assetPath(collectionId: CollectionId, id: AssetId) =
+    fun assetPath(collectionId: CollectionId, id: AssetId): Path =
         assetRepository.get(collectionId, id)?.let {
             libraryPath.resolve(it.internalFilelocation())
-        }
+        }?: throw AssetNotFoundException(collectionId, id)
 }
 
 private fun Path.extension(): String? {

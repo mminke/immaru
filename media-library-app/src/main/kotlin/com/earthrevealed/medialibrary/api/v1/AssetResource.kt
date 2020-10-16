@@ -38,7 +38,6 @@ class AssetResource(
         return assetRepository.all(collectionId)
     }
 
-
     @GetMapping("/assets/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun asset(
             @PathVariable("collectionId") collectionId: CollectionId,

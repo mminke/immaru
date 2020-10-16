@@ -10,7 +10,6 @@ private class FlywayConfiguration() {
     @Bean
     fun cleanMigrateStrategy(): FlywayMigrationStrategy? {
         return FlywayMigrationStrategy { flyway: Flyway ->
-            flyway.repair()
             flyway.migrate()
         }
     }

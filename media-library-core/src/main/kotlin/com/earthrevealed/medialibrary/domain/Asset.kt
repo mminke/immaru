@@ -14,12 +14,14 @@ data class Asset(
         val id: AssetId,
         val collectionId: CollectionId,
         val originalFilename: String,
-        val createdAt: OffsetDateTime
+        val createdAt: OffsetDateTime,
+        val tagIds: MutableSet<TagId>
 ) {
+
     fun internalFilename() =
             "${id.value.toString()}.${extension()}"
 
-    fun internalFilelocation() = destinationFolders()
+    fun internalFilelocation(): Path = destinationFolders()
             .resolve(internalFilename())
 
     /**
@@ -54,11 +56,13 @@ class AssetBuilder(val collectionId: CollectionId) {
     var id: AssetId = AssetId()
     lateinit var originalFilename: String
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
+    var tagIds = mutableSetOf<TagId>()
 
     fun build() = Asset(
             id = id,
             collectionId = collectionId,
             originalFilename = originalFilename,
-            createdAt = creationDateTime
+            createdAt = creationDateTime,
+            tagIds = tagIds
     )
 }
