@@ -64,7 +64,7 @@ export default function App() {
                 <Router>
                     <MainAppBar activeCollection={activeCollection} toggleMainDrawer={toggleMainDrawer}/>
                     <MainDrawer open={mainDrawerOpen}/>
-                    <ImageDetails asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
+                    <ImageDetails activeCollection={activeCollection} asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
 
                     <main className={classes.content}>
                         <Toolbar/>
