@@ -1,3 +1,4 @@
+# This docker-compose file is useful during development.
 version: '3.1'
 
 services:

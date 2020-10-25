@@ -1,0 +1,26 @@
+# This is an example docker-compose file which can be used to startup a media-library docker container
+# together with the necessary postgres db.
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5532:5432
+    environment:
+      POSTGRES_USER: medialibrary
+      POSTGRES_PASSWORD: medialibrary
+
+  media-library:
+    image: mminke/media-library:1.0-snapshot
+    restart: always
+    ports:
+      - 8180:8080
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8182:8080
