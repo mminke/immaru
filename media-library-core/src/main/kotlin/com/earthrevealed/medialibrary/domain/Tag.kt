@@ -7,7 +7,9 @@ import java.util.*
 
 data class TagId(
         val value: UUID = UUID.randomUUID()
-)
+) {
+    constructor(value: String): this(UUID.fromString(value))
+}
 
 data class Tag(
         val id: TagId,

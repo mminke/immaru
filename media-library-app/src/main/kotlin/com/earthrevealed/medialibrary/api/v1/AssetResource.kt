@@ -4,6 +4,7 @@ import com.earthrevealed.medialibrary.CollectionService
 import com.earthrevealed.medialibrary.domain.Asset
 import com.earthrevealed.medialibrary.domain.AssetId
 import com.earthrevealed.medialibrary.domain.CollectionId
+import com.earthrevealed.medialibrary.domain.TagId
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import com.earthrevealed.medialibrary.persistence.CollectionRepository
 import org.springframework.http.HttpHeaders
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -90,5 +93,21 @@ class AssetResource(
                 .map { "/collections/${collectionId.value}/assets/${it.id.value}" }
 
         return ResponseEntity(CreationResult(locations), HttpStatus.CREATED)
+    }
+
+    @PutMapping("/assets/{id}/tags", consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun updateAssetTags(
+            @PathVariable("collectionId") collectionId: CollectionId,
+            @PathVariable("id") assetId: AssetId,
+            @RequestBody assetTagIds: Set<TagId>
+    ) {
+        if(collectionRepository.notExists(collectionId)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+        }
+
+        val asset = assetRepository.get(collectionId, assetId)?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
+        val updatedAsset = asset.copy(tagIds = assetTagIds)
+
+        assetRepository.updateTagsFor(updatedAsset)
     }
 }

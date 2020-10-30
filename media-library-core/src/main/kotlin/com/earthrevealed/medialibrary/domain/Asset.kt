@@ -15,7 +15,7 @@ data class Asset(
         val collectionId: CollectionId,
         val originalFilename: String,
         val createdAt: OffsetDateTime,
-        val tagIds: MutableSet<TagId>
+        val tagIds: Set<TagId>
 ) {
 
     fun internalFilename() =
@@ -56,7 +56,7 @@ class AssetBuilder(val collectionId: CollectionId) {
     var id: AssetId = AssetId()
     lateinit var originalFilename: String
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
-    var tagIds = mutableSetOf<TagId>()
+    var tagIds = setOf<TagId>()
 
     fun build() = Asset(
             id = id,

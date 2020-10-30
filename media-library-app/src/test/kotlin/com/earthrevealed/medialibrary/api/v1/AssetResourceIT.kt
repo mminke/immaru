@@ -8,6 +8,7 @@ import com.earthrevealed.medialibrary.persistence.CollectionRepository
 import com.earthrevealed.medialibrary.persistence.TagRepository
 import com.earthrevealed.medialibrary.test.support.PersistenceMixin
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.amshove.kluent.`should contain same`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.put
 import java.util.*
 
 
@@ -71,5 +73,29 @@ internal class AssetResourceIT : PersistenceMixin {
                 json("[$expected]")
             }
         }
+    }
+
+    @Test
+    fun `given an assets when updating the tags then the changes are correctly persisted`() {
+        val collection = collection { }.also { save(it) }
+        val tag = tag(collection.id) { name = "tag 1" }.also { save(it) }
+        val tag2 = tag(collection.id) { name = "tag 2"}.also { save(it) }
+        val tag3 = tag(collection.id) { name = "tag 3"}.also { save(it) }
+        val asset = asset(collection.id) {
+            originalFilename = "test.jpg"
+            tagIds = setOf(tag.id)
+        }.also { save(it) }
+
+        mockMvc.put("/collections/{collectionId}/assets/{assetId}/tags", collection.id.value, asset.id.value) {
+            accept = MediaType.APPLICATION_JSON
+            contentType = MediaType.APPLICATION_JSON
+            content = "[\"${tag2.id.value.toString()}\", \"${tag3.id.value.toString()}\"]"
+        }.andExpect {
+            status { isOk }
+        }
+
+        val savedAsset = assetRepository.get(collection.id, asset.id)!!
+
+        savedAsset.tagIds `should contain same` setOf(tag2.id, tag3.id)
     }
 }
