@@ -25,6 +25,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
+import SelectTags from './SelectTags'
+
+import {Asset} from '../repositories/AssetRepository'
 import TagRepository, {Tag} from '../repositories/TagRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
@@ -65,21 +68,18 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
 
     const [tags, setTags] = useState<Tag[]>([])
 
-        useEffect( () => {
-            if(asset !== null) {
-                Promise.all(
-                    asset.tagIds.map( (tagId: string) => {
-                        var test = tagRepository.tagById(activeCollection.id, tagId)
-                        return test
-                    })
-                ).then( (tagsRetrieved: any) => {
-                    setTags(tagsRetrieved)
+    useEffect( () => {
+        if(asset !== null) {
+            Promise.all(
+                asset.tagIds.map( (tagId: string) => {
+                    var test = tagRepository.tagById(activeCollection.id, tagId)
+                    return test
                 })
-            }
-        }, [asset])
-
-    const handleDeleteTag = () => {
-    }
+            ).then( (tagsRetrieved: any) => {
+                setTags(tagsRetrieved)
+            })
+        }
+    }, [asset])
 
     return <>
         <Drawer
@@ -108,12 +108,8 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                             <TableCell>{asset !== null ? asset.originalFilename: ""}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Tags</TableCell>
-                            <TableCell>
-                                {tags.map( (tag:any) => (
-                                    <Chip size="small" key={tag.id} label={tag.name} onDelete={handleDeleteTag} color="primary" variant="outlined" />
-                                ))}
-                                <Chip size="small" label="Add tag" color="primary" variant="outlined"/>
+                            <TableCell colSpan={2}>
+                                <SelectTags activeCollection={activeCollection}/>
                             </TableCell>
                         </TableRow>
                     </TableBody>

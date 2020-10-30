@@ -29,19 +29,46 @@ export default class TagRepository {
     }
 
     async create(collectionId: string, tag: {"name": String}) {
-        let result = fetch('/collections/' + collectionId + '/tags/' , {
-                        method: 'POST',
-                        headers: TagRepository.headers,
-                        body: JSON.stringify(tag)
+        const result = fetch('/collections/' + collectionId + '/tags/' , {
+            method: 'POST',
+            headers: TagRepository.headers,
+            body: JSON.stringify(tag)
+        })
+        .then(response => {
+            if(!response.ok) {
+                return new Promise( (resolve) => { resolve([] as Tag[]) })
+            } else {
+                const promise = response.json()
+                    .then( (json) => {
+                        return Promise.all(
+                            json.locations.map( (location: string) => {
+                                return fetch(location, {
+                                    method: 'GET',
+                                    headers: TagRepository.headers,
+                                }).then(response => {
+                                    if(!response.ok) {
+                                        return null
+                                    } else {
+                                        return response.json()
+                                    }
+                                })
+                            })
+                        )
                     })
-                    .then(response => response.json())
-                    .catch(error => {
-                        console.error('Error creating new tag:', error)
-                    })
+
+                return promise
+            }
+        })
+        .catch(error => {
+            console.error('Error creating new tag:', error)
+            return new Promise( (resolve) => { resolve([] as Tag[]) })
+        })
+
+        return result
     }
 }
 
 export type Tag = {
     id: string,
-    name: string,
+    name: string
 }

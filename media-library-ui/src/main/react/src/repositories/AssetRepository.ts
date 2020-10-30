@@ -8,8 +8,8 @@ export default class AssetRepository {
         let assets = fetch('/collections/' + collection.id + '/assets', {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
-                    console.error("Error retrieving assets")
-                    return response.json()
+                    console.error("Error retrieving assets", response)
+                    return []
                 } else {
                     return response.json()
                 }

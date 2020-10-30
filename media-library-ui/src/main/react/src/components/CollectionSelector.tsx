@@ -41,7 +41,8 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
     const [collections, setCollections] = useState()
     const [activeCollection, setActiveCollection] = useState<Collection>()
 
-    const [reloadCollections, setReloadCollections] = useState()
+    const [reloadCollections, setReloadCollections] = useState(0)
+
     useEffect( () => {
         collectionRepository.collections()
             .then(items => {
@@ -61,7 +62,7 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
         setOpenNewCollectionDialog(false)
     }
     const handleCollectionCreated = () => {
-        setReloadCollections({})
+        setReloadCollections(reloadCollections + 1)
         setOpenNewCollectionDialog(false)
     }
 
