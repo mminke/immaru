@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean
 class TestApplication {
 
     @Bean
-    fun cleanMigrateStrategy(): FlywayMigrationStrategy? {
+    fun flywayMigrationStrategy(): FlywayMigrationStrategy {
         return FlywayMigrationStrategy { flyway: Flyway ->
             flyway.migrate()
         }
