@@ -25,16 +25,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type ImageListProps = {
-    activeCollection: Collection
+    selectedTags: Tag[],
+    activeCollection: Collection,
+    onChange: (tags: Tag[]) => void
 }
 
-export default function SelectTags({activeCollection}: ImageListProps) {
+export default function SelectTags({selectedTags, activeCollection, onChange}: ImageListProps) {
     const tagRepository = new TagRepository()
-
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+
+    const updateTags = (tags: Tag[]) => {
+        onChange(tags)
+    }
 
     const [openNewTagDialog, toggleOpenNewTagDialog] = useState(false)
     const [newTagDialogValue, setNewTagDialogValue] = useState<string>("")
@@ -45,7 +49,8 @@ export default function SelectTags({activeCollection}: ImageListProps) {
                 if(newTags !== null) {
                     const editableTags = [...selectedTags]
                     newTags.forEach( (newTag: Tag) => { editableTags.push(newTag) } )
-                    setSelectedTags(editableTags)
+
+                    updateTags(editableTags)
                 }
 
                 loadTags()
@@ -78,7 +83,6 @@ export default function SelectTags({activeCollection}: ImageListProps) {
                 return tag.name
             }}
             value={selectedTags}
-            defaultValue={[]}
             freeSolo
             renderTags={(value: any, getTagProps) =>
               value.map((tag: Tag, index: number) => (
@@ -107,7 +111,7 @@ export default function SelectTags({activeCollection}: ImageListProps) {
                     }
                 })
 
-                setSelectedTags(changedTags)
+                updateTags(changedTags)
             }}
           />
 

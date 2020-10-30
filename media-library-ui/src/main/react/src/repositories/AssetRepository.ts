@@ -3,6 +3,7 @@ import {Collection} from '../repositories/CollectionRepository'
 export default class AssetRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json'}
+    static headersForUpdate: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
 
     async assetsFor(collection: Collection) {
         let assets = fetch('/collections/' + collection.id + '/assets', {headers: AssetRepository.headers})
@@ -35,7 +36,7 @@ export default class AssetRepository {
 
         console.log('formData: ', formData)
 
-        let result = fetch('/collections/' + collection.id + '/assets', {
+        const result = fetch('/collections/' + collection.id + '/assets', {
                 method: 'POST',
                 headers: AssetRepository.headers,
                 body: formData
@@ -47,10 +48,25 @@ export default class AssetRepository {
 
         console.log('Successfully uploaded files: ', result)
     }
+
+    async updateTagsFor(asset: Asset) {
+        const data = JSON.stringify(asset.tagIds)
+
+        const result = fetch('/collections/' + asset.collectionId + '/assets/' + asset.id + "/tags", {
+            method: 'PUT',
+            headers: AssetRepository.headersForUpdate,
+            body: data
+        })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error updating tags for asset.', error)
+        })
+    }
 }
 
 export type Asset = {
     id: string,
-    collectionId: string
+    collectionId: string,
     originalFilename: string,
+    tagIds: string[]
 }

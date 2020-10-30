@@ -100,7 +100,7 @@ class AssetResource(
             @PathVariable("collectionId") collectionId: CollectionId,
             @PathVariable("id") assetId: AssetId,
             @RequestBody assetTagIds: Set<TagId>
-    ) {
+    ): ResponseEntity<String> {
         if(collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
@@ -109,5 +109,7 @@ class AssetResource(
         val updatedAsset = asset.copy(tagIds = assetTagIds)
 
         assetRepository.updateTagsFor(updatedAsset)
+
+        return ResponseEntity("{}", HttpStatus.ACCEPTED)
     }
 }
