@@ -44,7 +44,7 @@ export default function ImageList({activeCollection, onImageSelected}: ImageList
         <GridList cellHeight={180} className={classes.gridList} cols={4}>
             {assets.map( (asset:any) => (
             <GridListTile key={asset.id} onClick={() => onImageSelected(asset)}>
-                <img src={'collections/' + activeCollection.id + '/assets/' + asset.id} alt={asset.originalFilename} />
+                <img src={'collections/' + activeCollection.id + '/assets/' + asset.id + '/thumbnail'} alt={asset.originalFilename} />
                     <GridListTileBar
                         title={asset.originalFileName}
                         subtitle={<span>file: {asset.originalFilename}</span>}

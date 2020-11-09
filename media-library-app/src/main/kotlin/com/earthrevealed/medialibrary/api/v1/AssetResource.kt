@@ -5,6 +5,7 @@ import com.earthrevealed.medialibrary.domain.Asset
 import com.earthrevealed.medialibrary.domain.AssetId
 import com.earthrevealed.medialibrary.domain.CollectionId
 import com.earthrevealed.medialibrary.domain.TagId
+import com.earthrevealed.medialibrary.image.scaleImage
 import com.earthrevealed.medialibrary.persistence.AssetRepository
 import com.earthrevealed.medialibrary.persistence.CollectionRepository
 import org.springframework.http.HttpHeaders
@@ -69,6 +70,26 @@ class AssetResource(
         responseHeaders.contentType = MediaType.IMAGE_JPEG
 
         return ResponseEntity(fileContents, responseHeaders, HttpStatus.OK)
+    }
+
+    @GetMapping("/assets/{id}/thumbnail")
+    fun assetThumbnail(
+            @PathVariable("collectionId") collectionId: CollectionId,
+            @PathVariable("id") id: AssetId
+    ): ResponseEntity<ByteArray> {
+        if(collectionRepository.notExists(collectionId)) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+        }
+
+        val fileLocation = collectionService.assetPath(collectionId, id)
+
+        val scaledImageOutputStream = scaleImage(Files.newInputStream(fileLocation))
+
+        val responseHeaders = HttpHeaders()
+        responseHeaders.contentType = MediaType.IMAGE_PNG
+
+        val imageByteArray = scaledImageOutputStream.toByteArray()
+        return ResponseEntity(imageByteArray, responseHeaders, HttpStatus.OK)
     }
 
     @PostMapping("/assets")

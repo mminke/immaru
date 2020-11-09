@@ -18,6 +18,10 @@
         </dependency>
         <dependency>
             <groupId>com.earthrevealed.media-library</groupId>
+            <artifactId>media-library-scaler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.earthrevealed.media-library</groupId>
             <artifactId>media-library-ui</artifactId>
         </dependency>
         <dependency>

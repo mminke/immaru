@@ -7,6 +7,7 @@
         <module>media-library-core</module>
         <module>media-library-app</module>
         <module>media-library-ui</module>
+        <module>media-library-scaler</module>
     </modules>
 
     <parent>
@@ -41,6 +42,11 @@
             <dependency>
                 <groupId>com.earthrevealed.media-library</groupId>
                 <artifactId>media-library-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.earthrevealed.media-library</groupId>
+                <artifactId>media-library-scaler</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
