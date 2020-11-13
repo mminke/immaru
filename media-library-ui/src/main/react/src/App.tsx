@@ -34,7 +34,8 @@ const useStyles = makeStyles((theme) => ({
   },
   contentPadded: {
     padding: theme.spacing(2),
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    flexGrow: 1,
   }
 }));
 
