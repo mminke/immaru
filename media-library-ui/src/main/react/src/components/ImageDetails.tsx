@@ -97,7 +97,6 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                 paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
             }}
         >
-            <Toolbar/>
             <div>
                 <IconButton onClick={onClose}>
                     <ChevronLeftIcon />

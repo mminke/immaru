@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     title: {
         flexGrow: 1,
     },
+    toolbar: theme.mixins.toolbar,
 }));
 
 type MainAppBarProps = {
@@ -54,5 +55,6 @@ export default function MainAppBar({activeCollection, toggleMainDrawer}: MainApp
                 </IconButton>
             </Toolbar>
         </AppBar>
+        <div className={classes.toolbar}/>
     </>
 }

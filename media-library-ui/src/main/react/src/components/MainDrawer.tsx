@@ -56,7 +56,6 @@ export default function MainDrawer({open}: MainDrawerProps) {
             paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
             }}
         >
-            <Toolbar/>
             <List>{mainListItems}</List>
         </Drawer>
     </>

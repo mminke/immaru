@@ -18,13 +18,24 @@ import { Collection } from './repositories/CollectionRepository'
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    flexDirection: 'column',
     height: '100vh'
   },
-  content: {
+  workspace: {
+    display: 'flex',
+    flexDirection: 'row',
     flexGrow: 1,
-    overflow: 'auto',
-    padding: theme.spacing(2),
+    overflow: 'hidden',
   },
+  content: {
+    display: 'flex',
+    flexGrow: 1,
+    overflowY: 'auto',
+  },
+  contentPadded: {
+    padding: theme.spacing(2),
+    overflowX: 'hidden'
+  }
 }));
 
 export default function App() {
@@ -63,20 +74,23 @@ export default function App() {
                 <CssBaseline/>
                 <Router>
                     <MainAppBar activeCollection={activeCollection} toggleMainDrawer={toggleMainDrawer}/>
-                    <MainDrawer open={mainDrawerOpen}/>
-                    <ImageDetails activeCollection={activeCollection} asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
+                    <div className={classes.workspace}>
+                        <MainDrawer open={mainDrawerOpen}/>
+                        <ImageDetails activeCollection={activeCollection} asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
 
-                    <main className={classes.content}>
-                        <Toolbar/>
-                        <Switch>
-                            <Route path="/upload">
-                                <FileUpload activeCollection={activeCollection}/>
-                            </Route>
-                           <Route path={["/", "/media"]}>
-                                  <ImageList activeCollection={activeCollection} onImageSelected={handleImageSelected}/>
-                            </Route>
-                        </Switch>
-                    </main>
+                        <main className={classes.content}>
+                            <div className={classes.contentPadded}>
+                                <Switch>
+                                    <Route path="/upload">
+                                        <FileUpload activeCollection={activeCollection}/>
+                                    </Route>
+                                   <Route path={["/", "/media"]}>
+                                        <ImageList activeCollection={activeCollection} onImageSelected={handleImageSelected}/>
+                                    </Route>
+                                </Switch>
+                            </div>
+                        </main>
+                    </div>
                 </Router>
             </div>
         );
