@@ -13,7 +13,8 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     bottom: theme.spacing(2),
     right: theme.spacing(2),
-  }
+    zIndex: 999,
+  },
 }));
 
 type FileUploadProps = {
@@ -47,6 +48,7 @@ export default function FileUpload({activeCollection}: FileUploadProps) {
             <SaveAltIcon />
         </Fab>
       </Zoom>
+
       <DropzoneArea
         key={reloadKey}
         filesLimit={999}
