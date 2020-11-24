@@ -32,19 +32,19 @@ const useStyles = makeStyles((theme) => ({
             backgroundPosition: 'right',
         },
         '& a': {
-            display: 'none',
-            fontSize: '100%',
+            display: 'block',
             color: '#ffffff !important',
             textAlign: 'center',
             margin: 'auto',
             position: 'absolute',
-            top: 0,
-            left: 0,
             bottom: 0,
-            right: 0,
-            height: '50px',
+            left: 0,
+            width: '100%',
             cursor: 'pointer',
             textDecoration: 'none',
+            paddingTop: '3px',
+            paddingBottom: '3px',
+            backgroundColor: 'rgba(255,255,255,0.2)',
         },
     },
 
@@ -53,31 +53,13 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         paddingBottom: '100%',
         backgroundSize: 'cover',
-        backgroundPosition: 'center center',
+        backgroundPosition: 'left center',
         backgroundRepeat: 'no-repeat',
         transition: 'all .5s linear',
 
         cursor: 'pointer',
         boxShadow: '0 10px 6px -6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset',
     },
-
-//
-//     .imageGridItem a {
-//         display: none;
-//         font-size: 100%;
-//         color: #ffffff !important;
-//         text-align: center;
-//         margin: auto;
-//         position: absolute;
-//         top: 0;
-//         left: 0;
-//         bottom: 0;
-//         right: 0;
-//         height: 50px;
-//         cursor: pointer;
-//         text-decoration: none;
-//     }
-
 }));
 
 type ImageListProps = {
@@ -123,7 +105,7 @@ type ImageGridProps = {
 function ImageGrid({assets, columns, onClickHandler}: ImageGridProps) {
     const classes = useStyles();
 
-    const percentWidth = 100 / columns - 1;
+    const percentWidth = 100 / columns;
     const style = { width: `${percentWidth}%` }
 
     return assets.map((asset: Asset, index: number) => (
