@@ -9,7 +9,7 @@ import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
-import ImageList from './components/ImageListV2'
+import ImageList from './components/InfiniteScroller'
 import ImageDetails from './components/ImageDetails'
 import FileUpload from './components/FileUpload'
 import CollectionSelector from './components/CollectionSelector'
