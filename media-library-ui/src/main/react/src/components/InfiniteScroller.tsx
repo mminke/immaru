@@ -55,7 +55,8 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         paddingBottom: '100%',
         backgroundSize: 'cover',
-        backgroundPosition: 'left center',
+//         backgroundSize: 'contain',
+        backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
         transition: 'all .5s linear',
 
@@ -111,8 +112,9 @@ export default function ImageList({columns = 5, activeCollection, onImageSelecte
                         columnWidth={imageSize}
                         rowHeight={imageSize}
                         itemData={assets}
+                        overscanRowCount={2}
                     >
-                        {Cell}
+                        {Cell(onImageSelected)}
                     </Grid>
                 )}
 
@@ -123,7 +125,7 @@ export default function ImageList({columns = 5, activeCollection, onImageSelecte
 }
 
 
-const Cell = ( {columnIndex, data, rowIndex, style}: any) => {
+const Cell = (onImageSelected?: (asset: Asset ) => void) => ( {columnIndex, data, rowIndex, style}: any) => {
 
     const index = (rowIndex*5) + columnIndex
     if(index >= data.length) {
@@ -136,7 +138,7 @@ const Cell = ( {columnIndex, data, rowIndex, style}: any) => {
     const asset = data[index]
     return (
        <div style={style}>
-           <ImageElement asset={asset} index={index}/>
+           <ImageElement asset={asset} index={index} onClickHandler={onImageSelected}/>
        </div>
     )
 };
