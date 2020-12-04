@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -35,11 +34,9 @@ type CollectionSelectorProps = {
 
 export default function CollectionSelector({onSelected}: CollectionSelectorProps) {
     const classes = useStyles();
-    const theme = useTheme();
     const collectionRepository = new CollectionRepository();
 
     const [collections, setCollections] = useState()
-    const [activeCollection, setActiveCollection] = useState<Collection>()
 
     const [reloadCollections, setReloadCollections] = useState(0)
 
@@ -48,10 +45,9 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
             .then(items => {
                 setCollections(items)
             })
-    }, [reloadCollections])
+    }, [collectionRepository, reloadCollections])
 
     const handleCollectionSelected = (collection: Collection) => {
-        setActiveCollection(collection);
         onSelected(collection)
     }
 

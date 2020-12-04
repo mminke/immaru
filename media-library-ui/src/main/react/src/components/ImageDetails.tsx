@@ -3,25 +3,14 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Toolbar from '@material-ui/core/Toolbar';
-import Chip from '@material-ui/core/Chip';
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import {Link} from "react-router-dom"
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
@@ -56,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
 
 type ImageDetailsProps = {
     activeCollection: Collection,
-    asset: any,
+    asset: Asset|null,
     open: boolean,
     onClose: () => void
 }
@@ -80,12 +69,14 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                 setTags(tagsRetrieved)
             })
         }
-    }, [asset])
+    }, [activeCollection, asset, tagRepository])
 
     const handleChangedTags = (tags: Tag[]) => {
-        asset.tagIds = tags.map( (tag) => tag.id )
-        assetRepository.updateTagsFor(asset)
-        setTags(tags)
+        if(asset !== null) {
+            asset.tagIds = tags.map( (tag) => tag.id )
+            assetRepository.updateTagsFor(asset)
+            setTags(tags)
+        }
     }
 
     return <>

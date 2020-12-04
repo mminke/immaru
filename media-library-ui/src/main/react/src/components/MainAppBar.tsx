@@ -1,5 +1,4 @@
 import React from 'react';
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -10,7 +9,6 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import Typography from '@material-ui/core/Typography';
 
 import { Collection } from '../repositories/CollectionRepository'
-import { drawerWidth } from './MainDrawer'
 
 const useStyles = makeStyles((theme) => ({
     mainAppBar: {

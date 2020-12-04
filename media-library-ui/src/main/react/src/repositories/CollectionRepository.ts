@@ -16,15 +16,15 @@ export default class CollectionRepository {
     }
 
     async create(collection: {"name": String}) {
-        let result = fetch('/collections', {
-                        method: 'POST',
-                        headers: CollectionRepository.headers,
-                        body: JSON.stringify(collection)
-                    })
-                    .then(response => response.json())
-                    .catch(error => {
-                        console.error('Error creating new collection:', error)
-                    })
+        fetch('/collections', {
+            method: 'POST',
+            headers: CollectionRepository.headers,
+            body: JSON.stringify(collection)
+        })
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error creating new collection:', error)
+        })
     }
 }
 

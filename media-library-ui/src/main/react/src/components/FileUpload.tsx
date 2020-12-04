@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {DropzoneArea} from 'material-ui-dropzone';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import Fab from '@material-ui/core/Fab'
@@ -23,7 +22,6 @@ type FileUploadProps = {
 
 export default function FileUpload({activeCollection}: FileUploadProps) {
     const classes = useStyles();
-    const theme = useTheme();
     const assetRepository = new AssetRepository();
 
     const [files, setFiles] = useState<File[]>([])

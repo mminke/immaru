@@ -52,7 +52,7 @@ export default class AssetRepository {
     async updateTagsFor(asset: Asset) {
         const data = JSON.stringify(asset.tagIds)
 
-        const result = fetch('/collections/' + asset.collectionId + '/assets/' + asset.id + "/tags", {
+        fetch('/collections/' + asset.collectionId + '/assets/' + asset.id + "/tags", {
             method: 'PUT',
             headers: AssetRepository.headersForUpdate,
             body: data

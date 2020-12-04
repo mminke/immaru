@@ -64,7 +64,7 @@ export default function SelectTags({selectedTags, activeCollection, onChange}: I
 
     useEffect( () => {
         loadTags()
-    }, [])
+    })
 
     const loadTags = () => {
         return tagRepository.tags(activeCollection.id)
@@ -97,7 +97,7 @@ export default function SelectTags({selectedTags, activeCollection, onChange}: I
                 elements.forEach( (element) => {
                     if( typeof element === 'string' ) {
                         var tagForPlainValue = tags.filter( (tag) => {
-                            return tag.name.toLowerCase().trim() == element.toLowerCase().trim()
+                            return tag.name.toLowerCase().trim() === element.toLowerCase().trim()
                         } )[0]
 
                         if( tagForPlainValue === undefined ) {

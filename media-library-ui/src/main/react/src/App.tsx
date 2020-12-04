@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Toolbar from '@material-ui/core/Toolbar';
-import Box from '@material-ui/core/Box';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
 
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
-import ImageList from './components/InfiniteScroller'
+import ImageList from './components/ImageList'
 import ImageDetails from './components/ImageDetails'
 import FileUpload from './components/FileUpload'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
+import {Asset} from './repositories/AssetRepository'
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,16 +52,20 @@ export default function App() {
 
     const [imageDetailsOpen, setImageDetailsOpen] = useState(false);
     const openImageDetails = () => {
-        setImageDetailsOpen(true);
+        setImageDetailsOpen(true)
     }
     const closeImageDetails = () => {
-        setImageDetailsOpen(false);
+        setImageDetailsOpen(false)
     }
 
-    const [selectedAsset, setSelectedAsset] = useState(null);
-    const handleImageSelected = (asset: any) => {
-        setSelectedAsset(asset);
-        openImageDetails();
+    const [selectedAsset, setSelectedAsset] = useState<Asset|null>(null);
+    const handleImageSelected = (asset: Asset) => {
+        setSelectedAsset(asset)
+        openImageDetails()
+    }
+    const handleImageDoubleClick = (asset: Asset) => {
+        setSelectedAsset(asset)
+        console.log("Open image: " + asset)
     }
 
     if(activeCollection === undefined) {
@@ -86,7 +89,11 @@ export default function App() {
                                         <FileUpload activeCollection={activeCollection}/>
                                     </Route>
                                    <Route path={["/", "/media"]}>
-                                        <ImageList activeCollection={activeCollection} onImageSelected={handleImageSelected}/>
+                                        <ImageList
+                                            activeCollection={activeCollection}
+                                            onImageSelected={handleImageSelected}
+                                            onImageDoubleClick={handleImageDoubleClick}
+                                        />
                                     </Route>
                                 </Switch>
                             </div>
