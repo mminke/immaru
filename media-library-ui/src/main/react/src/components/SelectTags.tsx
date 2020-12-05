@@ -64,7 +64,7 @@ export default function SelectTags({selectedTags, activeCollection, onChange}: I
 
     useEffect( () => {
         loadTags()
-    })
+    }, [])
 
     const loadTags = () => {
         return tagRepository.tags(activeCollection.id)
