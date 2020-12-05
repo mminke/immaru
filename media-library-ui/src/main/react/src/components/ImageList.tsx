@@ -90,7 +90,7 @@ export default function ImageList({
             .then(assetsRetrieved => {
                 setAssets(assetsRetrieved)
             })
-    }, [activeCollection, assetRepository])
+    }, [activeCollection])
 
     if(assets === undefined) {
         return (

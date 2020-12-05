@@ -69,7 +69,7 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                 setTags(tagsRetrieved)
             })
         }
-    }, [activeCollection, asset, tagRepository])
+    }, [activeCollection, asset])
 
     const handleChangedTags = (tags: Tag[]) => {
         if(asset !== null) {

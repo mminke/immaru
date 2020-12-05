@@ -45,7 +45,7 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
             .then(items => {
                 setCollections(items)
             })
-    }, [collectionRepository, reloadCollections])
+    }, [reloadCollections])
 
     const handleCollectionSelected = (collection: Collection) => {
         onSelected(collection)
