@@ -37,7 +37,7 @@ internal class AssetResourceIT : PersistenceMixin {
         mockMvc.get("/collections/{collectionId}/assets/", collectionId) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
-            status { isNotFound }
+            status { isNotFound() }
         }
     }
 
@@ -48,7 +48,7 @@ internal class AssetResourceIT : PersistenceMixin {
         mockMvc.get("/collections/{collectionId}/assets/", collection.id.value) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content {
                 json("[]")
             }
@@ -68,7 +68,7 @@ internal class AssetResourceIT : PersistenceMixin {
         mockMvc.get("/collections/{collectionId}/assets/", collection.id.value) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content {
                 json("[$expected]")
             }
@@ -91,7 +91,7 @@ internal class AssetResourceIT : PersistenceMixin {
             contentType = MediaType.APPLICATION_JSON
             content = "[\"${tag2.id.value.toString()}\", \"${tag3.id.value.toString()}\"]"
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
 
         val savedAsset = assetRepository.get(collection.id, asset.id)!!

@@ -30,7 +30,7 @@ internal class TagResourceIT: PersistenceMixin {
         mockMvc.get("/collections/{collectionId}/tags/", collectionId) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
-            status { isNotFound }
+            status { isNotFound() }
         }
     }
 
@@ -41,7 +41,7 @@ internal class TagResourceIT: PersistenceMixin {
         mockMvc.get("/collections/{collectionId}/tags/", collection.id.value) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content {
                 json("[]")
             }
