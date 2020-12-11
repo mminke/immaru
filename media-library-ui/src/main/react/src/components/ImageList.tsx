@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useHistory } from "react-router-dom"
 
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -70,18 +71,17 @@ const useStyles = makeStyles((theme) => ({
 type ImageListProps = {
     activeCollection: Collection,
     columns?: number,
-    onImageSelected?: (asset: Asset ) => void,
-    onImageDoubleClick?: (asset: Asset) => void
+    onImageSelected?: (asset: Asset ) => void
 }
 
 export default function ImageList({
                                     columns = 5,
                                     activeCollection,
-                                    onImageSelected: handleImageSelected,
-                                    onImageDoubleClick: handleImageDoubleClick
+                                    onImageSelected: handleImageSelected
                                   }: ImageListProps) {
-    const classes = useStyles();
-    const assetRepository = new AssetRepository();
+    const classes = useStyles()
+    const history = useHistory()
+    const assetRepository = new AssetRepository()
 
     const [assets, setAssets] = useState()
 
@@ -91,6 +91,10 @@ export default function ImageList({
                 setAssets(assetsRetrieved)
             })
     }, [activeCollection])
+
+    const handleImageDoubleClick = (asset: Asset) => {
+        history.push("/asset/" + asset.id)
+    }
 
     if(assets === undefined) {
         return (

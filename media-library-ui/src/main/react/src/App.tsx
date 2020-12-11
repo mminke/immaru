@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
@@ -8,10 +8,11 @@ import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
 import ImageList from './components/ImageList'
 import ImageDetails from './components/ImageDetails'
+import ImageViewer from './components/ImageViewer'
 import FileUpload from './components/FileUpload'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
-import {Asset} from './repositories/AssetRepository'
+import AssetRepository, {Asset} from './repositories/AssetRepository'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -39,7 +40,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function App() {
-    const classes = useStyles();
+    const classes = useStyles()
+
     const [mainDrawerOpen, setMainDrawerOpen] = useState(false);
     const toggleMainDrawer = () => {
         setMainDrawerOpen(!mainDrawerOpen);
@@ -63,10 +65,6 @@ export default function App() {
         setSelectedAsset(asset)
         openImageDetails()
     }
-    const handleImageDoubleClick = (asset: Asset) => {
-        setSelectedAsset(asset)
-        console.log("Open image: " + asset)
-    }
 
     if(activeCollection === undefined) {
         return (
@@ -88,11 +86,11 @@ export default function App() {
                                     <Route path="/upload">
                                         <FileUpload activeCollection={activeCollection}/>
                                     </Route>
-                                   <Route path={["/", "/media"]}>
+                                    <Route path="/asset/:id" children={<ImageViewer collection={activeCollection}/>}/>
+                                    <Route path={["/", "/media"]}>
                                         <ImageList
                                             activeCollection={activeCollection}
                                             onImageSelected={handleImageSelected}
-                                            onImageDoubleClick={handleImageDoubleClick}
                                         />
                                     </Route>
                                 </Switch>

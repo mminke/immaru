@@ -22,6 +22,23 @@ export default class AssetRepository {
         return assets
     }
 
+    async assetWithId(collection: Collection, id: string) {
+        let asset = fetch('/collections/' + collection.id + '/assets/' + id, {headers: AssetRepository.headers})
+            .then(response => {
+                if(!response.ok) {
+                    console.error("Error retrieving assets", response)
+                    return null
+                } else {
+                    return response.json()
+                }
+            })
+            .catch(error => {
+                console.error('Error retrieving assets:', error)
+            })
+
+        return asset
+    }
+
     async saveIn(collection: Collection, files: File[]) {
         const formData = new FormData()
 
