@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -16,6 +17,15 @@ const useStyles = makeStyles((theme) => ({
         backgroundImage: 'url(' + BackgroundImage + ')',
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
+    },
+    titleContainer: {
+        paddingBottom: "20px",
+    },
+    title: {
+        fontFamily: "Pacifico",
+        color: "white",
+        opacity: "0.5",
+        textShadow: "4px 4px black",
     },
     collectionContainer: {
         minWidth: '200px',
@@ -74,21 +84,29 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
             minHeight="100vh"
             className={classes.root}
         >
-            <Paper className={classes.collectionContainer}>
-                <List component="nav" aria-label="Photo collections">
-                    { collections.map( (collection: Collection) => (
-                          <ListItem button onClick={() => handleCollectionSelected(collection)} key={collection.id}>
-                            <ListItemText primary={collection.name} secondary="Collection"/>
-                          </ListItem>
-                    ))}
 
-                    <ListItem button className={classes.addItem} onClick={addNewCollection} key="new_collection">
-                        <ListItemIcon className={classes.addItemIcon}>
-                            <AddIcon />
-                        </ListItemIcon>
-                    </ListItem>
-                </List>
-            </Paper>
+            <div>
+                <div className={classes.titleContainer}>
+                    <Typography variant="h1" className={classes.title} >Immaru</Typography>
+                </div>
+
+                <Paper className={classes.collectionContainer}>
+                    <List component="nav" aria-label="Photo collections">
+                        { collections.map( (collection: Collection) => (
+                              <ListItem button onClick={() => handleCollectionSelected(collection)} key={collection.id}>
+                                <ListItemText primary={collection.name} secondary="Collection"/>
+                              </ListItem>
+                        ))}
+
+                        <ListItem button className={classes.addItem} onClick={addNewCollection} key="new_collection">
+                            <ListItemIcon className={classes.addItemIcon}>
+                                <AddIcon />
+                            </ListItemIcon>
+                        </ListItem>
+                    </List>
+                </Paper>
+            </div>
+
             <NewCollectionDialog open={openNewCollectionDialog} onCreate={handleCollectionCreated} onClose={handleNewCollectionDialogClose}/>
         </Box>
     </>
