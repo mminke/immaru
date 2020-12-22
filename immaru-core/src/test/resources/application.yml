@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/immaru
+    username: immaru
+    password: immaru
+
+immaru:
+  library:
+    path: /data/immaru/files

@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>media-library-core</module>
-        <module>media-library-app</module>
-        <module>media-library-ui</module>
-        <module>media-library-scaler</module>
+        <module>immaru-core</module>
+        <module>immaru-app</module>
+        <module>immaru-ui</module>
+        <module>immaru-scaler</module>
     </modules>
 
     <parent>
@@ -16,12 +16,12 @@
         <version>2.4.0</version>
     </parent>
 
-    <groupId>com.earthrevealed.media-library</groupId>
-    <artifactId>media-library</artifactId>
+    <groupId>com.earthrevealed.immaru</groupId>
+    <artifactId>immaru</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Earthrevealed Media Library</name>
+    <name>Immaru - Media Library</name>
 
     <properties>
         <maven.compiler.release>11</maven.compiler.release>
@@ -41,18 +41,18 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.earthrevealed.media-library</groupId>
-                <artifactId>media-library-core</artifactId>
+                <groupId>com.earthrevealed.immaru</groupId>
+                <artifactId>immaru-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.earthrevealed.media-library</groupId>
-                <artifactId>media-library-scaler</artifactId>
+                <groupId>com.earthrevealed.immaru</groupId>
+                <artifactId>immaru-scaler</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.earthrevealed.media-library</groupId>
-                <artifactId>media-library-ui</artifactId>
+                <groupId>com.earthrevealed.immaru</groupId>
+                <artifactId>immaru-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

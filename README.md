@@ -14,11 +14,11 @@ Step 1: Start the postgres db using docker compose development configuration.
 
     docker-compose up
     
-Step 2: Run the media-library in your IDE.
+Step 2: Run Immaru in your IDE.
 
 Step 3: Start the react frontend.
 
-    cd media-library-ui/src/main/react
+    cd immaru-ui/src/main/react
     yarn start    
 
 ### Building the docker container
@@ -31,8 +31,8 @@ To build the docker container, use the build.sh script in the
     
 ## Running
 
-To run the media-library the easiest way is the build the docker image
-and then use docker-compose to startup the media-library with the necessary
+To run Immaru the easiest way is the build the docker image
+and then use docker-compose to startup Immaru with the necessary
 postgres server.
 
     cd docker

@@ -1,3 +1,3 @@
 #/bin/sh
 
-docker-compose -p media-library up -d
+docker-compose -p immaru up -d

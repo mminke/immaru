@@ -1,9 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/medialibrary
-    username: medialibrary
-    password: medialibrary
-
-media-library:
-  library:
-    path: /tmp/images

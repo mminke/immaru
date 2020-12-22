@@ -1,3 +1,3 @@
 #/bin.sh
 
-docker-compose -p media-library stop
+docker-compose -p immaru stop

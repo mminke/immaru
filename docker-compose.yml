@@ -9,8 +9,8 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: medialibrary
-      POSTGRES_PASSWORD: medialibrary
+      POSTGRES_USER: immaru
+      POSTGRES_PASSWORD: immaru
 
   adminer:
     image: adminer

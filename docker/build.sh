@@ -1,3 +1,3 @@
 #/bin/sh
 
-docker build -t mminke/media-library:1.0-snapshot -f Dockerfile ../
+docker build -t mminke/immaru:1.0-snapshot -f Dockerfile ../

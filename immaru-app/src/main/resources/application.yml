@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/immaru
+    url: jdbc:postgresql://localhost:5432/immaru
     username: immaru
     password: immaru
   servlet.multipart:
@@ -9,7 +9,7 @@ spring:
 
 immaru:
   library:
-    path: /data
+    path: /data/immaru/files
 
 springdoc:
   api-docs:
