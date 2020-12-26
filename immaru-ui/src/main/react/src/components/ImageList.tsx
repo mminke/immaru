@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, MouseEvent  } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { useHistory } from "react-router-dom"
@@ -100,15 +100,19 @@ export default function ImageList({
         return selectedAssets.includes(asset)
     }
 
-    const handleImageClick = (asset: Asset) => {
+    const handleImageClick = (event: MouseEvent, asset: Asset) => {
+        console.log("aMouseEvent: ", event)
+        console.log("Shift: ", event.shiftKey)
+        console.log("Ctrl: ", event.ctrlKey)
+
         setSelectedAssets([asset])
         if(handleImageSelected != undefined) {
             handleImageSelected(asset)
         }
-    }
 
-    const handleImageDoubleClick = (asset: Asset) => {
-        history.push("/asset/" + asset.id)
+        if(event.ctrlKey) {
+            history.push("/asset/" + asset.id)
+        }
     }
 
     if(assets === undefined) {
@@ -139,7 +143,7 @@ export default function ImageList({
                         itemData={assets}
                         overscanRowCount={2}
                     >
-                        {Cell(handleImageClick, handleImageDoubleClick, isSelected)}
+                        {Cell(handleImageClick, isSelected)}
                     </Grid>
                 )}
         }
@@ -149,8 +153,7 @@ export default function ImageList({
 
 
 const Cell = (
-        handleClick?: (asset: Asset ) => void,
-        handleDoubleClick?: (asset: Asset) => void,
+        handleClick?: (event: MouseEvent, asset: Asset ) => void,
         isSelected?: (asset: Asset) => boolean
     ) => ( {columnIndex, data, rowIndex, style}: any) => {
         const index = (rowIndex*5) + columnIndex
@@ -168,7 +171,6 @@ const Cell = (
                     asset={asset}
                     index={index}
                     onClick={handleClick}
-                    onDoubleClick={handleDoubleClick}
                     isSelected={isSelected}
                 />
             </div>
@@ -178,37 +180,23 @@ const Cell = (
 type ImageElementProps = {
     asset: Asset,
     index: number,
-    onClick?: (asset: Asset ) => void
-    onDoubleClick?: (asset: Asset ) => void
+    onClick?: (event: MouseEvent, asset: Asset ) => void
     isSelected?: (asset: Asset ) => boolean
 }
 
-function ImageElement({asset, index, onClick: handleClick, onDoubleClick: handleDoubleClick, isSelected: isAssetSelected}: ImageElementProps) {
+function ImageElement({asset, index, onClick: handleClick, isSelected: isAssetSelected}: ImageElementProps) {
     const classes = useStyles();
     const url = `collections/${asset.collectionId}/assets/${asset.id}/thumbnail`
     const style = {backgroundImage: `url(${url})`}
-    const doubleClickDelay = 250
-    let timer: any;
-    let preventSingleClick = false
 
     let isSelected = false
     if(isAssetSelected !== undefined) {
         isSelected = isAssetSelected(asset)
     }
 
-    const handleOnClick = (asset: Asset) => {
-        timer = setTimeout(function() {
-            if (!preventSingleClick) {
-                handleClick && handleClick(asset)
-            }
-            preventSingleClick = false;
-        }, doubleClickDelay);
-    }
-
-    const handleOnDoubleClick = (asset: Asset) => {
-        clearTimeout(timer);
-        preventSingleClick = true;
-        handleDoubleClick && handleDoubleClick(asset)
+    const handleOnClick = (event: MouseEvent, asset: Asset) => {
+        event.persist()
+        handleClick && handleClick(event, asset)
     }
 
     return (
@@ -219,8 +207,7 @@ function ImageElement({asset, index, onClick: handleClick, onDoubleClick: handle
             key={asset.id}>
 
             <div className={classes.imageWrapper}
-                onClick={() => handleOnClick(asset)}
-                onDoubleClick={() => handleOnDoubleClick(asset)}
+                onClick={(event: MouseEvent) => handleOnClick(event, asset)}
                 style={style}>
 
                 <a href="#">{asset.originalFilename}</a>
