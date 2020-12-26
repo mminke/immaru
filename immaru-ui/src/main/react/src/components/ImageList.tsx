@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 import { useHistory } from "react-router-dom"
 
 import { FixedSizeGrid as Grid } from 'react-window';
@@ -50,7 +51,9 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: 'rgba(255,255,255,0.2)',
         },
     },
-
+    imageSelected: {
+        backgroundColor: 'lightgrey',
+    },
     imageWrapper: {
         position: 'relative',
         width: '100%',
@@ -84,6 +87,7 @@ export default function ImageList({
     const assetRepository = new AssetRepository()
 
     const [assets, setAssets] = useState()
+    const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
     useEffect( () => {
         assetRepository.assetsFor(activeCollection)
@@ -91,6 +95,17 @@ export default function ImageList({
                 setAssets(assetsRetrieved)
             })
     }, [activeCollection])
+
+    const isSelected = (asset: Asset): boolean => {
+        return selectedAssets.includes(asset)
+    }
+
+    const handleImageClick = (asset: Asset) => {
+        setSelectedAssets([asset])
+        if(handleImageSelected != undefined) {
+            handleImageSelected(asset)
+        }
+    }
 
     const handleImageDoubleClick = (asset: Asset) => {
         history.push("/asset/" + asset.id)
@@ -124,7 +139,7 @@ export default function ImageList({
                         itemData={assets}
                         overscanRowCount={2}
                     >
-                        {Cell(handleImageSelected, handleImageDoubleClick)}
+                        {Cell(handleImageClick, handleImageDoubleClick, isSelected)}
                     </Grid>
                 )}
         }
@@ -134,8 +149,9 @@ export default function ImageList({
 
 
 const Cell = (
-        onImageSelected?: (asset: Asset ) => void,
-        onDoubleClick?: (asset: Asset) => void
+        handleClick?: (asset: Asset ) => void,
+        handleDoubleClick?: (asset: Asset) => void,
+        isSelected?: (asset: Asset) => boolean
     ) => ( {columnIndex, data, rowIndex, style}: any) => {
         const index = (rowIndex*5) + columnIndex
         if(index >= data.length) {
@@ -151,8 +167,9 @@ const Cell = (
                 <ImageElement
                     asset={asset}
                     index={index}
-                    onClick={onImageSelected}
-                    onDoubleClick={onDoubleClick}
+                    onClick={handleClick}
+                    onDoubleClick={handleDoubleClick}
+                    isSelected={isSelected}
                 />
             </div>
         )
@@ -163,15 +180,21 @@ type ImageElementProps = {
     index: number,
     onClick?: (asset: Asset ) => void
     onDoubleClick?: (asset: Asset ) => void
+    isSelected?: (asset: Asset ) => boolean
 }
 
-function ImageElement({asset, index, onClick: handleClick, onDoubleClick: handleDoubleClick}: ImageElementProps) {
+function ImageElement({asset, index, onClick: handleClick, onDoubleClick: handleDoubleClick, isSelected: isAssetSelected}: ImageElementProps) {
     const classes = useStyles();
     const url = `collections/${asset.collectionId}/assets/${asset.id}/thumbnail`
     const style = {backgroundImage: `url(${url})`}
     const doubleClickDelay = 250
     let timer: any;
     let preventSingleClick = false
+
+    let isSelected = false
+    if(isAssetSelected !== undefined) {
+        isSelected = isAssetSelected(asset)
+    }
 
     const handleOnClick = (asset: Asset) => {
         timer = setTimeout(function() {
@@ -190,7 +213,9 @@ function ImageElement({asset, index, onClick: handleClick, onDoubleClick: handle
 
     return (
 
-        <div className={classes.imageGridItem}
+        <div className={clsx(classes.imageGridItem, {
+                            [classes.imageSelected]: isSelected,
+                        })}
             key={asset.id}>
 
             <div className={classes.imageWrapper}

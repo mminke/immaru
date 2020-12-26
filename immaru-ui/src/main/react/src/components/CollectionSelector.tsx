@@ -68,7 +68,8 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
         setOpenNewCollectionDialog(false)
     }
     const handleCollectionCreated = () => {
-        setReloadCollections(reloadCollections + 1)
+        let counter = reloadCollections + 1
+        setReloadCollections(counter)
         setOpenNewCollectionDialog(false)
     }
 
