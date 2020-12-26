@@ -16,6 +16,8 @@ services:
   immaru:
     image: mminke/immaru:1.0-snapshot
     restart: always
+    volumes:
+      - /data/immaru:/data
     ports:
       - 8180:8080
 

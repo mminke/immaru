@@ -11,9 +11,3 @@ services:
     environment:
       POSTGRES_USER: immaru
       POSTGRES_PASSWORD: immaru
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8082:8080
