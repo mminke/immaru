@@ -28,7 +28,6 @@ export default function FileUpload({activeCollection}: FileUploadProps) {
     const [reloadKey, setReloadKey] = useState(0)
 
     const handleChange = (files: File[]) => {
-        console.log('Files:', files)
         setFiles(files)
     }
 

@@ -101,18 +101,43 @@ export default function ImageList({
     }
 
     const handleImageClick = (event: MouseEvent, asset: Asset) => {
-        console.log("aMouseEvent: ", event)
-        console.log("Shift: ", event.shiftKey)
-        console.log("Ctrl: ", event.ctrlKey)
+        if(!event.ctrlKey && !event.shiftKey) {
+            setSelectedAssets([asset])
+        }
 
-        setSelectedAssets([asset])
-        if(handleImageSelected != undefined) {
+        if(event.ctrlKey && !event.shiftKey) {
+            if(selectedAssets.includes(asset)) {
+                const newSelectedAssets = selectedAssets.filter(item => item !== asset)
+                setSelectedAssets(newSelectedAssets)
+            } else {
+                const newSelectedAssets = selectedAssets.concat(asset)
+                setSelectedAssets(newSelectedAssets)
+            }
+        }
+        if(event.shiftKey && !event.ctrlKey) {
+            if(selectedAssets.length > 0) {
+                const firstSelectedAssetIndex = assets.indexOf(selectedAssets[0])
+                const currentAssetIindex = assets.indexOf(asset)
+                const startIndex = Math.min(firstSelectedAssetIndex, currentAssetIindex)
+                const endIndex = Math.max(firstSelectedAssetIndex, currentAssetIindex)
+
+                let newSelectedAssets = [] as Asset[]
+                for(let i=startIndex; i <= endIndex; i++) {
+                    newSelectedAssets.push(assets[i])
+                }
+                setSelectedAssets(newSelectedAssets)
+            } else {
+                setSelectedAssets([asset])
+            }
+        }
+
+        if(handleImageSelected !== undefined) {
             handleImageSelected(asset)
         }
 
-        if(event.ctrlKey) {
-            history.push("/asset/" + asset.id)
-        }
+//         if(event.ctrlKey) {
+//             history.push("/asset/" + asset.id)
+//         }
     }
 
     if(assets === undefined) {

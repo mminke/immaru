@@ -9,7 +9,7 @@ spring:
 
 immaru:
   library:
-    path: /tmp/immaru/files
+    path: /data/immaru-dev/files
 
 springdoc:
   api-docs:
