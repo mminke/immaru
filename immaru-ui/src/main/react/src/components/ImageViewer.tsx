@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useParams } from "react-router-dom"
+import { useParams, useHistory } from "react-router-dom"
+import {useHotkeys} from "react-hotkeys-hook"
+
 import { Collection } from '../repositories/CollectionRepository'
 import AssetRepository, {Asset} from '../repositories/AssetRepository'
 
@@ -10,6 +12,8 @@ type ImageViewerProps = {
 
 export default function ImageViewer({collection}: ImageViewerProps) {
     const {id} = useParams()
+    const history = useHistory()
+
     const assetRepository = new AssetRepository();
 
     const [asset, setAsset] = useState<Asset>()
@@ -33,6 +37,11 @@ export default function ImageViewer({collection}: ImageViewerProps) {
             })
     }, [collection])
 
+    const closeImageViewer = () => {
+        history.push("/media")
+    }
+
+    useHotkeys('v', (event:any) => closeImageViewer());
 
     return (
         <div style={style}/>

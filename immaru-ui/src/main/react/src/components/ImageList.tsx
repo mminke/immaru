@@ -2,6 +2,7 @@ import React, { useState, useEffect, MouseEvent  } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { useHistory } from "react-router-dom"
+import {useHotkeys} from "react-hotkeys-hook"
 
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -134,11 +135,15 @@ export default function ImageList({
         if(handleImageSelected !== undefined) {
             handleImageSelected(asset)
         }
-
-//         if(event.ctrlKey) {
-//             history.push("/asset/" + asset.id)
-//         }
     }
+
+    const viewSelectedImage = () => {
+        if(selectedAssets.length > 0) {
+            history.push("/asset/" + selectedAssets[0].id)
+        }
+    }
+
+    useHotkeys('v', (event:any) => viewSelectedImage(), {}, [selectedAssets]);
 
     if(assets === undefined) {
         return (

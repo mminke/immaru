@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
+import {useHotkeys} from "react-hotkeys-hook"
 
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
@@ -53,18 +54,22 @@ export default function App() {
     }
 
     const [imageDetailsOpen, setImageDetailsOpen] = useState(false);
-    const openImageDetails = () => {
-        setImageDetailsOpen(true)
-    }
+
     const closeImageDetails = () => {
         setImageDetailsOpen(false)
+    }
+
+    const toggleImageDetails = () => {
+        console.log("toggle image details: ", imageDetailsOpen)
+        setImageDetailsOpen(!imageDetailsOpen)
     }
 
     const [selectedAsset, setSelectedAsset] = useState<Asset|null>(null);
     const handleImageSelected = (asset: Asset) => {
         setSelectedAsset(asset)
-        openImageDetails()
     }
+
+    useHotkeys('i', (event:any) => toggleImageDetails(), {}, [imageDetailsOpen]);
 
     if(activeCollection === undefined) {
         return (
