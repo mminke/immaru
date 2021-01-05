@@ -1,8 +1,8 @@
-# Earthrevealed Media Library
+# Immaru Media Library
 
 ## Development
 
-For development of the media library the following tools are required:
+For development of Immaru the following tools are required:
 
 * docker
 * docker-compose
@@ -38,7 +38,7 @@ postgres server.
     cd docker
     docker-compose up    
         
-## Media Library Usage
+## Immaru Usage
 
 ### Uploading files
  
