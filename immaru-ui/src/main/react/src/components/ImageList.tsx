@@ -77,7 +77,7 @@ type ImageListProps = {
 }
 
 export default function ImageList({
-                                    columns = 5,
+                                    columns = 7,
                                     activeCollection,
                                     onImageSelected: handleImageSelected
                                   }: ImageListProps) {
@@ -156,9 +156,9 @@ export default function ImageList({
     <AutoSizer>
         {({ height, width }) => {
 
-            const columnCount = 5
+            const columnCount = columns
             const rowCount = Math.ceil(assets.length / columnCount)
-            const imageSize = width/columnCount - 5
+            const imageSize = width/columnCount - columnCount
 
             return (
                     <Grid
@@ -171,7 +171,7 @@ export default function ImageList({
                         itemData={assets}
                         overscanRowCount={2}
                     >
-                        {Cell(handleImageClick, isSelected)}
+                        {Cell(isSelected, columnCount, handleImageClick)}
                     </Grid>
                 )}
         }
@@ -179,12 +179,12 @@ export default function ImageList({
       )
 }
 
-
 const Cell = (
+        isSelected: (asset: Asset) => boolean,
+        columnCount: number,
         handleClick?: (event: MouseEvent, asset: Asset ) => void,
-        isSelected?: (asset: Asset) => boolean
     ) => ( {columnIndex, data, rowIndex, style}: any) => {
-        const index = (rowIndex*5) + columnIndex
+        const index = (rowIndex*columnCount) + columnIndex
         if(index >= data.length) {
             return (
                <div style={style}>
