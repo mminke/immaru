@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     imageSelected: {
-        backgroundColor: 'lightgrey',
+        backgroundColor: theme.palette.primary.light,
     },
     imageWrapper: {
         position: 'relative',
@@ -68,8 +68,6 @@ const useStyles = makeStyles((theme) => ({
         cursor: 'pointer',
         boxShadow: '0 10px 6px -6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset',
     },
-
-
 }));
 
 type ImageListProps = {
