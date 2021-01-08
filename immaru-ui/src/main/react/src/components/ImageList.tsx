@@ -8,6 +8,8 @@ import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import SelectTagsDialog from './SelectTagsDialog'
+import {Tag} from '../repositories/TagRepository'
 import AssetRepository, {Asset} from '../repositories/AssetRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
@@ -88,6 +90,9 @@ export default function ImageList({
     const [assets, setAssets] = useState()
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
+    const [selectTagsDialogIsOpen, setSelectTagsDialogIsOpen] = useState(false)
+    const [blockHotkeys, setBlockHotkeys] = useState(false)
+
     useEffect( () => {
         assetRepository.assetsFor(activeCollection)
             .then(assetsRetrieved => {
@@ -135,13 +140,41 @@ export default function ImageList({
         }
     }
 
-    const viewSelectedImage = () => {
-        if(selectedAssets.length > 0) {
-            history.push("/asset/" + selectedAssets[0].id)
+    const handleHotkey_v = () => {
+        if(!blockHotkeys) {
+            if(selectedAssets.length > 0) {
+                history.push("/asset/" + selectedAssets[0].id)
+            }
         }
     }
 
-    useHotkeys('v', (event:any) => viewSelectedImage(), {}, [selectedAssets]);
+    const handleHotkey_t = () => {
+        if(!blockHotkeys) {
+            if(selectedAssets.length > 0) {
+                setBlockHotkeys(true)
+                setSelectTagsDialogIsOpen(true)
+            }
+        }
+    }
+
+    const handleSelectTagsDialogClose = () => {
+        setSelectTagsDialogIsOpen(false)
+        setBlockHotkeys(false)
+    }
+
+    const handleTagsSelected = (selectedTags: Array<Tag>) => {
+        for(var asset of selectedAssets) {
+            selectedTags.forEach( (tag) => {
+                asset.tagIds.push(tag.id)
+            })
+            assetRepository.updateTagsFor(asset)
+        }
+        setSelectTagsDialogIsOpen(false)
+        setBlockHotkeys(false)
+    }
+
+    useHotkeys('v', (event:any) => handleHotkey_v(), {}, [selectedAssets]);
+    useHotkeys('t', (event:any) => handleHotkey_t(), {}, [selectedAssets]);
 
     if(assets === undefined) {
         return (
@@ -153,30 +186,33 @@ export default function ImageList({
 
 
     return (
-    <AutoSizer>
-        {({ height, width }) => {
+        <div style={{flexGrow: 1}}>
+            <AutoSizer>
+                {({ height, width }) => {
 
-            const columnCount = columns
-            const rowCount = Math.ceil(assets.length / columnCount)
-            const imageSize = width/columnCount - columnCount
+                    const columnCount = columns
+                    const rowCount = Math.ceil(assets.length / columnCount)
+                    const imageSize = width/columnCount - columnCount
 
-            return (
-                    <Grid
-                        height={height}
-                        width={width}
-                        columnCount={columnCount}
-                        rowCount={rowCount}
-                        columnWidth={imageSize}
-                        rowHeight={imageSize}
-                        itemData={assets}
-                        overscanRowCount={2}
-                    >
-                        {Cell(isSelected, columnCount, handleImageClick)}
-                    </Grid>
-                )}
-        }
-    </AutoSizer>
-      )
+                    return (
+                            <Grid
+                                height={height}
+                                width={width}
+                                columnCount={columnCount}
+                                rowCount={rowCount}
+                                columnWidth={imageSize}
+                                rowHeight={imageSize}
+                                itemData={assets}
+                                overscanRowCount={2}
+                            >
+                                {Cell(isSelected, columnCount, handleImageClick)}
+                            </Grid>
+                        )}
+                }
+            </AutoSizer>
+            <SelectTagsDialog activeCollection={activeCollection} open={selectTagsDialogIsOpen} onClose={handleSelectTagsDialogClose} onSelect={handleTagsSelected}/>
+        </div>
+    )
 }
 
 const Cell = (

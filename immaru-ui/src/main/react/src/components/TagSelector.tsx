@@ -24,13 +24,13 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-type ImageListProps = {
+type TagSelectorProps = {
     selectedTags: Tag[],
     activeCollection: Collection,
     onChange: (tags: Tag[]) => void
 }
 
-export default function SelectTags({selectedTags, activeCollection, onChange}: ImageListProps) {
+export default function TagSelector({selectedTags, activeCollection, onChange}: TagSelectorProps) {
     const tagRepository = new TagRepository()
     const classes = useStyles();
 

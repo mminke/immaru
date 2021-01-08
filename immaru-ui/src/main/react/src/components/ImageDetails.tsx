@@ -14,7 +14,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
-import SelectTags from './SelectTags'
+import TagSelector from './TagSelector'
 
 import AssetRepository, {Asset} from '../repositories/AssetRepository'
 import TagRepository, {Tag} from '../repositories/TagRepository'
@@ -106,7 +106,7 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                         </TableRow>
                         <TableRow>
                             <TableCell colSpan={2}>
-                                <SelectTags selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
+                                <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
                             </TableCell>
                         </TableRow>
                     </TableBody>
