@@ -10,7 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import SelectTagsDialog from './SelectTagsDialog'
 import {Tag} from '../repositories/TagRepository'
-import AssetRepository, {Asset} from '../repositories/AssetRepository'
+import {assetRepository, Asset} from '../repositories/AssetRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
 const useStyles = makeStyles((theme) => ({
@@ -85,7 +85,6 @@ export default function ImageList({
                                   }: ImageListProps) {
     const classes = useStyles()
     const history = useHistory()
-    const assetRepository = new AssetRepository()
 
     const [assets, setAssets] = useState()
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])

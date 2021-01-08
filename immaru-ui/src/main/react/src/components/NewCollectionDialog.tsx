@@ -6,7 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import CollectionRepository from '../repositories/CollectionRepository';
+import {collectionRepository} from '../repositories/CollectionRepository';
 
 type NewCollectionDialogProps = {
     open: boolean,
@@ -15,8 +15,6 @@ type NewCollectionDialogProps = {
 }
 
 export default function NewCollectionDialog({open, onClose, onCreate}: NewCollectionDialogProps) {
-
-    const collectionRepository = new CollectionRepository()
 
     const [name, setName] = useState()
 

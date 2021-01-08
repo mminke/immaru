@@ -1,5 +1,12 @@
 import {Collection} from '../repositories/CollectionRepository'
 
+export type Asset = {
+    id: string,
+    collectionId: string,
+    originalFilename: string,
+    tagIds: string[]
+}
+
 export default class AssetRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json'}
@@ -81,9 +88,4 @@ export default class AssetRepository {
     }
 }
 
-export type Asset = {
-    id: string,
-    collectionId: string,
-    originalFilename: string,
-    tagIds: string[]
-}
+export const assetRepository = new AssetRepository()

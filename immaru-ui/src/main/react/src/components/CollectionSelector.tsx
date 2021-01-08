@@ -9,7 +9,7 @@ import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import AddIcon from '@material-ui/icons/Add';
 import BackgroundImage from '../images/background.jpg';
-import CollectionRepository, { Collection } from '../repositories/CollectionRepository'
+import { collectionRepository, Collection } from '../repositories/CollectionRepository'
 import NewCollectionDialog from './NewCollectionDialog'
 
 const useStyles = makeStyles((theme) => ({
@@ -44,7 +44,6 @@ type CollectionSelectorProps = {
 
 export default function CollectionSelector({onSelected}: CollectionSelectorProps) {
     const classes = useStyles();
-    const collectionRepository = new CollectionRepository();
 
     const [collections, setCollections] = useState()
 

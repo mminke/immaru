@@ -1,3 +1,8 @@
+export type Tag = {
+    id: string,
+    name: string
+}
+
 export default class TagRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
@@ -68,7 +73,4 @@ export default class TagRepository {
     }
 }
 
-export type Tag = {
-    id: string,
-    name: string
-}
+export const tagRepository = new TagRepository()

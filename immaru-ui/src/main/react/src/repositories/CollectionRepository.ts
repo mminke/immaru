@@ -1,3 +1,8 @@
+export type Collection = {
+    id: string,
+    name: string,
+}
+
 export default class CollectionRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
@@ -28,7 +33,4 @@ export default class CollectionRepository {
     }
 }
 
-export type Collection = {
-    id: string,
-    name: string,
-}
+export const collectionRepository = new CollectionRepository()

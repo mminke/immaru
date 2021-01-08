@@ -16,8 +16,8 @@ import Paper from '@material-ui/core/Paper';
 
 import TagSelector from './TagSelector'
 
-import AssetRepository, {Asset} from '../repositories/AssetRepository'
-import TagRepository, {Tag} from '../repositories/TagRepository'
+import {assetRepository, Asset} from '../repositories/AssetRepository'
+import {tagRepository, Tag} from '../repositories/TagRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
 export const drawerWidth = 350;
@@ -52,9 +52,6 @@ type ImageDetailsProps = {
 
 export default function ImageDetails({activeCollection, asset, open, onClose}: ImageDetailsProps) {
     const classes = useStyles();
-
-    const tagRepository = new TagRepository()
-    const assetRepository = new AssetRepository()
 
     const [tags, setTags] = useState<Tag[]>([])
 

@@ -4,7 +4,7 @@ import {DropzoneArea} from 'material-ui-dropzone';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import Fab from '@material-ui/core/Fab'
 import Zoom from '@material-ui/core/Zoom';
-import AssetRepository from '../repositories/AssetRepository'
+import {assetRepository} from '../repositories/AssetRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
 const useStyles = makeStyles((theme) => ({
@@ -22,7 +22,6 @@ type FileUploadProps = {
 
 export default function FileUpload({activeCollection}: FileUploadProps) {
     const classes = useStyles();
-    const assetRepository = new AssetRepository();
 
     const [files, setFiles] = useState<File[]>([])
     const [reloadKey, setReloadKey] = useState(0)

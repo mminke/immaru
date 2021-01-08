@@ -4,7 +4,7 @@ import { useParams, useHistory } from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
 import { Collection } from '../repositories/CollectionRepository'
-import AssetRepository, {Asset} from '../repositories/AssetRepository'
+import {assetRepository, Asset} from '../repositories/AssetRepository'
 
 type ImageViewerProps = {
     collection: Collection
@@ -13,8 +13,6 @@ type ImageViewerProps = {
 export default function ImageViewer({collection}: ImageViewerProps) {
     const {id} = useParams()
     const history = useHistory()
-
-    const assetRepository = new AssetRepository();
 
     const [asset, setAsset] = useState<Asset>()
     let url = ''

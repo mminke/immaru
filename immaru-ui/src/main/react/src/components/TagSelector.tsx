@@ -12,7 +12,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 
 import {Collection} from '../repositories/CollectionRepository'
-import TagRepository, {Tag} from '../repositories/TagRepository'
+import {tagRepository, Tag} from '../repositories/TagRepository'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,7 +31,6 @@ type TagSelectorProps = {
 }
 
 export default function TagSelector({selectedTags, activeCollection, onChange}: TagSelectorProps) {
-    const tagRepository = new TagRepository()
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])
