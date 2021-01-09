@@ -74,6 +74,8 @@ export default class AssetRepository {
     }
 
     async updateTagsFor(asset: Asset) {
+        this.deduplicateTagIds(asset)
+
         const data = JSON.stringify(asset.tagIds)
 
         fetch('/collections/' + asset.collectionId + '/assets/' + asset.id + "/tags", {
@@ -85,6 +87,10 @@ export default class AssetRepository {
         .catch(error => {
             console.error('Error updating tags for asset.', error)
         })
+    }
+
+    deduplicateTagIds(asset: Asset) {
+        asset.tagIds = Array.from(new Set(asset.tagIds))
     }
 }
 
