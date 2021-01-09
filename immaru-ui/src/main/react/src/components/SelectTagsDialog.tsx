@@ -8,6 +8,8 @@ import Button from '@material-ui/core/Button';
 
 import TagSelector from './TagSelector'
 
+import {enableHotkeys, disableHotkeys} from '../HotkeyState'
+
 import {Collection} from '../repositories/CollectionRepository'
 import {Tag} from '../repositories/TagRepository'
 
@@ -25,6 +27,12 @@ export default function SelectTagsDialog(
 
     const handleChangedTags = (tags: Tag[]) => {
         setTags(tags)
+    }
+
+    if(open) {
+        disableHotkeys()
+    } else {
+        enableHotkeys()
     }
 
     const _handleSelect = () => {

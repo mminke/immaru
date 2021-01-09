@@ -15,6 +15,7 @@ import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
 import AssetRepository, {Asset} from './repositories/AssetRepository'
 
+import {hotkeysEnabledFilter} from './HotkeyState'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,7 +73,6 @@ export default function App() {
     }
 
     const toggleImageDetails = () => {
-        console.log("toggle image details: ", imageDetailsOpen)
         setImageDetailsOpen(!imageDetailsOpen)
     }
 
@@ -81,7 +81,7 @@ export default function App() {
         setSelectedAsset(asset)
     }
 
-    useHotkeys('i', (event:any) => toggleImageDetails(), {}, [imageDetailsOpen]);
+    useHotkeys('i', hotkeysEnabledFilter(toggleImageDetails), [imageDetailsOpen]);
 
     if(activeCollection === undefined) {
         return (

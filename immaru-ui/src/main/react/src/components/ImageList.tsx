@@ -13,6 +13,8 @@ import {Tag} from '../repositories/TagRepository'
 import {assetRepository, Asset} from '../repositories/AssetRepository'
 import {Collection} from '../repositories/CollectionRepository'
 
+import {hotkeysEnabledFilter} from '../HotkeyState'
+
 const useStyles = makeStyles((theme) => ({
     loader: {
         display: 'flex',
@@ -90,7 +92,6 @@ export default function ImageList({
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
     const [selectTagsDialogIsOpen, setSelectTagsDialogIsOpen] = useState(false)
-    const [blockHotkeys, setBlockHotkeys] = useState(false)
 
     useEffect( () => {
         assetRepository.assetsFor(activeCollection)
@@ -140,25 +141,19 @@ export default function ImageList({
     }
 
     const handleHotkey_v = () => {
-        if(!blockHotkeys) {
-            if(selectedAssets.length > 0) {
-                history.push("/asset/" + selectedAssets[0].id)
-            }
+        if(selectedAssets.length > 0) {
+            history.push("/asset/" + selectedAssets[0].id)
         }
     }
 
     const handleHotkey_t = () => {
-        if(!blockHotkeys) {
-            if(selectedAssets.length > 0) {
-                setBlockHotkeys(true)
-                setSelectTagsDialogIsOpen(true)
-            }
+        if(selectedAssets.length > 0) {
+            setSelectTagsDialogIsOpen(true)
         }
     }
 
     const handleSelectTagsDialogClose = () => {
         setSelectTagsDialogIsOpen(false)
-        setBlockHotkeys(false)
     }
 
     const handleTagsSelected = (selectedTags: Array<Tag>) => {
@@ -169,11 +164,10 @@ export default function ImageList({
             assetRepository.updateTagsFor(asset)
         }
         setSelectTagsDialogIsOpen(false)
-        setBlockHotkeys(false)
     }
 
-    useHotkeys('v', (event:any) => handleHotkey_v(), {}, [selectedAssets]);
-    useHotkeys('t', (event:any) => handleHotkey_t(), {}, [selectedAssets]);
+    useHotkeys('v', hotkeysEnabledFilter(handleHotkey_v), [selectedAssets]);
+    useHotkeys('t', hotkeysEnabledFilter(handleHotkey_t), [selectedAssets]);
 
     if(assets === undefined) {
         return (
