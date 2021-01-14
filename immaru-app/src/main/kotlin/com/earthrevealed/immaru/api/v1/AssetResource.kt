@@ -106,7 +106,6 @@ class AssetResource(
         files
                 .filter { !it.isEmpty }
                 .forEach {
-                    println("uploaded file: ${it.originalFilename}")
                     createdAssets.add(collectionService.import(it.bytes, it.originalFilename!!) into collection)
                 }
 

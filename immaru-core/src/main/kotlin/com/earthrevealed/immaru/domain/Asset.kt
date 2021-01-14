@@ -10,10 +10,15 @@ data class AssetId(
         val value: UUID = UUID.randomUUID()
 )
 
+data class MediaType(
+        val value: String
+)
+
 data class Asset(
         val id: AssetId,
         val collectionId: CollectionId,
         val originalFilename: String,
+        val mediaType: MediaType,
         val createdAt: OffsetDateTime,
         val tagIds: Set<TagId>
 ) {
@@ -55,6 +60,7 @@ fun asset(collectionId: CollectionId, initialization: AssetBuilder.() -> Unit) =
 class AssetBuilder(val collectionId: CollectionId) {
     var id: AssetId = AssetId()
     lateinit var originalFilename: String
+    lateinit var mediaType: MediaType
     var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
     var tagIds = setOf<TagId>()
 
@@ -62,6 +68,7 @@ class AssetBuilder(val collectionId: CollectionId) {
             id = id,
             collectionId = collectionId,
             originalFilename = originalFilename,
+            mediaType = mediaType,
             createdAt = creationDateTime,
             tagIds = tagIds
     )

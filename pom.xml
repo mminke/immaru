@@ -35,6 +35,7 @@
         <kluent.version>1.61</kluent.version>
         <spring.test.dbunit.version>1.3.0</spring.test.dbunit.version>
         <dbunit.version>2.7.0</dbunit.version>
+        <tika.version>1.25</tika.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -84,6 +85,11 @@
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib</artifactId>
                 <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>

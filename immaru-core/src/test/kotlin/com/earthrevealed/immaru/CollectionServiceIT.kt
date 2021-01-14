@@ -32,7 +32,7 @@ class CollectionServiceIT {
 
     @Test
     fun testImport() {
-        val collection = collection { }
+        val collection = collection { }.also { collectionService.save(it) }
         collectionService.importFrom(importFromLocation) into collection
 
         assertThat {

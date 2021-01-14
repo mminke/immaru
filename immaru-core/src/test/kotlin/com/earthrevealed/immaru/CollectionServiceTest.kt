@@ -55,7 +55,7 @@ internal class CollectionServiceTest {
     fun `test importing a file as binary content`() {
         val collectionService = CollectionService(temporaryFolder.toString(), collectionRepositoryMock, assetRepositoryMock)
         val collection = collection { name = "Default collection" }
-        val fileContent = "Dit is een testfile".toByteArray()
+        val fileContent = resource("/images/P7310035.JPG").readBytes()
 
         val asset = collectionService.import(fileContent, "test.jpg") into collection
 
@@ -72,6 +72,8 @@ internal class CollectionServiceTest {
             Files.readAllBytes(file) `should be equal to` fileContent
         }
     }
+
+    fun resource(filename: String) = this::class.java.getResource(filename)
 }
 
 fun assertThat(action: () -> Unit) {
