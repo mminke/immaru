@@ -3,6 +3,10 @@ export type Collection = {
     name: string,
 }
 
+export type CreatedItems = {
+    locations: string[]
+}
+
 export default class CollectionRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
@@ -20,8 +24,8 @@ export default class CollectionRepository {
         return collections
     }
 
-    async create(collection: {"name": String}): Promise<any> {
-        fetch('/collections', {
+    async create(collection: {"name": String}): Promise<CreatedItems> {
+        return fetch('/collections', {
             method: 'POST',
             headers: CollectionRepository.headers,
             body: JSON.stringify(collection)

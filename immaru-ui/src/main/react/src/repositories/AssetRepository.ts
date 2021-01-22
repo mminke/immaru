@@ -8,6 +8,11 @@ export type Asset = {
     tagIds: string[]
 }
 
+
+export type CreatedItems = {
+    locations: string[]
+}
+
 export default class AssetRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json'}
@@ -47,7 +52,7 @@ export default class AssetRepository {
         return asset
     }
 
-    async saveIn(collection: Collection, files: File[]) {
+    async saveIn(collection: Collection, files: File[]): Promise<CreatedItems> {
         const formData = new FormData()
 
         files.forEach( (file: File) => {
@@ -72,6 +77,8 @@ export default class AssetRepository {
             })
 
         console.log('Successfully uploaded files: ', result)
+
+        return result
     }
 
     async updateTagsFor(asset: Asset) {
