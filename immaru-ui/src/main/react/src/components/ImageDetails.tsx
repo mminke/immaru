@@ -94,22 +94,27 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
 
             <h1>Image details</h1>
 
-            <TableContainer component={Paper}>
-                <Table size="small">
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>Filename</TableCell>
-                            <TableCell>{asset !== null ? asset.originalFilename: ""}</TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell colSpan={2}>
-                                <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
+            { asset !== null &&
+                <TableContainer component={Paper}>
+                    <Table size="small">
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>Filename</TableCell>
+                                <TableCell>{asset !== null ? asset.originalFilename: ""}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Media type</TableCell>
+                                <TableCell>{asset !== null ? asset.mediaType: ""}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell colSpan={2}>
+                                    <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            }
         </Drawer>
     </>
 }

@@ -7,7 +7,7 @@ export default class CollectionRepository {
 
     static headers: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
 
-    async collections() {
+    async collections(): Promise<Collection[]> {
         let collections = fetch('/collections', {headers: CollectionRepository.headers})
             .then(response => {
                 if(!response.ok) {
@@ -20,7 +20,7 @@ export default class CollectionRepository {
         return collections
     }
 
-    async create(collection: {"name": String}) {
+    async create(collection: {"name": String}): Promise<any> {
         fetch('/collections', {
             method: 'POST',
             headers: CollectionRepository.headers,

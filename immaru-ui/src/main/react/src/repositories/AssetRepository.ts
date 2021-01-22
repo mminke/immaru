@@ -4,6 +4,7 @@ export type Asset = {
     id: string,
     collectionId: string,
     originalFilename: string,
+    mediaType: string,
     tagIds: string[]
 }
 
@@ -12,7 +13,7 @@ export default class AssetRepository {
     static headers: HeadersInit = {'Accept': 'application/json'}
     static headersForUpdate: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
 
-    async assetsFor(collection: Collection) {
+    async assetsFor(collection: Collection): Promise<Asset[]> {
         let assets = fetch('/collections/' + collection.id + '/assets', {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
@@ -29,7 +30,7 @@ export default class AssetRepository {
         return assets
     }
 
-    async assetWithId(collection: Collection, id: string) {
+    async assetWithId(collection: Collection, id: string): Promise<Asset> {
         let asset = fetch('/collections/' + collection.id + '/assets/' + id, {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {

@@ -6,4 +6,4 @@ spring:
 
 immaru:
   library:
-    path: /data/immaru/files
+    path: /tmp/immaru/files
