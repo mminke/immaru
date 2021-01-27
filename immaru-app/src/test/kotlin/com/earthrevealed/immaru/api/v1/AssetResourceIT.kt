@@ -1,7 +1,8 @@
 package com.earthrevealed.immaru.api.v1
 
-import com.earthrevealed.immaru.domain.asset
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
 import com.earthrevealed.immaru.domain.collection
+import com.earthrevealed.immaru.domain.image
 import com.earthrevealed.immaru.domain.tag
 import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
@@ -59,11 +60,12 @@ internal class AssetResourceIT : PersistenceMixin {
     fun `given an assets exist when retrieving assets for an known collection then the asset is returned`() {
         val collection = collection { }.also { save(it) }
         val tag = tag(collection.id) { name = "tag" }.also { save(it) }
-        val asset = asset(collection.id) {
+        val image = image(collection.id) {
+            mediaType = MEDIATYPE_IMAGE_JPEG
             originalFilename = "test.jpg"
             tagIds = mutableSetOf(tag.id)
         }.also { save(it) }
-        val expected = objectMapper.writeValueAsString(asset)
+        val expected = objectMapper.writeValueAsString(image)
 
         mockMvc.get("/collections/{collectionId}/assets/", collection.id.value) {
             accept = MediaType.APPLICATION_JSON
@@ -81,7 +83,8 @@ internal class AssetResourceIT : PersistenceMixin {
         val tag = tag(collection.id) { name = "tag 1" }.also { save(it) }
         val tag2 = tag(collection.id) { name = "tag 2"}.also { save(it) }
         val tag3 = tag(collection.id) { name = "tag 3"}.also { save(it) }
-        val asset = asset(collection.id) {
+        val asset = image(collection.id) {
+            mediaType = MEDIATYPE_IMAGE_JPEG
             originalFilename = "test.jpg"
             tagIds = setOf(tag.id)
         }.also { save(it) }
@@ -91,7 +94,7 @@ internal class AssetResourceIT : PersistenceMixin {
             contentType = MediaType.APPLICATION_JSON
             content = "[\"${tag2.id.value.toString()}\", \"${tag3.id.value.toString()}\"]"
         }.andExpect {
-            status { isOk() }
+            status { isAccepted() }
         }
 
         val savedAsset = assetRepository.get(collection.id, asset.id)!!

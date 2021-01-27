@@ -1,7 +1,13 @@
 package com.earthrevealed.immaru.persistence
 
-import com.earthrevealed.immaru.domain.asset
+import com.earthrevealed.immaru.domain.Image
+import com.earthrevealed.immaru.domain.ImageHeight
+import com.earthrevealed.immaru.domain.ImageWidth
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
+import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.collection
+import com.earthrevealed.immaru.domain.image
+import com.earthrevealed.immaru.domain.px
 import com.earthrevealed.immaru.domain.tag
 import com.earthrevealed.immaru.test.support.PersistenceMixin
 import org.amshove.kluent.`should be equal to`
@@ -9,6 +15,7 @@ import org.amshove.kluent.`should contain all`
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import java.time.Instant
 
 @SpringBootTest
 internal class AssetRepositoryIT : PersistenceMixin {
@@ -18,21 +25,22 @@ internal class AssetRepositoryIT : PersistenceMixin {
     @Autowired override lateinit var assetRepository: AssetRepository
 
     @Test
-    fun `test saving and retrieving an asset`() {
+    fun `test saving and retrieving an image`() {
         val collection = collection { }.also { save(it) }
-        val asset = asset(collection.id) { originalFilename = "test-file.jpg" }
+        val asset = image(collection.id) { mediaType = MEDIATYPE_IMAGE_JPEG; originalFilename = "test-file.jpg" }
         assetRepository.save(asset)
 
-        val result = assetRepository.get(collection.id, asset.id)
-        result `should be equal to` asset
+        val retrievedAsset = assetRepository.get(collection.id, asset.id)
+        retrievedAsset `should be equal to` asset
     }
 
     @Test
-    fun `test saving and retrieving an asset with tags`() {
+    fun `test saving and retrieving an image with tags`() {
         val collection = collection { }.also { save(it) }
         val tag1 = tag(collection.id) { name = "tag 1" }.also { save(it) }
         val tag2 = tag(collection.id) { name = "tag 2" }.also { save(it) }
-        val asset = asset(collection.id) {
+        val asset = image(collection.id) {
+            mediaType = MEDIATYPE_IMAGE_JPEG
             originalFilename = "test-file.jpg"
             tagIds = mutableSetOf(tag1.id, tag2.id)
         }
@@ -43,14 +51,34 @@ internal class AssetRepositoryIT : PersistenceMixin {
     }
 
     @Test
-    fun `retrieving multiple assets`() {
+    fun `test retrieving multiple images`() {
         val collection = collection { }.also { save(it) }
-        val asset1 = asset(collection.id) { originalFilename = "test-file.jpg" }.also { save(it) }
-        val asset2 = asset(collection.id) { originalFilename = "test-file.jpg" }.also { save(it) }
-        val asset3 = asset(collection.id) { originalFilename = "test-file.jpg" }.also { save(it) }
+        val asset1 = image(collection.id) { mediaType = MEDIATYPE_IMAGE_JPEG; originalFilename = "test-file.jpg" }.also { save(it) }
+        val asset2 = image(collection.id) { mediaType = MEDIATYPE_IMAGE_JPEG; originalFilename = "test-file.jpg" }.also { save(it) }
+        val asset3 = image(collection.id) { mediaType = MEDIATYPE_IMAGE_JPEG; originalFilename = "test-file.jpg" }.also { save(it) }
 
         val result = assetRepository.all(collection.id)
 
         result `should contain all` setOf(asset1, asset2, asset3)
+    }
+
+    @Test
+    fun `test saving an image with specific image fields`() {
+        val collection = collection {  }.also { save(it) }
+        val image = image(collection.id) {
+            mediaType = MEDIATYPE_IMAGE_JPEG
+            originalFilename = "test-file.jpg"
+            originalDateOfCreation = OriginalDateOfCreation.of(Instant.ofEpochSecond(1611611734))
+            imageWidth = ImageWidth.of(3400.px)
+            imageHeight = ImageHeight.of(2100.px)
+        }
+
+        assetRepository.save(image)
+
+        val result = assetRepository.get(collection.id, image.id) as Image
+
+        result `should be equal to` image
+        result.imageWidth.value `should be equal to` 3400.px
+        result.imageHeight.value `should be equal to` 2100.px
     }
 }

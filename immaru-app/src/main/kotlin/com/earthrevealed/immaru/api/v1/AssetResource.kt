@@ -4,6 +4,9 @@ import com.earthrevealed.immaru.CollectionService
 import com.earthrevealed.immaru.domain.Asset
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
+import com.earthrevealed.immaru.domain.Image
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
+import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.TagId
 import com.earthrevealed.immaru.image.scaleImage
 import com.earthrevealed.immaru.persistence.AssetRepository
@@ -126,8 +129,11 @@ class AssetResource(
         }
 
         val asset = assetRepository.get(collectionId, assetId)?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
-        val updatedAsset = asset.copy(tagIds = assetTagIds)
-
+        val updatedAsset = when(asset.mediaType.type) {
+            MEDIATYPE_IMAGE.type -> (asset as Image).copy(tagIds = assetTagIds)
+            MEDIATYPE_VIDEO.type -> TODO()
+            else -> throw IllegalStateException("Unsupported media type for asset with id ${asset.id}")
+        }
         assetRepository.updateTagsFor(updatedAsset)
 
         return ResponseEntity("{}", HttpStatus.ACCEPTED)

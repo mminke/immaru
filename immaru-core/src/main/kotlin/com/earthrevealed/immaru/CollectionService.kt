@@ -1,43 +1,38 @@
 package com.earthrevealed.immaru
 
+import com.earthrevealed.immaru.common.LibraryPath
+import com.earthrevealed.immaru.common.isSupported
+import com.earthrevealed.immaru.common.mediaType
 import com.earthrevealed.immaru.domain.Asset
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.Collection
 import com.earthrevealed.immaru.domain.CollectionId
-import com.earthrevealed.immaru.domain.MediaType
-import com.earthrevealed.immaru.domain.asset
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
+import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
+import com.earthrevealed.immaru.domain.image
 import com.earthrevealed.immaru.exceptions.AssetNotFoundException
+import com.earthrevealed.immaru.metadata.MetadataService
 import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
-import org.apache.tika.Tika
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
-import org.apache.tika.mime.MediaType as TikaMediaType
+import javax.ws.rs.core.MediaType
 
 class CollectionNotEmptyException(message: String?) : RuntimeException(message)
 
 @Service
 class CollectionService(
-        @Value("\${immaru.library.path}") libraryPathValue: String,
+        val libraryPath: LibraryPath,
         val collectionRepository: CollectionRepository,
-        val assetRepository: AssetRepository
+        val assetRepository: AssetRepository,
+        val metadataService: MetadataService
 ) {
-    private val libraryPath: Path
-
-    init {
-        libraryPath = Path.of(libraryPathValue)
-        Files.createDirectories(libraryPath)
-    }
-
     fun save(collection: Collection) {
         collectionRepository.save(collection)
     }
 
     fun delete(collection: Collection) {
-        if(collection.containsAssets()) {
+        if (collection.containsAssets()) {
             throw CollectionNotEmptyException("Cannot delete collection because it contains assets.")
         }
         collectionRepository.delete(collection)
@@ -47,16 +42,19 @@ class CollectionService(
         return assetRepository.hasAssets(this.id)
     }
 
-    fun import(fileContent: ByteArray, filename: String): Importer
-        = Importer(libraryPath, fileContent, filename) { assetRepository.save(it)}
+    fun import(fileContent: ByteArray, filename: String): Importer =
+            Importer(libraryPath, fileContent, filename) {
+                metadataService.process(it)
+                assetRepository.save(it)
+            }
 
-    fun importFrom(importLocation: Path): PathImporter
-        = PathImporter(libraryPath, importLocation) { assetRepository.save(it) }
+//    fun importFrom(importLocation: Path): PathImporter
+//        = PathImporter(libraryPath, importLocation) { assetRepository.save(it) }
 
     fun assetPath(collectionId: CollectionId, id: AssetId): Path =
-        assetRepository.get(collectionId, id)?.let {
-            libraryPath.resolve(it.internalFilelocation())
-        }?: throw AssetNotFoundException(collectionId, id)
+            assetRepository.get(collectionId, id)?.let { asset ->
+                libraryPath.absolutePathFor(asset)
+            } ?: throw AssetNotFoundException(collectionId, id)
 }
 
 private fun Path.extension(): String? {
@@ -68,27 +66,26 @@ private fun Path.extension(): String? {
     return null
 }
 
-object tika: Tika()
-
-class Importer(val libraryPath: Path,
+class Importer(val libraryPath: LibraryPath,
                val fileContent: ByteArray,
                val filename: String,
                val save: (Asset) -> Unit) {
 
     infix fun into(collection: Collection): Asset {
-        val mediaType = fileContent.mediaType()
-        require(mediaType.isSupported())
+        val rawMediaType = fileContent.mediaType()
+        require(rawMediaType.isSupported())
 
-        val asset = asset(collection.id) {
-            this.originalFilename = filename
-            this.mediaType = MediaType(mediaType.toString())
+        val mediaType = MediaType.valueOf(rawMediaType.toString())
+        val asset = when (mediaType.type) {
+            MEDIATYPE_IMAGE.type -> image(collection.id) {
+                this.originalFilename = filename
+                this.mediaType = mediaType
+            }
+            MEDIATYPE_VIDEO.type -> TODO()
+            else -> throw IllegalArgumentException("Media type not supported: ${mediaType}")
         }
 
-        val destination = libraryPath
-                .resolve(asset.internalFilelocation())
-
-        Files.createDirectories(libraryPath.resolve(asset.destinationFolders()))
-        Files.write(destination, fileContent)
+        libraryPath.write(asset, fileContent)
 
         save(asset)
 
@@ -97,31 +94,20 @@ class Importer(val libraryPath: Path,
 
 }
 
-class PathImporter(val libraryPath: Path, val importLocation: Path, val save: (Asset) -> Unit ) {
-    infix fun into(collection: Collection) {
-        Files.walk(importLocation)
-                .filter { it.toFile().isFile}
-                .map { it to it.mediaType() }
-                .filter { it.second.isSupported() }
-                .map { (it.first to asset(collection.id) {
-                    originalFilename = it.first.fileName.toString()
-                    mediaType = MediaType(it.second.toString())
-                }) }
-                .forEach { (source, asset) ->
-                    val destination = libraryPath
-                            .resolve(asset.internalFilelocation())
-
-                    println("Copying $source TO $destination")
-                    Files.createDirectories(libraryPath.resolve(asset.destinationFolders()))
-                    Files.copy(source, destination, StandardCopyOption.COPY_ATTRIBUTES)
-
-                    save(asset)
-                }
-    }
-}
-
-private fun Path.mediaType() = this.toFile().readBytes().mediaType()
-
-private fun TikaMediaType.isSupported() = this.type == "image" || this.type == "video"
-
-private fun ByteArray.mediaType() = TikaMediaType.parse(tika.detect(this))
+//class PathImporter(val libraryPath: LibraryPath, val importLocation: Path, val save: (Asset) -> Unit ) {
+//    infix fun into(collection: Collection) {
+//        Files.walk(importLocation)
+//                .filter { it.toFile().isFile}
+//                .map { it to it.mediaType() }
+//                .filter { it.second.isSupported() }
+//                .map { (it.first to asset(collection.id) {
+//                    originalFilename = it.first.fileName.toString()
+//                    mediaType = MediaType(it.second.toString())
+//                }) }
+//                .forEach { (source, asset) ->
+//                    libraryPath.copyFileToAsset(source, asset)
+//
+//                    save(asset)
+//                }
+//    }
+//}

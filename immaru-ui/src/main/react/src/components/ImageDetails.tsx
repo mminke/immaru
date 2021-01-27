@@ -76,6 +76,8 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
         }
     }
 
+console.log(asset)
+
     return <>
         <Drawer
             variant="permanent"
@@ -105,6 +107,18 @@ export default function ImageDetails({activeCollection, asset, open, onClose}: I
                             <TableRow>
                                 <TableCell>Media type</TableCell>
                                 <TableCell>{asset !== null ? asset.mediaType: ""}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Original creation date</TableCell>
+                                <TableCell>{asset !== null ? asset.originalCreatedAt: ""}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Width</TableCell>
+                                <TableCell>{asset !== null ? asset.imageWidth + " px": ""}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Height</TableCell>
+                                <TableCell>{asset !== null ? asset.imageHeight + " px": ""}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell colSpan={2}>

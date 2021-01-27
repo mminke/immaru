@@ -3,8 +3,11 @@ import {Collection} from '../repositories/CollectionRepository'
 export type Asset = {
     id: string,
     collectionId: string,
-    originalFilename: string,
     mediaType: string,
+    originalFilename: string,
+    originalCreatedAt?: string,
+    imageWidth: bigint,
+    imageHeight: bigint,
     tagIds: string[]
 }
 
