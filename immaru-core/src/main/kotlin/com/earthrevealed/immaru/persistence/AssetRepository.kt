@@ -15,6 +15,7 @@ import com.earthrevealed.immaru.persistence.exposed.toAsset
 import com.earthrevealed.immaru.persistence.exposed.toEntityId
 import com.earthrevealed.immaru.persistence.exposed.toTagId
 import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
@@ -58,7 +59,7 @@ class AssetRepository {
             AssetsJoinedWithImages
                     .select {
                         AssetTable.collectionId eq collectionId.value
-                    }
+                    }.orderBy(AssetTable.originalCreatedAt, SortOrder.DESC)
                     .map { assetRecord ->
                         assetRecord.toAsset {
                             tagIdsForAsset(assetRecord[AssetTable.id].value)
