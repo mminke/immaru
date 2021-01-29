@@ -102,23 +102,23 @@ console.log(asset)
                         <TableBody>
                             <TableRow>
                                 <TableCell>Filename</TableCell>
-                                <TableCell>{asset !== null ? asset.originalFilename: ""}</TableCell>
+                                <TableCell>{asset.originalFilename}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Media type</TableCell>
-                                <TableCell>{asset !== null ? asset.mediaType: ""}</TableCell>
+                                <TableCell>{asset.mediaType}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Original creation date</TableCell>
-                                <TableCell>{asset !== null ? asset.originalCreatedAt: ""}</TableCell>
+                                <TableCell>{asset.originalCreatedAt ? asset.originalCreatedAt.replace("T", " "): ""}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Width</TableCell>
-                                <TableCell>{asset !== null ? asset.imageWidth + " px": ""}</TableCell>
+                                <TableCell>{asset.imageWidth + " px"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Height</TableCell>
-                                <TableCell>{asset !== null ? asset.imageHeight + " px": ""}</TableCell>
+                                <TableCell>{asset.imageHeight + " px"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell colSpan={2}>
