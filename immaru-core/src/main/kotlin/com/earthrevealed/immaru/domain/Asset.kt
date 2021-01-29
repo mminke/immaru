@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType
 val MEDIATYPE_IMAGE = MediaType.valueOf("image/*")
 val MEDIATYPE_VIDEO = MediaType.valueOf( "video/*")
 val MEDIATYPE_IMAGE_JPEG = MediaType.valueOf("image/jpeg")
+val MEDIATYPE_IMAGE_PNG = MediaType.valueOf("image/png")
+val MEDIATYPE_IMAGE_GIF = MediaType.valueOf("image/gif")
 
 data class AssetId(
         val value: UUID = UUID.randomUUID()

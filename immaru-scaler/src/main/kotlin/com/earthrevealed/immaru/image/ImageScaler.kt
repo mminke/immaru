@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.image
 import org.imgscalr.Scalr
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 import javax.imageio.ImageIO
 
 fun scaleImage(imageInputStream: InputStream): ByteArrayOutputStream {
@@ -15,3 +16,11 @@ fun scaleImage(imageInputStream: InputStream): ByteArrayOutputStream {
     outputStream.flush()
     return outputStream
 }
+
+fun convertToPng(inputStream: InputStream, outputStream: OutputStream) {
+    ImageIO.setUseCache(false)
+    val srcImage = ImageIO.read(inputStream)
+    ImageIO.write(srcImage, "png", outputStream)
+    outputStream.flush()
+}
+

@@ -6,11 +6,16 @@ import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_GIF
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_PNG
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.TagId
+import com.earthrevealed.immaru.image.convertToPng
 import com.earthrevealed.immaru.image.scaleImage
 import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
+import org.apache.commons.io.IOUtils
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 import java.nio.file.Files
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/collections/{collectionId}")
@@ -39,7 +45,7 @@ class AssetResource(
     fun assets(
             @PathVariable("collectionId") collectionId: CollectionId
     ): List<Asset> {
-        if(collectionRepository.notExists(collectionId)) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
         return assetRepository.all(collectionId)
@@ -50,37 +56,49 @@ class AssetResource(
             @PathVariable("collectionId") collectionId: CollectionId,
             @PathVariable("id") id: AssetId
     ): Asset {
-        if(collectionRepository.notExists(collectionId)) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
-        return assetRepository.get(collectionId, id)?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
+        return assetRepository.get(collectionId, id)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
     }
 
     @GetMapping("/assets/{id}")
     fun assetContent(
             @PathVariable("collectionId") collectionId: CollectionId,
-            @PathVariable("id") id: AssetId
-    ): ResponseEntity<ByteArray> {
-        if(collectionRepository.notExists(collectionId)) {
+            @PathVariable("id") id: AssetId,
+            response: HttpServletResponse
+    ) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
+        val asset = assetRepository.get(collectionId, id)
+        if (asset == null) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
+        }
 
-        // TODO: replace both statements with collectionService.assetContents(collectionId, id)
         val fileLocation = collectionService.assetPath(collectionId, id)
-        val fileContents = Files.readAllBytes(fileLocation)
 
-        val responseHeaders = HttpHeaders()
-        responseHeaders.contentType = MediaType.IMAGE_JPEG
-
-        return ResponseEntity(fileContents, responseHeaders, HttpStatus.OK)
+        Files.newInputStream(fileLocation).use { inputStream ->
+            if (isSupported(asset.mediaType)) {
+                response.contentType = asset.mediaType.toString()
+                IOUtils.copy(inputStream, response.outputStream)
+                response.flushBuffer()
+            } else {
+                convertToPng(inputStream, response.outputStream)
+            }
+        }
     }
+
+    private fun isSupported(mediaType: javax.ws.rs.core.MediaType) =
+            mediaType == MEDIATYPE_IMAGE_JPEG || mediaType == MEDIATYPE_IMAGE_PNG || mediaType == MEDIATYPE_IMAGE_GIF
 
     @GetMapping("/assets/{id}/thumbnail")
     fun assetThumbnail(
             @PathVariable("collectionId") collectionId: CollectionId,
             @PathVariable("id") id: AssetId
     ): ResponseEntity<ByteArray> {
-        if(collectionRepository.notExists(collectionId)) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
 
@@ -100,7 +118,7 @@ class AssetResource(
             @PathVariable("collectionId") collectionId: CollectionId,
             @RequestParam("files") files: List<MultipartFile>
     ): ResponseEntity<CreationResult> {
-        if(collectionRepository.notExists(collectionId)) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
         val collection = collectionRepository.get(collectionId)!!
@@ -124,12 +142,13 @@ class AssetResource(
             @PathVariable("id") assetId: AssetId,
             @RequestBody assetTagIds: Set<TagId>
     ): ResponseEntity<String> {
-        if(collectionRepository.notExists(collectionId)) {
+        if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
 
-        val asset = assetRepository.get(collectionId, assetId)?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
-        val updatedAsset = when(asset.mediaType.type) {
+        val asset = assetRepository.get(collectionId, assetId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
+        val updatedAsset = when (asset.mediaType.type) {
             MEDIATYPE_IMAGE.type -> (asset as Image).copy(tagIds = assetTagIds)
             MEDIATYPE_VIDEO.type -> TODO()
             else -> throw IllegalStateException("Unsupported media type for asset with id ${asset.id}")
