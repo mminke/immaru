@@ -67,11 +67,28 @@ data class Image(
         override val mediaType: MediaType,
         override val tagIds: Set<TagId>,
         override val audit: Audit,
-        var imageWidth: ImageWidth = ImageWidth.UNKNOWN,
-        var imageHeight: ImageHeight = ImageHeight.UNKNOWN
+        var width: Width = Width.UNKNOWN,
+        var height: Height = Height.UNKNOWN
 ) : Asset() {
     init {
         require(mediaType.isCompatible(MEDIATYPE_IMAGE))
+    }
+}
+
+data class Video(
+        override val id: AssetId,
+        override val collectionId: CollectionId,
+        override val originalFilename: String,
+        override var originalCreatedAt: OriginalDateOfCreation? = null,
+        override val mediaType: MediaType,
+        override val tagIds: Set<TagId>,
+        override val audit: Audit,
+        var width: Width = Width.UNKNOWN,
+        var height: Height = Height.UNKNOWN,
+        var frameRate: FrameRate = FrameRate.UNKNOWN
+): Asset() {
+    init {
+        require(mediaType.isCompatible(MEDIATYPE_VIDEO))
     }
 }
 
@@ -109,23 +126,29 @@ data class Pixel(val value: Int) {
 val Int.px: Pixel
     get() = Pixel(this)
 
-data class ImageWidth constructor(val value: Pixel) {
+data class Width constructor(val value: Pixel) {
     fun isUnknown() = value == -1.px
 
     companion object {
-        val UNKNOWN = ImageWidth(-1.px)
-        fun of(value: Pixel?) = if(value==null) ImageWidth.UNKNOWN else ImageWidth(value)
-        fun of(value: String) = ImageWidth(Pixel.of(value))
+        val UNKNOWN = Width(-1.px)
+        fun of(value: Pixel?) = if(value==null) Width.UNKNOWN else Width(value)
+        fun of(value: String) = Width(Pixel.of(value))
     }
 }
 
-data class ImageHeight constructor(val value: Pixel) {
+data class Height constructor(val value: Pixel) {
     fun isUnknown() = value == -1.px
 
     companion object {
-        val UNKNOWN = ImageHeight(-1.px)
-        fun of(value: Pixel?) = if (value == null) ImageHeight.UNKNOWN else ImageHeight(value)
-        fun of(value: String) = ImageHeight(Pixel.of(value))
+        val UNKNOWN = Height(-1.px)
+        fun of(value: Pixel?) = if (value == null) Height.UNKNOWN else Height(value)
+        fun of(value: String) = Height(Pixel.of(value))
+    }
+}
+
+data class FrameRate(val value: Int) {
+    companion object {
+        val UNKNOWN = FrameRate(-1)
     }
 }
 
@@ -140,14 +163,17 @@ data class Audit(
 fun image(collectionId: CollectionId, initialization: ImageBuilder.() -> Unit) =
         ImageBuilder(collectionId).apply(initialization).build()
 
+fun video(collectionId: CollectionId, initialization: VideoBuilder.() -> Unit) =
+        VideoBuilder(collectionId).apply(initialization).build()
+
 @ImmaruBuilder
 class ImageBuilder(val collectionId: CollectionId) {
     var id: AssetId = AssetId()
     lateinit var mediaType: MediaType
     lateinit var originalFilename: String
     var originalDateOfCreation: OriginalDateOfCreation? = null
-    var imageWidth: ImageWidth = ImageWidth.UNKNOWN
-    var imageHeight: ImageHeight = ImageHeight.UNKNOWN
+    var width: Width = Width.UNKNOWN
+    var height: Height = Height.UNKNOWN
     var tagIds = setOf<TagId>()
     var auditBlock: Audit = Audit()
 
@@ -161,8 +187,38 @@ class ImageBuilder(val collectionId: CollectionId) {
             mediaType = mediaType,
             originalFilename = originalFilename,
             originalCreatedAt = originalDateOfCreation,
-            imageWidth = imageWidth,
-            imageHeight = imageHeight,
+            width = width,
+            height = height,
+            tagIds = tagIds,
+            audit = auditBlock
+    )
+}
+
+@ImmaruBuilder
+class VideoBuilder(val collectionId: CollectionId) {
+    var id: AssetId = AssetId()
+    lateinit var mediaType: MediaType
+    lateinit var originalFilename: String
+    var originalDateOfCreation: OriginalDateOfCreation? = null
+    var frameRate: FrameRate = FrameRate.UNKNOWN
+    var width: Width = Width.UNKNOWN
+    var height: Height = Height.UNKNOWN
+    var tagIds = setOf<TagId>()
+    var auditBlock: Audit = Audit()
+
+    fun audit(initialization: AuditBuilder.() -> Unit) {
+        auditBlock = AuditBuilder().apply(initialization).build()
+    }
+
+    fun build() = Video(
+            id = id,
+            collectionId = collectionId,
+            mediaType = mediaType,
+            originalFilename = originalFilename,
+            originalCreatedAt = originalDateOfCreation,
+            frameRate = frameRate,
+            width = width,
+            height = height,
             tagIds = tagIds,
             audit = auditBlock
     )

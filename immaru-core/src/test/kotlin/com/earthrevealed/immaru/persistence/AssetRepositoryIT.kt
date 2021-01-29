@@ -1,10 +1,10 @@
 package com.earthrevealed.immaru.persistence
 
+import com.earthrevealed.immaru.domain.Height
 import com.earthrevealed.immaru.domain.Image
-import com.earthrevealed.immaru.domain.ImageHeight
-import com.earthrevealed.immaru.domain.ImageWidth
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
 import com.earthrevealed.immaru.domain.OriginalDateOfCreation
+import com.earthrevealed.immaru.domain.Width
 import com.earthrevealed.immaru.domain.collection
 import com.earthrevealed.immaru.domain.image
 import com.earthrevealed.immaru.domain.px
@@ -69,8 +69,8 @@ internal class AssetRepositoryIT : PersistenceMixin {
             mediaType = MEDIATYPE_IMAGE_JPEG
             originalFilename = "test-file.jpg"
             originalDateOfCreation = OriginalDateOfCreation.of(Instant.ofEpochSecond(1611611734))
-            imageWidth = ImageWidth.of(3400.px)
-            imageHeight = ImageHeight.of(2100.px)
+            width = Width.of(3400.px)
+            height = Height.of(2100.px)
         }
 
         assetRepository.save(image)
@@ -78,7 +78,7 @@ internal class AssetRepositoryIT : PersistenceMixin {
         val result = assetRepository.get(collection.id, image.id) as Image
 
         result `should be equal to` image
-        result.imageWidth.value `should be equal to` 3400.px
-        result.imageHeight.value `should be equal to` 2100.px
+        result.width.value `should be equal to` 3400.px
+        result.height.value `should be equal to` 2100.px
     }
 }

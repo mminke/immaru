@@ -7,9 +7,12 @@ import com.earthrevealed.immaru.domain.Asset
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.Collection
 import com.earthrevealed.immaru.domain.CollectionId
+import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
+import com.earthrevealed.immaru.domain.Video
 import com.earthrevealed.immaru.domain.image
+import com.earthrevealed.immaru.domain.video
 import com.earthrevealed.immaru.exceptions.AssetNotFoundException
 import com.earthrevealed.immaru.metadata.MetadataService
 import com.earthrevealed.immaru.persistence.AssetRepository
@@ -44,8 +47,13 @@ class CollectionService(
 
     fun import(fileContent: ByteArray, filename: String): Importer =
             Importer(libraryPath, fileContent, filename) {
-                metadataService.process(it)
-                assetRepository.save(it)
+                if(it is Image) {
+                    metadataService.process(it)
+                    assetRepository.save(it)
+                } else if(it is Video) {
+                    metadataService.process(it)
+                    assetRepository.save(it)
+                }
             }
 
 //    fun importFrom(importLocation: Path): PathImporter
@@ -81,7 +89,10 @@ class Importer(val libraryPath: LibraryPath,
                 this.originalFilename = filename
                 this.mediaType = mediaType
             }
-            MEDIATYPE_VIDEO.type -> TODO()
+            MEDIATYPE_VIDEO.type -> video(collection.id) {
+                this.originalFilename = filename
+                this.mediaType = mediaType
+            }
             else -> throw IllegalArgumentException("Media type not supported: ${mediaType}")
         }
 

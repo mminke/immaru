@@ -3,11 +3,11 @@ package com.earthrevealed.immaru.api.v1
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.CreatedAt
-import com.earthrevealed.immaru.domain.ImageHeight
-import com.earthrevealed.immaru.domain.ImageWidth
+import com.earthrevealed.immaru.domain.Height
 import com.earthrevealed.immaru.domain.LastModifiedAt
 import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.TagId
+import com.earthrevealed.immaru.domain.Width
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -103,23 +103,23 @@ class LastModifiedAtJsonSerializer: JsonSerializer<LastModifiedAt>() {
 }
 
 @JsonComponent
-class ImageWidthJsonSerializer: JsonSerializer<ImageWidth>() {
-    override fun serialize(imageWidth: ImageWidth, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
-        if(imageWidth == null) {
+class ImageWidthJsonSerializer: JsonSerializer<Width>() {
+    override fun serialize(width: Width, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+        if(width == null) {
             jsonGenerator.writeNull()
         } else {
-            jsonGenerator.writeString(imageWidth.value.value.toString())
+            jsonGenerator.writeString(width.value.value.toString())
         }
     }
 }
 
 @JsonComponent
-class ImageHeightJsonSerializer: JsonSerializer<ImageHeight>() {
-    override fun serialize(imageHeight: ImageHeight, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
-        if(imageHeight == null) {
+class ImageHeightJsonSerializer: JsonSerializer<Height>() {
+    override fun serialize(height: Height, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+        if(height == null) {
             jsonGenerator.writeNull()
         } else {
-            jsonGenerator.writeString(imageHeight.value.value.toString())
+            jsonGenerator.writeString(height.value.value.toString())
         }
     }
 }

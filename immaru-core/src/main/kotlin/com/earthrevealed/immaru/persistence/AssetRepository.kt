@@ -4,12 +4,12 @@ import com.earthrevealed.immaru.domain.Asset
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.Image
-import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
-import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.TagId
+import com.earthrevealed.immaru.domain.Video
 import com.earthrevealed.immaru.persistence.exposed.AssetTable
 import com.earthrevealed.immaru.persistence.exposed.AssetTagTable
 import com.earthrevealed.immaru.persistence.exposed.ImageTable
+import com.earthrevealed.immaru.persistence.exposed.VideoTable
 import com.earthrevealed.immaru.persistence.exposed.from
 import com.earthrevealed.immaru.persistence.exposed.toAsset
 import com.earthrevealed.immaru.persistence.exposed.toEntityId
@@ -29,18 +29,18 @@ import java.util.*
 class AssetRepository {
     val AssetsJoinedWithImages = AssetTable.join(ImageTable, JoinType.LEFT, AssetTable.id, ImageTable.id)
 
-    fun save(asset: Asset) {
-        when(asset.mediaType.type) {
-            MEDIATYPE_IMAGE.type -> save(asset as Image)
-            MEDIATYPE_VIDEO.type -> TODO()
-        }
-    }
-
     fun save(image: Image) {
         AssetTable.insert { it.from(image as Asset) }
         ImageTable.insert { it.from(image) }
 
         updateTagsFor(image)
+    }
+
+    fun save(video: Video) {
+        AssetTable.insert { it.from(video as Asset) }
+        VideoTable.insert { it.from(video) }
+
+        updateTagsFor(video)
     }
 
     fun updateTagsFor(asset: Asset) {

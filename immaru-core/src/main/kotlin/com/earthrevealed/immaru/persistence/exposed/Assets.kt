@@ -4,16 +4,19 @@ import com.earthrevealed.immaru.domain.Asset
 import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.CreatedAt
+import com.earthrevealed.immaru.domain.FrameRate
+import com.earthrevealed.immaru.domain.Height
 import com.earthrevealed.immaru.domain.Image
-import com.earthrevealed.immaru.domain.ImageHeight
-import com.earthrevealed.immaru.domain.ImageWidth
 import com.earthrevealed.immaru.domain.LastModifiedAt
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.TagId
+import com.earthrevealed.immaru.domain.Video
+import com.earthrevealed.immaru.domain.Width
 import com.earthrevealed.immaru.domain.image
 import com.earthrevealed.immaru.domain.px
+import com.earthrevealed.immaru.domain.video
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
@@ -32,8 +35,14 @@ internal object AssetTable : UUIDTable("assets") {
 }
 
 internal object ImageTable : UUIDTable("images") {
-    val imageWidth = integer( "image_width")
-    val imageHeight = integer( "image_height")
+    val width = integer( "width")
+    val height = integer( "height")
+}
+
+internal object VideoTable : UUIDTable("videos") {
+    val frameRate = integer( "frame_rate" )
+    val width = integer( "width")
+    val height = integer( "height")
 }
 
 internal object AssetTagTable : Table("asset_tags") {
@@ -53,8 +62,15 @@ internal fun InsertStatement<Number>.from(asset: Asset) {
 
 internal fun InsertStatement<Number>.from(image: Image) {
     this[ImageTable.id] = EntityID(image.id.value, ImageTable)
-    this[ImageTable.imageWidth] = image.imageWidth.value.value
-    this[ImageTable.imageHeight] = image.imageHeight.value.value
+    this[ImageTable.width] = image.width.value.value
+    this[ImageTable.height] = image.height.value.value
+}
+
+internal fun InsertStatement<Number>.from(video: Video) {
+    this[VideoTable.id] = EntityID(video.id.value, VideoTable)
+    this[VideoTable.frameRate] = video.frameRate.value
+    this[VideoTable.width] = video.width.value.value
+    this[VideoTable.height] = video.height.value.value
 }
 
 internal fun ResultRow.toAsset(tags: () -> List<TagId>): Asset {
@@ -66,8 +82,8 @@ internal fun ResultRow.toAsset(tags: () -> List<TagId>): Asset {
             this.originalFilename = this@toAsset[AssetTable.originalFilename]
             this.originalDateOfCreation = this@toAsset[AssetTable.originalCreatedAt]?.let { OriginalDateOfCreation.of(it) }
 
-            this.imageWidth = ImageWidth.of(this@toAsset[ImageTable.imageWidth].px)
-            this.imageHeight = ImageHeight.of(this@toAsset[ImageTable.imageHeight].px)
+            this.width = Width.of(this@toAsset[ImageTable.width].px)
+            this.height = Height.of(this@toAsset[ImageTable.height].px)
 
             this.tagIds = tags().toMutableSet()
 
@@ -76,7 +92,23 @@ internal fun ResultRow.toAsset(tags: () -> List<TagId>): Asset {
                 lastModifiedAt = LastModifiedAt.of(this@toAsset[AssetTable.lastModifiedAt])
             }
         }
-        MEDIATYPE_VIDEO.type -> TODO()
+        MEDIATYPE_VIDEO.type -> video(CollectionId(this[AssetTable.collectionId])) {
+            this.id = AssetId(this@toAsset[AssetTable.id].value)
+            this.mediaType = mediaType
+            this.originalFilename = this@toAsset[AssetTable.originalFilename]
+            this.originalDateOfCreation = this@toAsset[AssetTable.originalCreatedAt]?.let { OriginalDateOfCreation.of(it) }
+
+            this.frameRate = FrameRate(this@toAsset[VideoTable.frameRate])
+            this.width = Width.of(this@toAsset[VideoTable.width].px)
+            this.height = Height.of(this@toAsset[VideoTable.height].px)
+
+            this.tagIds = tags().toMutableSet()
+
+            audit {
+                createdAt = CreatedAt.of(this@toAsset[AssetTable.createdAt])
+                lastModifiedAt = LastModifiedAt.of(this@toAsset[AssetTable.lastModifiedAt])
+            }
+        }
         else -> throw IllegalStateException("Media type from database is not known: ${mediaType}")
     }
 }
