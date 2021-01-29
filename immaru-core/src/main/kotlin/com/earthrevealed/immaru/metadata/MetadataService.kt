@@ -38,8 +38,19 @@ class MetadataService(
     }
 
     private fun processImage(image: Image, metadata: Metadata) {
-        image.originalCreatedAt = OriginalDateOfCreation.of(metadata[TikaCoreProperties.CREATED])
-        image.imageWidth = ImageWidth.of(metadata["Image Width"])
-        image.imageHeight = ImageHeight.of(metadata["Image Height"])
+        image.originalCreatedAt = OriginalDateOfCreation.of(metadata.orignalCreationDate())
+        image.imageWidth = ImageWidth.of(metadata.imageWidth())
+        image.imageHeight = ImageHeight.of(metadata.imageHeight())
+    }
+
+    private fun Metadata.orignalCreationDate(): String {
+        return this[TikaCoreProperties.CREATED]?:"0001-01-01T00:00:00"
+    }
+
+    private fun Metadata.imageWidth(): String {
+        return this["Image Width"]?: this["tiff:ImageWidth"]?: this["Exif SubIFD:Image Width"]?: this["width"]?: "-1"
+    }
+    private fun Metadata.imageHeight(): String {
+        return this["Image Height"]?: this["tiff:ImageLength"]?: this["Exif SubIFD:Image Height"]?: this["height"]?: "-1"
     }
 }
