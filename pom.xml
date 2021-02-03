@@ -36,6 +36,7 @@
         <spring.test.dbunit.version>1.3.0</spring.test.dbunit.version>
         <dbunit.version>2.7.0</dbunit.version>
         <tika.version>1.25</tika.version>
+        <mp4parser.version>1.9.41.4-SNAPSHOT</mp4parser.version>
         <kotlin-logging.version>1.12.0</kotlin-logging.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -96,6 +97,11 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
                 <version>${tika.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.tallison</groupId>
+                <artifactId>isoparser</artifactId>
+                <version>${mp4parser.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.microutils</groupId>

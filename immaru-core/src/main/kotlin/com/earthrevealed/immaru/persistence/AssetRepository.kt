@@ -27,7 +27,9 @@ import java.util.*
 @Repository
 @Transactional
 class AssetRepository {
-    val AssetsJoinedWithImages = AssetTable.join(ImageTable, JoinType.LEFT, AssetTable.id, ImageTable.id)
+    val AssetsJoinedWithImagesAndVideos = AssetTable
+            .join(ImageTable, JoinType.LEFT, AssetTable.id, ImageTable.id)
+            .join(VideoTable, JoinType.LEFT, AssetTable.id, VideoTable.id )
 
     fun save(image: Image) {
         AssetTable.insert { it.from(image as Asset) }
@@ -56,7 +58,7 @@ class AssetRepository {
     }
 
     fun all(collectionId: CollectionId) =
-            AssetsJoinedWithImages
+            AssetsJoinedWithImagesAndVideos
                     .select {
                         AssetTable.collectionId eq collectionId.value
                     }.orderBy(AssetTable.originalCreatedAt, SortOrder.DESC)
@@ -67,7 +69,7 @@ class AssetRepository {
                     }
 
     fun get(collectionId: CollectionId, id: AssetId): Asset? =
-            AssetsJoinedWithImages
+            AssetsJoinedWithImagesAndVideos
                     .select { AssetTable.id eq id.toEntityId() }
                     .andWhere { AssetTable.collectionId eq collectionId.value }
                     .firstOrNull()?.let { assetRecord ->

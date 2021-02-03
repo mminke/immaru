@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.*
 import javax.ws.rs.core.MediaType
 
@@ -92,12 +93,18 @@ data class Video(
     }
 }
 
-private val metadataDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-
 data class OriginalDateOfCreation(val value: OffsetDateTime) {
     companion object {
         fun of(instant: Instant) = OriginalDateOfCreation(OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()))
-        fun of(value: String) = OriginalDateOfCreation(LocalDateTime.parse(value, metadataDateTimeFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime())
+        fun of(value: String): OriginalDateOfCreation {
+            try {
+                val metadataDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                return OriginalDateOfCreation(LocalDateTime.parse(value, metadataDateTimeFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime())
+            } catch ( exception: DateTimeParseException ) {
+                val metadataDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                return OriginalDateOfCreation(LocalDateTime.parse(value, metadataDateTimeFormatter).atZone(ZoneId.of("Europe/Paris")).toOffsetDateTime())
+            }
+        }
     }
 }
 

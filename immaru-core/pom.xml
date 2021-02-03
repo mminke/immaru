@@ -27,6 +27,16 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.tallison</groupId>
+                    <artifactId>isoparser</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.tallison</groupId>
+            <artifactId>isoparser</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>

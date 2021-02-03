@@ -6,8 +6,8 @@ export type Asset = {
     mediaType: string,
     originalFilename: string,
     originalCreatedAt?: string,
-    imageWidth: bigint,
-    imageHeight: bigint,
+    width: bigint,
+    height: bigint,
     tagIds: string[]
 }
 

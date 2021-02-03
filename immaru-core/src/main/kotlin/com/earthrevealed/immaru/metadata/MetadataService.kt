@@ -34,6 +34,8 @@ class MetadataService(
         val metadata = video.metadata()
 
         video.originalCreatedAt = OriginalDateOfCreation.of(metadata.orignalCreationDate())
+        video.width = Width.of(metadata.imageWidth())
+        video.height = Height.of(metadata.imageHeight())
         video.frameRate = FrameRate.UNKNOWN
     }
 

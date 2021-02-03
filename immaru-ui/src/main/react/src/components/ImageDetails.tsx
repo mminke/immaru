@@ -114,11 +114,11 @@ console.log(asset)
                             </TableRow>
                             <TableRow>
                                 <TableCell>Width</TableCell>
-                                <TableCell>{asset.imageWidth + " px"}</TableCell>
+                                <TableCell>{asset.width + " px"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell>Height</TableCell>
-                                <TableCell>{asset.imageHeight + " px"}</TableCell>
+                                <TableCell>{asset.height + " px"}</TableCell>
                             </TableRow>
                             <TableRow>
                                 <TableCell colSpan={2}>
