@@ -7,7 +7,7 @@
         <module>immaru-core</module>
         <module>immaru-app</module>
         <module>immaru-ui</module>
-        <module>immaru-scaler</module>
+        <module>immaru-media-manipulation</module>
     </modules>
 
     <parent>
@@ -50,7 +50,7 @@
             </dependency>
             <dependency>
                 <groupId>com.earthrevealed.immaru</groupId>
-                <artifactId>immaru-scaler</artifactId>
+                <artifactId>immaru-media-manipulation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

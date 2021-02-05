@@ -15,18 +15,6 @@ export default function ImageViewer({collection}: ImageViewerProps) {
     const history = useHistory()
 
     const [asset, setAsset] = useState<Asset>()
-    let url = ''
-    if(asset !== undefined) {
-        url = `/collections/${collection.id}/assets/${asset.id}`
-    }
-    const style = {
-        width: '100%',
-        height: '100%',
-        backgroundSize: 'contain',
-        backgroundPosition: 'center center',
-        backgroundRepeat: 'no-repeat',
-        backgroundImage: `url(${url})`
-    }
 
     useEffect( () => {
         assetRepository.assetWithId(collection, id)
@@ -41,7 +29,31 @@ export default function ImageViewer({collection}: ImageViewerProps) {
 
     useHotkeys('v', (event:any) => closeImageViewer());
 
-    return (
-        <div style={style}/>
-    )
+    let url = ''
+    if(asset !== undefined) {
+        url = `/collections/${collection.id}/assets/${asset.id}`
+
+        if(asset.mediaType.startsWith("image/")) {
+            const style = {
+                width: '100%',
+                height: '100%',
+                backgroundSize: 'contain',
+                backgroundPosition: 'center center',
+                backgroundRepeat: 'no-repeat',
+                backgroundImage: `url(${url})`
+            }
+
+            return (
+                <div style={style}/>
+            )
+        } else if (asset.mediaType.startsWith("video/")) {
+            return (
+                <div>VIDEO</div>
+            )
+        } else {
+            return <div>Media type not supported</div>
+        }
+    }
+
+    return <div></div>
 }

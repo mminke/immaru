@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>com.earthrevealed.immaru</groupId>
-            <artifactId>immaru-scaler</artifactId>
+            <artifactId>immaru-media-manipulation</artifactId>
         </dependency>
         <dependency>
             <groupId>com.earthrevealed.immaru</groupId>
