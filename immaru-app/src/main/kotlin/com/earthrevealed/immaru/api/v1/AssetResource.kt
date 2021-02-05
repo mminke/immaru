@@ -11,10 +11,12 @@ import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_PNG
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.TagId
+import com.earthrevealed.immaru.domain.Video
 import com.earthrevealed.immaru.image.convertToPng
 import com.earthrevealed.immaru.image.scaleImage
 import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
+import com.earthrevealed.immaru.video.extractThumbnail
 import org.apache.commons.io.IOUtils
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -92,6 +94,7 @@ class AssetResource(
 
     private fun isSupported(mediaType: javax.ws.rs.core.MediaType) =
             mediaType == MEDIATYPE_IMAGE_JPEG || mediaType == MEDIATYPE_IMAGE_PNG || mediaType == MEDIATYPE_IMAGE_GIF
+                    || mediaType.isCompatible(MEDIATYPE_VIDEO)
 
     @GetMapping("/assets/{id}/thumbnail")
     fun assetThumbnail(
@@ -101,15 +104,26 @@ class AssetResource(
         if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
+        val asset = assetRepository.get(collectionId, id)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
 
-        val fileLocation = collectionService.assetPath(collectionId, id)
+         val outputStream = when(asset) {
+            is Image -> {
+                val fileLocation = collectionService.assetPath(collectionId, id)
 
-        val scaledImageOutputStream = scaleImage(Files.newInputStream(fileLocation))
+                scaleImage(Files.newInputStream(fileLocation))
+            }
+            is Video -> {
+                val path = collectionService.assetPath(collectionId, id)
+
+                extractThumbnail(path)
+            }
+        }
 
         val responseHeaders = HttpHeaders()
         responseHeaders.contentType = MediaType.IMAGE_PNG
 
-        val imageByteArray = scaledImageOutputStream.toByteArray()
+        val imageByteArray = outputStream.toByteArray()
         return ResponseEntity(imageByteArray, responseHeaders, HttpStatus.OK)
     }
 
