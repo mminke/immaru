@@ -3,8 +3,12 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useParams, useHistory } from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
+import { Player } from 'video-react';
+
 import { Collection } from '../repositories/CollectionRepository'
 import {assetRepository, Asset} from '../repositories/AssetRepository'
+
+import "video-react/dist/video-react.css";
 
 type ImageViewerProps = {
     collection: Collection
@@ -48,7 +52,10 @@ export default function ImageViewer({collection}: ImageViewerProps) {
             )
         } else if (asset.mediaType.startsWith("video/")) {
             return (
-                <div>VIDEO</div>
+                <Player
+                      playsInline
+                      src={url}
+                    />
             )
         } else {
             return <div>Media type not supported</div>
