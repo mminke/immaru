@@ -43,14 +43,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type ImageDetailsProps = {
+type AssetDetailsProps = {
     activeCollection: Collection,
     asset: Asset|null,
     open: boolean,
     onClose: () => void
 }
 
-export default function ImageDetails({activeCollection, asset, open, onClose}: ImageDetailsProps) {
+export default function AssetDetails({activeCollection, asset, open, onClose}: AssetDetailsProps) {
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])
@@ -94,7 +94,7 @@ console.log(asset)
             </div>
             <Divider />
 
-            <h1>Image details</h1>
+            <h1>Details</h1>
 
             { asset !== null &&
                 <TableContainer component={Paper}>

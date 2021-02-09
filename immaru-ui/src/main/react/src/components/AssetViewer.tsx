@@ -10,11 +10,11 @@ import {assetRepository, Asset} from '../repositories/AssetRepository'
 
 import "video-react/dist/video-react.css";
 
-type ImageViewerProps = {
+type AssetViewerProps = {
     collection: Collection
 }
 
-export default function ImageViewer({collection}: ImageViewerProps) {
+export default function AssetViewer({collection}: AssetViewerProps) {
     const {id} = useParams()
     const history = useHistory()
 
@@ -27,11 +27,11 @@ export default function ImageViewer({collection}: ImageViewerProps) {
             })
     }, [collection])
 
-    const closeImageViewer = () => {
+    const closeAssetViewer = () => {
         history.push("/media")
     }
 
-    useHotkeys('v', (event:any) => closeImageViewer());
+    useHotkeys('v', (event:any) => closeAssetViewer());
 
     let url = ''
     if(asset !== undefined) {

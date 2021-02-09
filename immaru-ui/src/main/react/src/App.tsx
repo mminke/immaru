@@ -7,9 +7,9 @@ import {useHotkeys} from "react-hotkeys-hook"
 
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
-import ImageList from './components/ImageList'
-import ImageDetails from './components/ImageDetails'
-import ImageViewer from './components/ImageViewer'
+import AssetList from './components/AssetList'
+import AssetDetails from './components/AssetDetails'
+import AssetViewer from './components/AssetViewer'
 import FileUpload from './components/FileUpload'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
@@ -66,14 +66,14 @@ export default function App() {
         setActiveCollection(collection)
     }
 
-    const [imageDetailsOpen, setImageDetailsOpen] = useState(false);
+    const [assetDetailsOpen, setAssetDetailsOpen] = useState(false);
 
-    const closeImageDetails = () => {
-        setImageDetailsOpen(false)
+    const closeAssetDetails = () => {
+        setAssetDetailsOpen(false)
     }
 
-    const toggleImageDetails = () => {
-        setImageDetailsOpen(!imageDetailsOpen)
+    const toggleAssetDetails = () => {
+        setAssetDetailsOpen(!assetDetailsOpen)
     }
 
     const [selectedAsset, setSelectedAsset] = useState<Asset|null>(null);
@@ -81,7 +81,7 @@ export default function App() {
         setSelectedAsset(asset)
     }
 
-    useHotkeys('i', hotkeysEnabledFilter(toggleImageDetails), [imageDetailsOpen]);
+    useHotkeys('i', hotkeysEnabledFilter(toggleAssetDetails), [assetDetailsOpen]);
 
     if(activeCollection === undefined) {
         return (
@@ -96,7 +96,7 @@ export default function App() {
                         <MainAppBar activeCollection={activeCollection} toggleMainDrawer={toggleMainDrawer}/>
                         <div className={classes.workspace}>
                             <MainDrawer open={mainDrawerOpen}/>
-                            <ImageDetails activeCollection={activeCollection} asset={selectedAsset} open={imageDetailsOpen} onClose={closeImageDetails}/>
+                            <AssetDetails activeCollection={activeCollection} asset={selectedAsset} open={assetDetailsOpen} onClose={closeAssetDetails}/>
 
                             <main className={classes.content}>
                                 <div className={classes.contentPadded}>
@@ -104,9 +104,9 @@ export default function App() {
                                         <Route path="/upload">
                                             <FileUpload activeCollection={activeCollection}/>
                                         </Route>
-                                        <Route path="/asset/:id" children={<ImageViewer collection={activeCollection}/>}/>
+                                        <Route path="/asset/:id" children={<AssetViewer collection={activeCollection}/>}/>
                                         <Route path={["/", "/media"]}>
-                                            <ImageList
+                                            <AssetList
                                                 activeCollection={activeCollection}
                                                 onImageSelected={handleImageSelected}
                                             />

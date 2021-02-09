@@ -74,17 +74,17 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-type ImageListProps = {
+type AssetListProps = {
     activeCollection: Collection,
     columns?: number,
     onImageSelected?: (asset: Asset ) => void
 }
 
-export default function ImageList({
+export default function AssetList({
                                     columns = 7,
                                     activeCollection,
                                     onImageSelected: handleImageSelected
-                                  }: ImageListProps) {
+                                  }: AssetListProps) {
     const classes = useStyles()
     const history = useHistory()
 
