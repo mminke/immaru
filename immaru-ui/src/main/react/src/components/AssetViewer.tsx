@@ -41,14 +41,11 @@ export default function AssetViewer({collection}: AssetViewerProps) {
             const style = {
                 width: '100%',
                 height: '100%',
-                backgroundSize: 'contain',
-                backgroundPosition: 'center center',
-                backgroundRepeat: 'no-repeat',
-                backgroundImage: `url(${url})`
-            }
+                objectFit: 'contain',
+            } as React.CSSProperties
 
             return (
-                <div style={style}/>
+                <img src={url} style={style}/>
             )
         } else if (asset.mediaType.startsWith("video/")) {
             return (
