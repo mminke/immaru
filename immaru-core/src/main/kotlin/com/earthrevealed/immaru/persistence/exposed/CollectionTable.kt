@@ -10,7 +10,9 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-internal object CollectionTable : UUIDTable("collections") {
+private const val SCHEMA_NAME = "immaru"
+
+internal object CollectionTable : UUIDTable("${SCHEMA_NAME}.collections") {
     val name = text("name")
     val createdAt = timestamp("created_at")
 }

@@ -11,7 +11,9 @@ import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.time.OffsetDateTime
 import java.time.ZoneId
 
-internal object TagTable : UUIDTable("tags") {
+private const val SCHEMA_NAME = "immaru"
+
+internal object TagTable : UUIDTable("${SCHEMA_NAME}.tags") {
     val collectionId = uuid("collection_id")
     val name = text("name")
     val createdAt = timestamp("created_at")

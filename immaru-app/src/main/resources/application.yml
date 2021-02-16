@@ -3,6 +3,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/immaru
     username: immaru
     password: immaru
+  flyway:
+    create-schemas: true
+    schemas: immaru
+    default-schema: immaru
   servlet.multipart:
     max-file-size: 100GB
     max-request-size: 100GB

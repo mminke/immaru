@@ -25,7 +25,9 @@ import org.jetbrains.exposed.sql.`java-time`.timestamp
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import javax.ws.rs.core.MediaType
 
-internal object AssetTable : UUIDTable("assets") {
+private const val SCHEMA_NAME = "immaru"
+
+internal object AssetTable : UUIDTable("${SCHEMA_NAME}.assets") {
     val collectionId = uuid("collection_id")
     val mediaType = text("media_type")
     val originalFilename = text("original_filename")
@@ -34,18 +36,18 @@ internal object AssetTable : UUIDTable("assets") {
     val lastModifiedAt = timestamp("last_modified_at")
 }
 
-internal object ImageTable : UUIDTable("images") {
+internal object ImageTable : UUIDTable("${SCHEMA_NAME}.images") {
     val width = integer( "width")
     val height = integer( "height")
 }
 
-internal object VideoTable : UUIDTable("videos") {
+internal object VideoTable : UUIDTable("${SCHEMA_NAME}.videos") {
     val frameRate = integer( "frame_rate" )
     val width = integer( "width")
     val height = integer( "height")
 }
 
-internal object AssetTagTable : Table("asset_tags") {
+internal object AssetTagTable : Table("${SCHEMA_NAME}.asset_tags") {
     val assetId = uuid("asset_id").references(AssetTable.id)
     val tagId = uuid("tag_id").references(TagTable.id)
 }
