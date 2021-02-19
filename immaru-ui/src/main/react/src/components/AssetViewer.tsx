@@ -10,6 +10,14 @@ import {assetRepository, Asset} from '../repositories/AssetRepository'
 
 import "video-react/dist/video-react.css";
 
+const useStyles = makeStyles((theme) => ({
+    image: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'contain',
+    }
+}));
+
 type AssetViewerProps = {
     collection: Collection
 }
@@ -17,6 +25,7 @@ type AssetViewerProps = {
 export default function AssetViewer({collection}: AssetViewerProps) {
     const {id} = useParams()
     const history = useHistory()
+    const classes = useStyles()
 
     const [asset, setAsset] = useState<Asset>()
 
@@ -33,19 +42,12 @@ export default function AssetViewer({collection}: AssetViewerProps) {
 
     useHotkeys('v', (event:any) => closeAssetViewer());
 
-    let url = ''
     if(asset !== undefined) {
-        url = `/collections/${collection.id}/assets/${asset.id}`
+        let url = `/collections/${collection.id}/assets/${asset.id}`
 
         if(asset.mediaType.startsWith("image/")) {
-            const style = {
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-            } as React.CSSProperties
-
             return (
-                <img src={url} style={style}/>
+                <img src={url} className={classes.image}/>
             )
         } else if (asset.mediaType.startsWith("video/")) {
             return (
