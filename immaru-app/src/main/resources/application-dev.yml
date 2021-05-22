@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/immaru
+
+immaru:
+  library:
+    path: /data/immaru-dev/files
+
+logging:
+  level:
+    Exposed: DEBUG

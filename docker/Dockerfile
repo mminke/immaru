@@ -6,7 +6,6 @@ VOLUME /data
 
 ARG JAR_FILE=immaru-app/target/*.jar
 COPY ${JAR_FILE} app.jar
-COPY docker/config/application.yml application.yml
 
 USER immaru:immaru
 

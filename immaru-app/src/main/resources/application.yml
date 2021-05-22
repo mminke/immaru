@@ -1,6 +1,8 @@
 spring:
+  profiles:
+    active: @runtimeProfile@
   datasource:
-    url: jdbc:postgresql://localhost:5432/immaru
+    url: jdbc:postgresql://db:5432/immaru
     username: immaru
     password: immaru
   flyway:
@@ -13,7 +15,7 @@ spring:
 
 immaru:
   library:
-    path: /data/immaru-dev/files
+    path: /data
 
 springdoc:
   api-docs:
