@@ -14,7 +14,7 @@ services:
       POSTGRES_PASSWORD: immaru
 
   immaru:
-    image: mminke/immaru:1.0-snapshot
+    image: immaru:1.0-snapshot
     restart: always
     volumes:
       - /data/immaru:/data
