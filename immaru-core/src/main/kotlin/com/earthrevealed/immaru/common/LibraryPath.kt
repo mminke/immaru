@@ -1,11 +1,14 @@
 package com.earthrevealed.immaru.common
 
 import com.earthrevealed.immaru.domain.Asset
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+
+private val logger = KotlinLogging.logger { }
 
 @Component
 class LibraryPath(@Value("\${immaru.library.path}") value: String) {
@@ -13,6 +16,8 @@ class LibraryPath(@Value("\${immaru.library.path}") value: String) {
 
     init {
         libraryRoot = Path.of(value)
+        logger.info { "Using library root: $libraryRoot" }
+
         Files.createDirectories(libraryRoot)
     }
 
