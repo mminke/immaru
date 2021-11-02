@@ -8,6 +8,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoUnit
 import java.util.*
 import javax.ws.rs.core.MediaType
 
@@ -93,7 +94,26 @@ data class Video(
     }
 }
 
-data class OriginalDateOfCreation(val value: OffsetDateTime) {
+abstract class TruncatedOffsetDateTime(value: OffsetDateTime) {
+    val value: OffsetDateTime = value.truncatedTo(ChronoUnit.MILLIS)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TruncatedOffsetDateTime
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+}
+
+class OriginalDateOfCreation(value: OffsetDateTime): TruncatedOffsetDateTime(value) {
     companion object {
         fun of(instant: Instant) = OriginalDateOfCreation(OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()))
         fun of(value: String): OriginalDateOfCreation {
@@ -108,14 +128,14 @@ data class OriginalDateOfCreation(val value: OffsetDateTime) {
     }
 }
 
-data class CreatedAt(val value: OffsetDateTime) {
+class CreatedAt(value: OffsetDateTime): TruncatedOffsetDateTime(value) {
     companion object {
         fun now() = CreatedAt(OffsetDateTime.now())
         fun of(instant: Instant) = CreatedAt(OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()))
     }
 }
 
-data class LastModifiedAt(val value: OffsetDateTime) {
+class LastModifiedAt(value: OffsetDateTime): TruncatedOffsetDateTime(value) {
     companion object {
         fun now() = LastModifiedAt(OffsetDateTime.now())
         fun of(instant: Instant) = LastModifiedAt(OffsetDateTime.ofInstant(instant, ZoneId.systemDefault()))
@@ -138,7 +158,7 @@ data class Width constructor(val value: Pixel) {
 
     companion object {
         val UNKNOWN = Width(-1.px)
-        fun of(value: Pixel?) = if(value==null) Width.UNKNOWN else Width(value)
+        fun of(value: Pixel?) = if(value==null) UNKNOWN else Width(value)
         fun of(value: String) = Width(Pixel.of(value))
     }
 }
@@ -148,7 +168,7 @@ data class Height constructor(val value: Pixel) {
 
     companion object {
         val UNKNOWN = Height(-1.px)
-        fun of(value: Pixel?) = if (value == null) Height.UNKNOWN else Height(value)
+        fun of(value: Pixel?) = if (value == null) UNKNOWN else Height(value)
         fun of(value: String) = Height(Pixel.of(value))
     }
 }

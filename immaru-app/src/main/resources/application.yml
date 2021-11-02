@@ -2,7 +2,7 @@ spring:
   profiles:
     active: @runtimeProfile@
   datasource:
-    url: jdbc:postgresql://db:5432/immaru
+    url: jdbc:postgresql://db:5432/immaru?currentSchema=immaru
     username: immaru
     password: immaru
   flyway:
