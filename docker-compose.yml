@@ -9,7 +9,7 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: immaru-dev
-      POSTGRES_PASSWORD: immaru-dev
-#    volumes:
-#      - ./infra/dev:/docker-entrypoint-initdb.d
+      POSTGRES_USER: immaru
+      POSTGRES_PASSWORD: immaru
+    volumes:
+      - ./infra/dev:/docker-entrypoint-initdb.d

@@ -1,0 +1,2 @@
+CREATE DATABASE immaru_dev;
+GRANT ALL PRIVILEGES ON DATABASE immaru_dev TO immaru;
