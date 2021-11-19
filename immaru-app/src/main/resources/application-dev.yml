@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/immaru-dev?currentSchema=immaru
-    username: immaru-dev
-    password: immaru-dev
+    url: jdbc:postgresql://localhost:5432/immaru_dev?currentSchema=immaru
+    username: immaru_dev
+    password: immaru_dev
 immaru:
   library:
     path: ${java.io.tmpdir}/data/immaru-dev
