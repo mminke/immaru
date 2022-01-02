@@ -10,6 +10,7 @@ import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.LastModifiedAt
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
+import com.earthrevealed.immaru.domain.MediaType
 import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.TagId
 import com.earthrevealed.immaru.domain.Video
@@ -21,9 +22,8 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.javatime.timestamp
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import javax.ws.rs.core.MediaType
 
 private const val SCHEMA_NAME = "immaru"
 

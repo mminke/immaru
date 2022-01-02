@@ -10,6 +10,7 @@ import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
+import com.earthrevealed.immaru.domain.MediaType
 import com.earthrevealed.immaru.domain.Video
 import com.earthrevealed.immaru.domain.image
 import com.earthrevealed.immaru.domain.video
@@ -19,7 +20,6 @@ import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import org.springframework.stereotype.Service
 import java.nio.file.Path
-import javax.ws.rs.core.MediaType
 
 class CollectionNotEmptyException(message: String?) : RuntimeException(message)
 

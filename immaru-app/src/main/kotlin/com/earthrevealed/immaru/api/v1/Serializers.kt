@@ -5,6 +5,7 @@ import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.CreatedAt
 import com.earthrevealed.immaru.domain.Height
 import com.earthrevealed.immaru.domain.LastModifiedAt
+import com.earthrevealed.immaru.domain.MediaType
 import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.TagId
 import com.earthrevealed.immaru.domain.Width
@@ -15,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import org.springframework.boot.jackson.JsonComponent
-import javax.ws.rs.core.MediaType
+//import javax.ws.rs.core.MediaType
 
 @JsonComponent
 class TagIdJsonSerializer: JsonSerializer<TagId>() {
@@ -71,7 +72,7 @@ class MediaTypeJsonSerializer: JsonSerializer<MediaType>() {
 
 @JsonComponent
 class OriginalDateOfCreationJsonSerializer: JsonSerializer<OriginalDateOfCreation>() {
-    override fun serialize(originalDateOfCreation: OriginalDateOfCreation, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+    override fun serialize(originalDateOfCreation: OriginalDateOfCreation?, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
         if(originalDateOfCreation == null) {
             jsonGenerator.writeNull()
         } else {
@@ -82,7 +83,7 @@ class OriginalDateOfCreationJsonSerializer: JsonSerializer<OriginalDateOfCreatio
 
 @JsonComponent
 class CreatedAtJsonSerializer: JsonSerializer<CreatedAt>() {
-    override fun serialize(createdAt: CreatedAt, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+    override fun serialize(createdAt: CreatedAt?, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
         if(createdAt == null) {
             jsonGenerator.writeNull()
         } else {
@@ -93,7 +94,7 @@ class CreatedAtJsonSerializer: JsonSerializer<CreatedAt>() {
 
 @JsonComponent
 class LastModifiedAtJsonSerializer: JsonSerializer<LastModifiedAt>() {
-    override fun serialize(lastModifiedAt: LastModifiedAt, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+    override fun serialize(lastModifiedAt: LastModifiedAt?, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
         if(lastModifiedAt == null) {
             jsonGenerator.writeNull()
         } else {
@@ -104,7 +105,7 @@ class LastModifiedAtJsonSerializer: JsonSerializer<LastModifiedAt>() {
 
 @JsonComponent
 class ImageWidthJsonSerializer: JsonSerializer<Width>() {
-    override fun serialize(width: Width, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+    override fun serialize(width: Width?, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
         if(width == null) {
             jsonGenerator.writeNull()
         } else {
@@ -115,7 +116,7 @@ class ImageWidthJsonSerializer: JsonSerializer<Width>() {
 
 @JsonComponent
 class ImageHeightJsonSerializer: JsonSerializer<Height>() {
-    override fun serialize(height: Height, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
+    override fun serialize(height: Height?, jsonGenerator: JsonGenerator, serializerProvider: SerializerProvider?) {
         if(height == null) {
             jsonGenerator.writeNull()
         } else {

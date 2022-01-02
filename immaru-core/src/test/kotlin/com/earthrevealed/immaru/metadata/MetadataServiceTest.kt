@@ -29,6 +29,6 @@ internal class MetadataServiceTest {
             mediaType = MEDIATYPE_IMAGE_JPEG
         }
 
-        val result = metadataService.process(image)
+        metadataService.process(image)
     }
 }

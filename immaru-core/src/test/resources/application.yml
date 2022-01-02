@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/immaru-dev
-    username: immaru-dev
-    password: immaru-dev
+    url: jdbc:postgresql://localhost:5432/immaru_dev
+    username: immaru_dev
+    password: immaru_dev
   flyway:
     create-schemas: true
     schemas: immaru

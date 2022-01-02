@@ -6,7 +6,7 @@ import com.earthrevealed.immaru.domain.TagId
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.`java-time`.timestamp
+import org.jetbrains.exposed.sql.javatime.timestamp
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.time.OffsetDateTime
 import java.time.ZoneId

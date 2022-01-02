@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 import java.nio.file.Files
 import javax.servlet.http.HttpServletResponse
+import com.earthrevealed.immaru.domain.MediaType as ImmaryMediaType
 
 @RestController
 @RequestMapping("/collections/{collectionId}")
@@ -92,7 +93,7 @@ class AssetResource(
         }
     }
 
-    private fun isSupported(mediaType: javax.ws.rs.core.MediaType) =
+    private fun isSupported(mediaType: ImmaryMediaType) =
             mediaType == MEDIATYPE_IMAGE_JPEG || mediaType == MEDIATYPE_IMAGE_PNG || mediaType == MEDIATYPE_IMAGE_GIF
                     || mediaType.isCompatible(MEDIATYPE_VIDEO)
 
