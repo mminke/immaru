@@ -165,6 +165,7 @@ export default function AssetList({
                                 rowHeight={imageSize}
                                 itemData={assets}
                                 overscanRowCount={2}
+                                useIsScrolling
                             >
                                 {Cell(isSelected, columnCount, handleImageClick)}
                             </Grid>
@@ -180,7 +181,7 @@ const Cell = (
         isSelected: (asset: Asset) => boolean,
         columnCount: number,
         handleClick?: (event: MouseEvent, asset: Asset ) => void,
-    ) => ( {columnIndex, data, rowIndex, style}: any) => {
+    ) => ( {columnIndex, data, rowIndex, style, isScrolling}: any) => {
         const index = (rowIndex*columnCount) + columnIndex
         if(index >= data.length) {
             return (
@@ -192,12 +193,15 @@ const Cell = (
         const asset = data[index]
         return (
             <div style={style}>
-                <ImageElement
-                    asset={asset}
-                    index={index}
-                    onClick={handleClick}
-                    isSelected={isSelected}
-                />
+            {
+                isScrolling ? "Loading..." :
+                    <ImageElement
+                        asset={asset}
+                        index={index}
+                        onClick={handleClick}
+                        isSelected={isSelected}
+                    />
+            }
             </div>
         )
     };
