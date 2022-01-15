@@ -8,12 +8,14 @@ import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from "react-virtualized-auto-sizer";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import SelectTagsDialog from './SelectTagsDialog'
-import {Tag} from '../repositories/TagRepository'
-import {assetRepository, Asset} from '../repositories/AssetRepository'
-import {Collection} from '../repositories/CollectionRepository'
+import SelectTagsDialog from '../SelectTagsDialog'
+import {Tag} from '../../repositories/TagRepository'
+import {assetRepository, Asset} from '../../repositories/AssetRepository'
+import {Collection} from '../../repositories/CollectionRepository'
 
-import {hotkeysEnabledFilter} from '../HotkeyState'
+import {AssetThumbnail} from './AssetThumbnail'
+
+import {hotkeysEnabledFilter} from '../../HotkeyState'
 
 const useStyles = makeStyles((theme) => ({
     loader: {
@@ -35,42 +37,9 @@ const useStyles = makeStyles((theme) => ({
         padding: '10px',
         overflow: 'hidden',
         position: 'relative',
-        transition: 'all .5s linear',
-        transitionDelay: '.1s',
-        '&:hover $imageWrapper': {
-            backgroundPosition: 'right',
-        },
-        '& a': {
-            display: 'block',
-            color: '#ffffff !important',
-            textAlign: 'center',
-            margin: 'auto',
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            cursor: 'pointer',
-            textDecoration: 'none',
-            paddingTop: '3px',
-            paddingBottom: '3px',
-            backgroundColor: 'rgba(255,255,255,0.2)',
-        },
     },
     imageSelected: {
         backgroundColor: theme.palette.primary.light,
-    },
-    imageWrapper: {
-        position: 'relative',
-        width: '100%',
-        paddingBottom: '100%',
-        backgroundSize: 'cover',
-//         backgroundSize: 'contain',
-        backgroundPosition: 'center center',
-        backgroundRepeat: 'no-repeat',
-        transition: 'all .5s linear',
-
-        cursor: 'pointer',
-        boxShadow: '0 10px 6px -6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset',
     },
 }));
 
@@ -177,7 +146,6 @@ export default function AssetList({
         )
     }
 
-
     return (
         <div style={{flexGrow: 1}}>
             <AutoSizer>
@@ -243,17 +211,10 @@ type ImageElementProps = {
 
 function ImageElement({asset, index, onClick: handleClick, isSelected: isAssetSelected}: ImageElementProps) {
     const classes = useStyles();
-    const url = `collections/${asset.collectionId}/assets/${asset.id}/thumbnail`
-    const style = {backgroundImage: `url(${url})`}
 
     let isSelected = false
     if(isAssetSelected !== undefined) {
         isSelected = isAssetSelected(asset)
-    }
-
-    const handleOnClick = (event: MouseEvent, asset: Asset) => {
-        event.persist()
-        handleClick && handleClick(event, asset)
     }
 
     return (
@@ -261,14 +222,9 @@ function ImageElement({asset, index, onClick: handleClick, isSelected: isAssetSe
         <div className={clsx(classes.imageGridItem, {
                             [classes.imageSelected]: isSelected,
                         })}
+                        onClick={(event: MouseEvent) => handleClick && handleClick(event, asset)}
             key={asset.id}>
-
-            <div className={classes.imageWrapper}
-                onClick={(event: MouseEvent) => handleOnClick(event, asset)}
-                style={style}>
-
-                <a href="#">{asset.originalFilename}</a>
-            </div>
+            <AssetThumbnail asset={asset} />
         </div>
     )
 }

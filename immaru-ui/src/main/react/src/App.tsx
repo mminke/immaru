@@ -7,7 +7,7 @@ import {useHotkeys} from "react-hotkeys-hook"
 
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
-import AssetList from './components/AssetList'
+import AssetList from './components/assetlist/AssetList'
 import AssetDetails from './components/AssetDetails'
 import AssetViewer from './components/AssetViewer'
 import FileUpload from './components/FileUpload'
