@@ -18,6 +18,7 @@ import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import com.earthrevealed.immaru.video.extractThumbnail
 import org.apache.commons.io.IOUtils
+import org.springframework.http.CacheControl
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.server.ResponseStatusException
 import java.nio.file.Files
+import java.time.Duration
 import javax.servlet.http.HttpServletResponse
 import com.earthrevealed.immaru.domain.MediaType as ImmaryMediaType
 
@@ -82,6 +84,7 @@ class AssetResource(
 
         val fileLocation = collectionService.assetPath(collectionId, id)
 
+        response.setCacheControl(Duration.ofHours(24))
         Files.newInputStream(fileLocation).use { inputStream ->
             if (isSupported(asset.mediaType)) {
                 response.contentType = asset.mediaType.toString()
@@ -91,6 +94,10 @@ class AssetResource(
                 convertToPng(inputStream, response.outputStream)
             }
         }
+    }
+
+    private fun HttpServletResponse.setCacheControl(maxAge: Duration) {
+        this.addHeader("Cache-Control", "max-age=${maxAge.toSeconds()}, no-transform")
     }
 
     private fun isSupported(mediaType: ImmaryMediaType) =
@@ -108,7 +115,7 @@ class AssetResource(
         val asset = assetRepository.get(collectionId, id)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
 
-         val outputStream = when(asset) {
+        val outputStream = when (asset) {
             is Image -> {
                 val fileLocation = collectionService.assetPath(collectionId, id)
 
@@ -123,6 +130,9 @@ class AssetResource(
 
         val responseHeaders = HttpHeaders()
         responseHeaders.contentType = MediaType.IMAGE_PNG
+        responseHeaders.setCacheControl(
+                CacheControl.maxAge(Duration.ofHours(24))
+        )
 
         val imageByteArray = outputStream.toByteArray()
         return ResponseEntity(imageByteArray, responseHeaders, HttpStatus.OK)
