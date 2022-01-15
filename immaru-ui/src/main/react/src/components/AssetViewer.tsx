@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useParams, useHistory } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
 import { Player } from 'video-react';
@@ -24,20 +24,22 @@ type AssetViewerProps = {
 
 export default function AssetViewer({collection}: AssetViewerProps) {
     const {id} = useParams()
-    const history = useHistory()
+    const navigate = useNavigate()
     const classes = useStyles()
 
     const [asset, setAsset] = useState<Asset>()
 
     useEffect( () => {
-        assetRepository.assetWithId(collection, id)
-            .then(assetRetrieved => {
-                setAsset(assetRetrieved)
-            })
+        if(!!id) {
+            assetRepository.assetWithId(collection, id)
+                .then(assetRetrieved => {
+                    setAsset(assetRetrieved)
+                })
+        }
     }, [collection])
 
     const closeAssetViewer = () => {
-        history.push("/media")
+        navigate("/media")
     }
 
     useHotkeys('v', (event:any) => closeAssetViewer());

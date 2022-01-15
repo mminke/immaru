@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { makeStyles, createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles, createTheme, ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-import {BrowserRouter as Router, Switch, Route} from "react-router-dom"
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
 import MainAppBar from './components/MainAppBar'
@@ -46,7 +46,7 @@ export default function App() {
     const prefersDarkMode = true;
     const theme = React.useMemo(
         () =>
-            createMuiTheme({
+            createTheme({
                 palette: {
                 type: prefersDarkMode ? 'dark' : 'light',
                 },
@@ -100,18 +100,14 @@ export default function App() {
 
                             <main className={classes.content}>
                                 <div className={classes.contentPadded}>
-                                    <Switch>
-                                        <Route path="/upload">
-                                            <FileUpload activeCollection={activeCollection}/>
-                                        </Route>
-                                        <Route path="/asset/:id" children={<AssetViewer collection={activeCollection}/>}/>
-                                        <Route path={["/", "/media"]}>
-                                            <AssetList
-                                                activeCollection={activeCollection}
-                                                onImageSelected={handleImageSelected}
-                                            />
-                                        </Route>
-                                    </Switch>
+                                    <Routes>
+                                        <Route path="/upload" element={<FileUpload activeCollection={activeCollection}/>} />
+                                        <Route path="/asset/:id" element={<AssetViewer collection={activeCollection}/>} />
+                                        <Route path="/" element={<Navigate to="/media"/>} />
+                                        <Route path="/media"
+                                            element={<Media activeCollection={activeCollection} onImageSelected={handleImageSelected}/>}
+                                        />
+                                    </Routes>
                                 </div>
                             </main>
                         </div>
@@ -120,4 +116,22 @@ export default function App() {
             </ThemeProvider>
         );
   }
+}
+
+
+type MediaProps = {
+    activeCollection: Collection,
+    onImageSelected?: (asset: Asset ) => void
+}
+
+function Media({activeCollection, onImageSelected: handleImageSelected}: MediaProps) {
+    return <>
+        <div>
+            <h1>test</h1>
+        </div>
+        <AssetList
+            activeCollection={activeCollection}
+            onImageSelected={handleImageSelected}
+        />
+    </>
 }

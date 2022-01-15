@@ -1,5 +1,17 @@
 # Immaru Media Library
 
+## Project setup
+
+Two maven profiles: 
+* dev [default]
+* prod
+
+Springboot config files:
+* application.yml
+* application-dev.yml [activated using the dev maven profile]
+
+### Build development image
+
 ## Development
 
 For development of Immaru the following tools are required:
@@ -28,15 +40,19 @@ To build the docker container, use the build.sh script in the
 
     cd docker
     ./build.sh
-    
-## Running
 
-To run Immaru the easiest way is the build the docker image
+## Running Locally
+
+To run Immaru the easiest way is to build the docker image
 and then use docker-compose to startup Immaru with the necessary
 postgres server.
 
     cd docker
-    docker-compose up    
+    docker-compose up
+
+### Build production image
+
+    mvn clean package -P prod
         
 ## Immaru Usage
 
@@ -44,8 +60,8 @@ postgres server.
  
 To upload a single file using cUrl:
 
-    curl -v -F files=@Untitled.png http://localhost:8080/assets
+    curl -v -F files=@Untitled.png http://localhost:8080/collections/{collection-id}/assets
 
 To upload multiple files using cUrl:
 
-    curl -F 'files[]=@/path/to/fileX' -F 'files[]=@/path/to/fileY' ... http://localhost:8080/assets
+    curl -F 'files[]=@/path/to/fileX' -F 'files[]=@/path/to/fileY' ... http://localhost:8080/collections/{collection-id}/assets

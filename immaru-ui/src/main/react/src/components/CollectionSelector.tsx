@@ -45,7 +45,7 @@ type CollectionSelectorProps = {
 export default function CollectionSelector({onSelected}: CollectionSelectorProps) {
     const classes = useStyles();
 
-    const [collections, setCollections] = useState()
+    const [collections, setCollections] = useState<Array<Collection>>()
 
     const [reloadCollections, setReloadCollections] = useState(0)
 

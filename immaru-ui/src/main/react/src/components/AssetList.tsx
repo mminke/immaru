@@ -1,7 +1,7 @@
 import React, { useState, useEffect, MouseEvent  } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import { useHistory } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
 import { FixedSizeGrid as Grid } from 'react-window';
@@ -86,9 +86,9 @@ export default function AssetList({
                                     onImageSelected: handleImageSelected
                                   }: AssetListProps) {
     const classes = useStyles()
-    const history = useHistory()
+    const navigate = useNavigate()
 
-    const [assets, setAssets] = useState()
+    const [assets, setAssets] = useState<Array<Asset>>([])
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
     const [selectTagsDialogIsOpen, setSelectTagsDialogIsOpen] = useState(false)
@@ -142,7 +142,7 @@ export default function AssetList({
 
     const handleHotkey_v = () => {
         if(selectedAssets.length > 0) {
-            history.push("/asset/" + selectedAssets[0].id)
+            navigate("/asset/" + selectedAssets[0].id)
         }
     }
 

@@ -16,12 +16,14 @@ type NewCollectionDialogProps = {
 
 export default function NewCollectionDialog({open, onClose, onCreate}: NewCollectionDialogProps) {
 
-    const [name, setName] = useState()
+    const [name, setName] = useState<String|null>(null)
 
     const handleCreate = () => {
-        collectionRepository.create({ "name": name})
-        setName(null)
-        onCreate()
+        if(!!name) {
+            collectionRepository.create({ "name": name })
+            setName(null)
+            onCreate()
+        }
     }
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
