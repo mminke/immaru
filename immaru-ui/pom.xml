@@ -12,8 +12,8 @@
     <artifactId>immaru-ui</artifactId>
 
     <properties>
-        <node.version>v10.19.0</node.version>
-        <yarn.version>v1.22.4</yarn.version>
+        <node.version>v16.13.2</node.version>
+        <yarn.version>v1.22.5</yarn.version>
         <react-src-dir>${project.basedir}/src/main/react</react-src-dir>
     </properties>
 
@@ -83,6 +83,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
