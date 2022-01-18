@@ -5,15 +5,19 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom"
 import {useHotkeys} from "react-hotkeys-hook"
 
+import Autocomplete from '@material-ui/lab/Autocomplete';
+
 import MainAppBar from './components/MainAppBar'
 import MainDrawer from './components/MainDrawer'
 import AssetList from './components/assetlist/AssetList'
 import AssetDetails from './components/AssetDetails'
 import AssetViewer from './components/AssetViewer'
 import FileUpload from './components/FileUpload'
+import TagFilter from './components/TagFilter'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
 import AssetRepository, {Asset} from './repositories/AssetRepository'
+import {Tag} from './repositories/TagRepository'
 
 import {hotkeysEnabledFilter} from './HotkeyState'
 
@@ -39,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     overflowX: 'hidden',
     flexGrow: 1,
+    flexDirection: 'column',
   }
 }));
 
@@ -103,9 +108,9 @@ export default function App() {
                                     <Routes>
                                         <Route path="/upload" element={<FileUpload activeCollection={activeCollection}/>} />
                                         <Route path="/asset/:id" element={<AssetViewer collection={activeCollection}/>} />
-                                        <Route path="/" element={<Navigate to="/media"/>} />
-                                        <Route path="/media"
-                                            element={<Media activeCollection={activeCollection} onImageSelected={handleImageSelected}/>}
+                                        <Route path="/" element={<Navigate to="/lightbox"/>} />
+                                        <Route path="/lightbox"
+                                            element={<LightBox activeCollection={activeCollection} onImageSelected={handleImageSelected}/>}
                                         />
                                     </Routes>
                                 </div>
@@ -119,16 +124,26 @@ export default function App() {
 }
 
 
-type MediaProps = {
+type LightBoxProps = {
     activeCollection: Collection,
     onImageSelected?: (asset: Asset ) => void
 }
 
-function Media({activeCollection, onImageSelected: handleImageSelected}: MediaProps) {
+function LightBox({activeCollection, onImageSelected: handleImageSelected}: LightBoxProps) {
+
+
+    const [filterTags, setFilterTags] = useState<Array<Tag>>([])
+    const handleChangedFilterTags = (tags: Tag[]) => {
+        console.log("Selected tags: " + tags)
+        setFilterTags(tags)
+    }
+
     return <>
-        <div>
-            <h1>test</h1>
-        </div>
+        <TagFilter
+            selectedTags={filterTags}
+            activeCollection={activeCollection}
+            onChange={handleChangedFilterTags}
+        />
         <AssetList
             activeCollection={activeCollection}
             onImageSelected={handleImageSelected}
