@@ -24,13 +24,14 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-type TagSelectorProps = {
+type Props = {
     selectedTags: Tag[],
     activeCollection: Collection,
+    allowAddNewTags?: boolean,
     onChange: (tags: Tag[]) => void
 }
 
-export default function TagSelector({selectedTags, activeCollection, onChange}: TagSelectorProps) {
+export default function TagSelector({selectedTags, activeCollection, onChange, allowAddNewTags = false}: Props) {
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])
@@ -89,7 +90,7 @@ export default function TagSelector({selectedTags, activeCollection, onChange}: 
               ))
             }
             renderInput={(params) => (
-              <TextField {...params} placeholder="Add tags"/>
+              <TextField {...params} placeholder="Select tags"/>
             )}
             onChange={(event: any, elements: any[]) => {
                 const changedTags: Tag[] = []
@@ -99,9 +100,11 @@ export default function TagSelector({selectedTags, activeCollection, onChange}: 
                             return tag.name.toLowerCase().trim() === element.toLowerCase().trim()
                         } )[0]
 
-                        if( tagForPlainValue === undefined ) {
-                            setNewTagDialogValue(element)
-                            toggleOpenNewTagDialog(true)
+                        if( tagForPlainValue === undefined) {
+                            if(allowAddNewTags) {
+                                setNewTagDialogValue(element)
+                                toggleOpenNewTagDialog(true)
+                            }
                         } else {
                             changedTags.push(tagForPlainValue)
                         }

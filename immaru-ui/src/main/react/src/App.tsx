@@ -13,7 +13,7 @@ import AssetList from './components/assetlist/AssetList'
 import AssetDetails from './components/AssetDetails'
 import AssetViewer from './components/AssetViewer'
 import FileUpload from './components/FileUpload'
-import TagFilter from './components/TagFilter'
+import TagSelector from './components/TagSelector'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
 import AssetRepository, {Asset} from './repositories/AssetRepository'
@@ -130,8 +130,6 @@ type LightBoxProps = {
 }
 
 function LightBox({activeCollection, onImageSelected: handleImageSelected}: LightBoxProps) {
-
-
     const [filterTags, setFilterTags] = useState<Array<Tag>>([])
     const handleChangedFilterTags = (tags: Tag[]) => {
         console.log("Selected tags: " + tags)
@@ -139,7 +137,7 @@ function LightBox({activeCollection, onImageSelected: handleImageSelected}: Ligh
     }
 
     return <>
-        <TagFilter
+        <TagSelector
             selectedTags={filterTags}
             activeCollection={activeCollection}
             onChange={handleChangedFilterTags}

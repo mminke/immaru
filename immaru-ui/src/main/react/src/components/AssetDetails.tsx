@@ -122,7 +122,7 @@ console.log(asset)
                             </TableRow>
                             <TableRow>
                                 <TableCell colSpan={2}>
-                                    <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
+                                    <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags} allowAddNewTags={true}/>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
