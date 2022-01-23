@@ -1,4 +1,5 @@
 import {Collection} from '../repositories/CollectionRepository'
+import {Tag} from '../repositories/TagRepository'
 
 export type Asset = {
     id: string,
@@ -21,8 +22,15 @@ export default class AssetRepository {
     static headers: HeadersInit = {'Accept': 'application/json'}
     static headersForUpdate: HeadersInit = {'Accept': 'application/json', 'Content-Type':'application/json'}
 
-    async assetsFor(collection: Collection): Promise<Asset[]> {
-        let assets = fetch('/collections/' + collection.id + '/assets', {headers: AssetRepository.headers})
+    async assetsFor(collection: Collection, tags: Tag[] = []): Promise<Asset[]> {
+        var url = new URL('/collections/' + collection.id + '/assets', document.baseURI)
+        if(tags.length > 0) {
+            tags
+                .map(tag => tag.id)
+                .forEach(tagId => url.searchParams.append('tagIds', tagId))
+        }
+
+        let assets = fetch(<any>url, {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
                     console.error("Error retrieving assets", response)

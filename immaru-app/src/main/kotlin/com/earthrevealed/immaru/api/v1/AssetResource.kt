@@ -48,12 +48,13 @@ class AssetResource(
 
     @GetMapping("/assets", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun assets(
-            @PathVariable("collectionId") collectionId: CollectionId
+            @PathVariable("collectionId") collectionId: CollectionId,
+            @RequestParam("tagIds", required = false) tagIds: Set<TagId>?
     ): List<Asset> {
         if (collectionRepository.notExists(collectionId)) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
         }
-        return assetRepository.all(collectionId)
+        return assetRepository.findByTags(collectionId, tagIds)
     }
 
     @GetMapping("/assets/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])

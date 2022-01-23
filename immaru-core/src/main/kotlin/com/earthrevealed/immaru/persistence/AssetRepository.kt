@@ -29,7 +29,10 @@ import java.util.*
 class AssetRepository {
     val AssetsJoinedWithImagesAndVideos = AssetTable
             .join(ImageTable, JoinType.LEFT, AssetTable.id, ImageTable.id)
-            .join(VideoTable, JoinType.LEFT, AssetTable.id, VideoTable.id )
+            .join(VideoTable, JoinType.LEFT, AssetTable.id, VideoTable.id)
+
+    val AssetsJoinedWithImagesVideosAndAssetTags = AssetsJoinedWithImagesAndVideos
+            .join(AssetTagTable, JoinType.LEFT, AssetTable.id, AssetTagTable.assetId)
 
     fun save(image: Image) {
         AssetTable.insert { it.from(image as Asset) }
@@ -67,6 +70,24 @@ class AssetRepository {
                             tagIdsForAsset(assetRecord[AssetTable.id].value)
                         }
                     }
+
+    fun findByTags(collectionId: CollectionId, tagIds: Set<TagId>?): List<Asset> {
+        val query = AssetsJoinedWithImagesVideosAndAssetTags.select {
+            AssetTable.collectionId eq collectionId.value
+        }
+        tagIds?.let {
+            query.andWhere {
+                AssetTagTable.tagId inList (it.map { tagId -> tagId.value }.asIterable())
+            }
+        }
+
+        return query.orderBy(AssetTable.originalCreatedAt, SortOrder.DESC)
+                .map { assetRecord ->
+                    assetRecord.toAsset {
+                        tagIdsForAsset(assetRecord[AssetTable.id].value)
+                    }
+                }
+    }
 
     fun get(collectionId: CollectionId, id: AssetId): Asset? =
             AssetsJoinedWithImagesAndVideos

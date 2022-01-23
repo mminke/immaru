@@ -16,7 +16,7 @@ import FileUpload from './components/FileUpload'
 import TagSelector from './components/TagSelector'
 import CollectionSelector from './components/CollectionSelector'
 import { Collection } from './repositories/CollectionRepository'
-import AssetRepository, {Asset} from './repositories/AssetRepository'
+import {assetRepository, Asset} from './repositories/AssetRepository'
 import {Tag} from './repositories/TagRepository'
 
 import {hotkeysEnabledFilter} from './HotkeyState'
@@ -130,9 +130,17 @@ type LightBoxProps = {
 }
 
 function LightBox({activeCollection, onImageSelected: handleImageSelected}: LightBoxProps) {
+    const [assets, setAssets] = useState<Array<Asset>>([])
     const [filterTags, setFilterTags] = useState<Array<Tag>>([])
+
+    useEffect( () => {
+        assetRepository.assetsFor(activeCollection, filterTags)
+            .then(assetsRetrieved => {
+                setAssets(assetsRetrieved)
+            })
+    }, [activeCollection, filterTags])
+
     const handleChangedFilterTags = (tags: Tag[]) => {
-        console.log("Selected tags: " + tags)
         setFilterTags(tags)
     }
 
