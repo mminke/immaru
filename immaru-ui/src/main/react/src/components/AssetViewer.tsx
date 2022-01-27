@@ -39,10 +39,13 @@ export default function AssetViewer({collection}: AssetViewerProps) {
     }, [collection])
 
     const closeAssetViewer = () => {
-        navigate("/media")
+        navigate("/lightbox")
     }
 
-    useHotkeys('v', (event:any) => closeAssetViewer());
+    useHotkeys('v', (event:any) => {
+        event.preventDefault()
+        closeAssetViewer()
+    });
 
     if(asset !== undefined) {
         let url = `/collections/${collection.id}/assets/${asset.id}`
