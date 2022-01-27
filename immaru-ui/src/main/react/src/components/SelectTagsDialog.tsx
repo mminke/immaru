@@ -48,7 +48,7 @@ export default function SelectTagsDialog(
                     Select the tags to use.
                 </DialogContentText>
 
-                <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags}/>
+                <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags} allowAddNewTags={true}/>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} color="primary">

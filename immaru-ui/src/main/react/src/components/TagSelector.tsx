@@ -90,7 +90,7 @@ export default function TagSelector({selectedTags, activeCollection, onChange, a
               ))
             }
             renderInput={(params) => (
-              <TextField {...params} placeholder="Select tags"/>
+              <TextField {...params} placeholder="Select tags" autoFocus/>
             )}
             onChange={(event: any, elements: any[]) => {
                 const changedTags: Tag[] = []
