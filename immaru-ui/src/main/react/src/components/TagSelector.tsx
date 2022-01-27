@@ -28,10 +28,17 @@ type Props = {
     selectedTags: Tag[],
     activeCollection: Collection,
     allowAddNewTags?: boolean,
+    autoFocus?: boolean
     onChange: (tags: Tag[]) => void
 }
 
-export default function TagSelector({selectedTags, activeCollection, onChange, allowAddNewTags = false}: Props) {
+export default function TagSelector({
+    selectedTags,
+    activeCollection,
+    onChange,
+    allowAddNewTags = false,
+    autoFocus = false
+}: Props) {
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])
@@ -90,7 +97,7 @@ export default function TagSelector({selectedTags, activeCollection, onChange, a
               ))
             }
             renderInput={(params) => (
-              <TextField {...params} placeholder="Select tags" autoFocus/>
+              <TextField {...params} placeholder="Select tags" autoFocus={autoFocus}/>
             )}
             onChange={(event: any, elements: any[]) => {
                 const changedTags: Tag[] = []
