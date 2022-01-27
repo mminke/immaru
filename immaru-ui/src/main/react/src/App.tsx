@@ -152,6 +152,7 @@ function LightBox({activeCollection, onImageSelected: handleImageSelected}: Ligh
         />
         <AssetList
             activeCollection={activeCollection}
+            assets={assets}
             onImageSelected={handleImageSelected}
         />
     </>

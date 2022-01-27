@@ -45,29 +45,23 @@ const useStyles = makeStyles((theme) => ({
 
 type AssetListProps = {
     activeCollection: Collection,
+    assets: Asset[],
     columns?: number,
     onImageSelected?: (asset: Asset ) => void
 }
 
 export default function AssetList({
-                                    columns = 7,
                                     activeCollection,
+                                    assets,
+                                    columns = 7,
                                     onImageSelected: handleImageSelected
                                   }: AssetListProps) {
     const classes = useStyles()
     const navigate = useNavigate()
 
-    const [assets, setAssets] = useState<Array<Asset>>([])
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
     const [selectTagsDialogIsOpen, setSelectTagsDialogIsOpen] = useState(false)
-
-    useEffect( () => {
-        assetRepository.assetsFor(activeCollection)
-            .then(assetsRetrieved => {
-                setAssets(assetsRetrieved)
-            })
-    }, [activeCollection])
 
     const isSelected = (asset: Asset): boolean => {
         return selectedAssets.includes(asset)
