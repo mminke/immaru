@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru.persistence.exposed
 
+import com.earthrevealed.immaru.assets.exposed.AssetTable
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.Tag
 import com.earthrevealed.immaru.domain.TagId

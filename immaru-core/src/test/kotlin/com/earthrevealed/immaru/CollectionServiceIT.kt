@@ -1,6 +1,6 @@
 package com.earthrevealed.immaru
 
-import com.earthrevealed.immaru.persistence.exposed.AssetTable
+import com.earthrevealed.immaru.assets.exposed.AssetTable
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeEach

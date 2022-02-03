@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru.persistence.exposed
 
+import com.earthrevealed.immaru.assets.exposed.AssetTable
 import com.earthrevealed.immaru.domain.Collection
 import com.earthrevealed.immaru.domain.CollectionId
 import org.jetbrains.exposed.dao.id.EntityID

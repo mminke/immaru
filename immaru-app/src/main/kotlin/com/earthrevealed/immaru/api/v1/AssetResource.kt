@@ -1,20 +1,21 @@
 package com.earthrevealed.immaru.api.v1
 
 import com.earthrevealed.immaru.CollectionService
-import com.earthrevealed.immaru.domain.Asset
-import com.earthrevealed.immaru.domain.AssetId
+import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.Group
+import com.earthrevealed.immaru.assets.Image
+import com.earthrevealed.immaru.assets.Video
 import com.earthrevealed.immaru.domain.CollectionId
-import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_GIF
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_PNG
 import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
 import com.earthrevealed.immaru.domain.TagId
-import com.earthrevealed.immaru.domain.Video
 import com.earthrevealed.immaru.image.convertToPng
 import com.earthrevealed.immaru.image.scaleImage
-import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import com.earthrevealed.immaru.video.extractThumbnail
 import org.apache.commons.io.IOUtils
@@ -126,6 +127,10 @@ class AssetResource(
                 val path = collectionService.assetPath(collectionId, id)
 
                 extractThumbnail(path)
+            }
+            is Group -> {
+                // Get first asset of group and create thumbnail for that
+                TODO("Not implemented yet")
             }
         }
 

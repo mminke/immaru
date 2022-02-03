@@ -1,6 +1,12 @@
-package com.earthrevealed.immaru.domain
+package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.common.ImmaruBuilder
+import com.earthrevealed.immaru.domain.CollectionId
+import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE
+import com.earthrevealed.immaru.domain.MEDIATYPE_MULTIPART_MIXED
+import com.earthrevealed.immaru.domain.MEDIATYPE_VIDEO
+import com.earthrevealed.immaru.domain.MediaType
+import com.earthrevealed.immaru.domain.TagId
 import java.nio.file.Path
 import java.time.Instant
 import java.time.LocalDateTime
@@ -85,6 +91,18 @@ data class Video(
     init {
         require(mediaType.isCompatible(MEDIATYPE_VIDEO))
     }
+}
+
+data class Group(
+        override val id: AssetId,
+        override val collectionId: CollectionId,
+        val name: String,
+        override var originalCreatedAt: OriginalDateOfCreation? = null,
+        override val tagIds: Set<TagId>,
+        override val audit: Audit,
+): Asset() {
+    override val originalFilename = name
+    override val mediaType = MEDIATYPE_MULTIPART_MIXED
 }
 
 abstract class TruncatedOffsetDateTime(value: OffsetDateTime) {

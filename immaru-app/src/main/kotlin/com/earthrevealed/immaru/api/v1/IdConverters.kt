@@ -1,6 +1,6 @@
 package com.earthrevealed.immaru.api.v1
 
-import com.earthrevealed.immaru.domain.AssetId
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.TagId
 import org.springframework.core.convert.converter.Converter

@@ -1,14 +1,14 @@
 package com.earthrevealed.immaru.api.v1
 
-import com.earthrevealed.immaru.domain.AssetId
+import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.CreatedAt
+import com.earthrevealed.immaru.assets.Height
+import com.earthrevealed.immaru.assets.LastModifiedAt
+import com.earthrevealed.immaru.assets.OriginalDateOfCreation
+import com.earthrevealed.immaru.assets.Width
 import com.earthrevealed.immaru.domain.CollectionId
-import com.earthrevealed.immaru.domain.CreatedAt
-import com.earthrevealed.immaru.domain.Height
-import com.earthrevealed.immaru.domain.LastModifiedAt
 import com.earthrevealed.immaru.domain.MediaType
-import com.earthrevealed.immaru.domain.OriginalDateOfCreation
 import com.earthrevealed.immaru.domain.TagId
-import com.earthrevealed.immaru.domain.Width
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import org.springframework.boot.jackson.JsonComponent
+
 //import javax.ws.rs.core.MediaType
 
 @JsonComponent

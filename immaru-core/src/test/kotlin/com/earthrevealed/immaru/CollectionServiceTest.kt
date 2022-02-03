@@ -1,11 +1,11 @@
 package com.earthrevealed.immaru
 
+import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.common.LibraryPath
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
 import com.earthrevealed.immaru.domain.collection
 import com.earthrevealed.immaru.metadata.MetadataService
-import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.BeforeEach

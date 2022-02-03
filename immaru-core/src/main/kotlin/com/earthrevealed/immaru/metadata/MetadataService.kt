@@ -1,13 +1,13 @@
 package com.earthrevealed.immaru.metadata
 
+import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.FrameRate
+import com.earthrevealed.immaru.assets.Height
+import com.earthrevealed.immaru.assets.Image
+import com.earthrevealed.immaru.assets.OriginalDateOfCreation
+import com.earthrevealed.immaru.assets.Video
+import com.earthrevealed.immaru.assets.Width
 import com.earthrevealed.immaru.common.LibraryPath
-import com.earthrevealed.immaru.domain.Asset
-import com.earthrevealed.immaru.domain.FrameRate
-import com.earthrevealed.immaru.domain.Height
-import com.earthrevealed.immaru.domain.Image
-import com.earthrevealed.immaru.domain.OriginalDateOfCreation
-import com.earthrevealed.immaru.domain.Video
-import com.earthrevealed.immaru.domain.Width
 import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.metadata.Metadata

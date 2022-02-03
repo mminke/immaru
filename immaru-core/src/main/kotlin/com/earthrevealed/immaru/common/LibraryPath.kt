@@ -1,6 +1,6 @@
 package com.earthrevealed.immaru.common
 
-import com.earthrevealed.immaru.domain.Asset
+import com.earthrevealed.immaru.assets.Asset
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

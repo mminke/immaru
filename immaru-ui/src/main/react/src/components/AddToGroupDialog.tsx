@@ -5,6 +5,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
 import TagSelector from './TagSelector'
 
@@ -13,21 +14,17 @@ import {enableHotkeys, disableHotkeys} from '../HotkeyState'
 import {Collection} from '../repositories/CollectionRepository'
 import {Tag} from '../repositories/TagRepository'
 
-type SelectTagsDialogProps = {
+type Props = {
     activeCollection: Collection,
+    assets: Array<Asset>,
     open: boolean,
     onClose: () => void,
-    onSelect: (selectedTags: Array<Tag>) => void
 }
 
-export default function SelectTagsDialog(
-    {activeCollection, open, onClose: handleClose, onSelect: handleSelect}: SelectTagsDialogProps) {
+export default function AddToGroupDialog(
+    {activeCollection, assets, open, onClose: handleClose}: Props) {
 
-    const [tags, setTags] = useState<Tag[]>([])
-
-    const handleChangedTags = (tags: Tag[]) => {
-        setTags(tags)
-    }
+    const [name, setName] = useState<string>("")
 
     if(open) {
         disableHotkeys()
@@ -35,23 +32,35 @@ export default function SelectTagsDialog(
         enableHotkeys()
     }
 
+    const handleNameChange = (event: any) => {
+        setName(event.target.value);
+    }
+
+    const handleCancel = () => {
+        handleClose()
+    }
+
     const handleConfirm = () => {
-        handleSelect(tags)
-        setTags([])
+        // Make call to add the assets to the group
+
+        alert('Group name: ' + name)
+        //handleSelect()
     }
 
     return (
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle id="form-dialog-title">Select tags</DialogTitle>
+            <DialogTitle id="form-dialog-title">Add to group</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Select the tags to use.
+                    Add the selected assets to a group.
                 </DialogContentText>
 
-                <TagSelector selectedTags={tags} activeCollection={activeCollection} onChange={handleChangedTags} allowAddNewTags autoFocus/>
+                <label>
+                    <TextField placeholder="Name" value={name} onChange={handleNameChange} />
+                </label>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} color="primary">
+                <Button onClick={handleCancel} color="primary">
                     Cancel
                 </Button>
                 <Button onClick={handleConfirm} color="primary">

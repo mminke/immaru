@@ -1,11 +1,11 @@
 package com.earthrevealed.immaru.metadata
 
+import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.image
 import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.common.LibraryPath
-import com.earthrevealed.immaru.domain.AssetId
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
-import com.earthrevealed.immaru.domain.image
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Clock

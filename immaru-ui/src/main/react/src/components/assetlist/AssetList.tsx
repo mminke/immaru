@@ -9,6 +9,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import SelectTagsDialog from '../SelectTagsDialog'
+import AddToGroupDialog from '../AddToGroupDialog'
 import {Tag} from '../../repositories/TagRepository'
 import {assetRepository, Asset} from '../../repositories/AssetRepository'
 import {Collection} from '../../repositories/CollectionRepository'
@@ -62,6 +63,7 @@ export default function AssetList({
     const [selectedAssets, setSelectedAssets] = useState<Array<Asset>>([])
 
     const [selectTagsDialogIsOpen, setSelectTagsDialogIsOpen] = useState(false)
+    const [addToGroupDialogIsOpen, setAddToGroupDialogIsOpen] = useState(false)
 
     const isSelected = (asset: Asset): boolean => {
         return selectedAssets.includes(asset)
@@ -115,8 +117,17 @@ export default function AssetList({
         }
     }
 
+    const handleHotkey_g = () => {
+        if(selectedAssets.length > 1) {
+            setAddToGroupDialogIsOpen(true)
+        }
+    }
+
     const handleSelectTagsDialogClose = () => {
         setSelectTagsDialogIsOpen(false)
+    }
+    const handleAddToGroupDialogClose = () => {
+        setAddToGroupDialogIsOpen(false)
     }
 
     const handleTagsSelected = (selectedTags: Array<Tag>) => {
@@ -131,6 +142,7 @@ export default function AssetList({
 
     useHotkeys('v', hotkeysEnabledFilter(handleHotkey_v), [selectedAssets]);
     useHotkeys('t', hotkeysEnabledFilter(handleHotkey_t), [selectedAssets]);
+    useHotkeys('g', hotkeysEnabledFilter(handleHotkey_g), [selectedAssets]);
 
     if(assets === undefined) {
         return (
@@ -167,6 +179,7 @@ export default function AssetList({
                 }
             </AutoSizer>
             <SelectTagsDialog activeCollection={activeCollection} open={selectTagsDialogIsOpen} onClose={handleSelectTagsDialogClose} onSelect={handleTagsSelected}/>
+            <AddToGroupDialog activeCollection={activeCollection} open={addToGroupDialogIsOpen} onClose={handleAddToGroupDialogClose}/>
         </div>
     )
 }

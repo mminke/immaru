@@ -1,10 +1,10 @@
 package com.earthrevealed.immaru.test.support
 
+import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.Image
+import com.earthrevealed.immaru.assets.Video
 import com.earthrevealed.immaru.domain.Collection
-import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.Tag
-import com.earthrevealed.immaru.domain.Video
-import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import com.earthrevealed.immaru.persistence.TagRepository
 

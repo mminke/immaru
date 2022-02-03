@@ -1,14 +1,10 @@
-package com.earthrevealed.immaru.persistence
+package com.earthrevealed.immaru.assets
 
-import com.earthrevealed.immaru.domain.Height
-import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.MEDIATYPE_IMAGE_JPEG
-import com.earthrevealed.immaru.domain.OriginalDateOfCreation
-import com.earthrevealed.immaru.domain.Width
 import com.earthrevealed.immaru.domain.collection
-import com.earthrevealed.immaru.domain.image
-import com.earthrevealed.immaru.domain.px
 import com.earthrevealed.immaru.domain.tag
+import com.earthrevealed.immaru.persistence.CollectionRepository
+import com.earthrevealed.immaru.persistence.TagRepository
 import com.earthrevealed.immaru.test.support.PersistenceMixin
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should contain all`
@@ -18,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
 
 @SpringBootTest
-internal class AssetRepositoryIT : PersistenceMixin {
+internal class ExposedAssetRepositoryIT : PersistenceMixin {
 
     @Autowired override lateinit var collectionRepository: CollectionRepository
     @Autowired override lateinit var tagRepository: TagRepository

@@ -1,19 +1,15 @@
-package com.earthrevealed.immaru.persistence
+package com.earthrevealed.immaru.assets
 
-import com.earthrevealed.immaru.domain.Asset
-import com.earthrevealed.immaru.domain.AssetId
+import com.earthrevealed.immaru.assets.exposed.AssetTable
+import com.earthrevealed.immaru.assets.exposed.AssetTagTable
+import com.earthrevealed.immaru.assets.exposed.ImageTable
+import com.earthrevealed.immaru.assets.exposed.VideoTable
+import com.earthrevealed.immaru.assets.exposed.from
+import com.earthrevealed.immaru.assets.exposed.toAsset
+import com.earthrevealed.immaru.assets.exposed.toEntityId
+import com.earthrevealed.immaru.assets.exposed.toTagId
 import com.earthrevealed.immaru.domain.CollectionId
-import com.earthrevealed.immaru.domain.Image
 import com.earthrevealed.immaru.domain.TagId
-import com.earthrevealed.immaru.domain.Video
-import com.earthrevealed.immaru.persistence.exposed.AssetTable
-import com.earthrevealed.immaru.persistence.exposed.AssetTagTable
-import com.earthrevealed.immaru.persistence.exposed.ImageTable
-import com.earthrevealed.immaru.persistence.exposed.VideoTable
-import com.earthrevealed.immaru.persistence.exposed.from
-import com.earthrevealed.immaru.persistence.exposed.toAsset
-import com.earthrevealed.immaru.persistence.exposed.toEntityId
-import com.earthrevealed.immaru.persistence.exposed.toTagId
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.andWhere
@@ -26,7 +22,7 @@ import java.util.*
 
 @Repository
 @Transactional
-class AssetRepository {
+class ExposedAssetRepository: AssetRepository {
     val AssetsJoinedWithImagesAndVideos = AssetTable
             .join(ImageTable, JoinType.LEFT, AssetTable.id, ImageTable.id)
             .join(VideoTable, JoinType.LEFT, AssetTable.id, VideoTable.id)
@@ -34,21 +30,21 @@ class AssetRepository {
     val AssetsJoinedWithImagesVideosAndAssetTags = AssetsJoinedWithImagesAndVideos
             .join(AssetTagTable, JoinType.LEFT, AssetTable.id, AssetTagTable.assetId)
 
-    fun save(image: Image) {
+    override fun save(image: Image) {
         AssetTable.insert { it.from(image as Asset) }
         ImageTable.insert { it.from(image) }
 
         updateTagsFor(image)
     }
 
-    fun save(video: Video) {
+    override fun save(video: Video) {
         AssetTable.insert { it.from(video as Asset) }
         VideoTable.insert { it.from(video) }
 
         updateTagsFor(video)
     }
 
-    fun updateTagsFor(asset: Asset) {
+    override fun updateTagsFor(asset: Asset) {
         AssetTagTable.deleteWhere { AssetTagTable.assetId eq asset.id.value }
 
         asset.tagIds.forEach { tagId ->
@@ -60,7 +56,7 @@ class AssetRepository {
         }
     }
 
-    fun all(collectionId: CollectionId) =
+    override fun all(collectionId: CollectionId) =
             AssetsJoinedWithImagesAndVideos
                     .select {
                         AssetTable.collectionId eq collectionId.value
@@ -71,7 +67,7 @@ class AssetRepository {
                         }
                     }
 
-    fun findByTags(collectionId: CollectionId, tagIds: Set<TagId>?): List<Asset> {
+    override fun findByTags(collectionId: CollectionId, tagIds: Set<TagId>?): List<Asset> {
         val query = AssetsJoinedWithImagesVideosAndAssetTags.select {
             AssetTable.collectionId eq collectionId.value
         }
@@ -89,7 +85,7 @@ class AssetRepository {
                 }
     }
 
-    fun get(collectionId: CollectionId, id: AssetId): Asset? =
+    override fun get(collectionId: CollectionId, id: AssetId): Asset? =
             AssetsJoinedWithImagesAndVideos
                     .select { AssetTable.id eq id.toEntityId() }
                     .andWhere { AssetTable.collectionId eq collectionId.value }
@@ -99,7 +95,7 @@ class AssetRepository {
                         }
                     }
 
-    fun hasAssets(collectionId: CollectionId): Boolean =
+    override fun hasAssets(collectionId: CollectionId): Boolean =
             AssetTable
                     .select { AssetTable.collectionId eq collectionId.value }
                     .limit(1)

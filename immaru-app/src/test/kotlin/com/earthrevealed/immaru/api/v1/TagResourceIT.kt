@@ -1,7 +1,7 @@
 package com.earthrevealed.immaru.api.v1
 
+import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.domain.collection
-import com.earthrevealed.immaru.persistence.AssetRepository
 import com.earthrevealed.immaru.persistence.CollectionRepository
 import com.earthrevealed.immaru.persistence.TagRepository
 import com.earthrevealed.immaru.test.support.PersistenceMixin
