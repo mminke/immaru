@@ -26,7 +26,7 @@
     <properties>
         <maven.compiler.release>11</maven.compiler.release>
         <kotlin.version>1.6.10</kotlin.version>
-        <postgresql.version>42.3.1</postgresql.version>
+        <postgresql.version>42.3.7</postgresql.version>
         <flywaydb.version>8.3.0</flywaydb.version>
         <springboot.exposed.version>0.37.1</springboot.exposed.version> <!-- DO NOT UPGRADE TO 0.28.1 !!!!-->
         <springdoc.openapi.ui.version>1.6.2</springdoc.openapi.ui.version>
