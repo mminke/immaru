@@ -50,17 +50,14 @@ type Props = {
     asset: Asset,
 }
 
-export const AssetThumbnail = ({asset,}: Props) => {
-
+export default function AssetThumbnail({asset}: Props) {
     const classes = useStyles();
 
     const url = `collections/${asset.collectionId}/assets/${asset.id}/thumbnail`
     const style = {backgroundImage: `url(${url})`}
 
     return (
-        <div className={classes.assetThumbnail}
-            style={style}>
-
+        <div className={classes.assetThumbnail} style={style}>
             <a href="#">{asset.originalFilename}</a>
         </div>
     )

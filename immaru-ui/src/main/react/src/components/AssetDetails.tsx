@@ -19,6 +19,8 @@ import TagSelector from './TagSelector'
 import {assetRepository, Asset} from '../repositories/AssetRepository'
 import {tagRepository, Tag} from '../repositories/TagRepository'
 import {Collection} from '../repositories/CollectionRepository'
+import {useHotkeys} from "react-hotkeys-hook"
+import {hotkeysEnabledFilter} from '../HotkeyState'
 
 export const drawerWidth = 350;
 
@@ -46,12 +48,17 @@ const useStyles = makeStyles((theme) => ({
 type Props = {
     activeCollection: Collection,
     asset: Asset|null,
-    open: boolean,
-    onClose: () => void
 }
 
-export default function AssetDetails({activeCollection, asset, open, onClose}: Props) {
+export default function AssetDetails({activeCollection, asset}: Props) {
     const classes = useStyles();
+
+    const [open, setOpen] = useState<boolean>(false)
+    const toggleAssetDetails = () => {
+        setOpen(!open)
+    }
+
+    useHotkeys('i', hotkeysEnabledFilter(toggleAssetDetails), [open]);
 
     const [tags, setTags] = useState<Tag[]>([])
 
@@ -79,16 +86,16 @@ export default function AssetDetails({activeCollection, asset, open, onClose}: P
 console.log(asset)
 
     return <>
-        <Drawer
+        {open&&<Drawer
             variant="permanent"
             anchor="left"
-            open={open}
+            open={true}
             classes={{
                 paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
             }}
         >
             <div>
-                <IconButton onClick={onClose}>
+                <IconButton onClick={() => {setOpen(false)}}>
                     <ChevronLeftIcon />
                 </IconButton>
             </div>
@@ -130,5 +137,6 @@ console.log(asset)
                 </TableContainer>
             }
         </Drawer>
+        }
     </>
 }

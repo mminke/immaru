@@ -71,22 +71,10 @@ export default function App() {
         setActiveCollection(collection)
     }
 
-    const [assetDetailsOpen, setAssetDetailsOpen] = useState(false);
-
-    const closeAssetDetails = () => {
-        setAssetDetailsOpen(false)
-    }
-
-    const toggleAssetDetails = () => {
-        setAssetDetailsOpen(!assetDetailsOpen)
-    }
-
     const [selectedAsset, setSelectedAsset] = useState<Asset|null>(null);
     const handleImageSelected = (asset: Asset) => {
         setSelectedAsset(asset)
     }
-
-    useHotkeys('i', hotkeysEnabledFilter(toggleAssetDetails), [assetDetailsOpen]);
 
     if(activeCollection === undefined) {
         return (
@@ -101,7 +89,7 @@ export default function App() {
                         <MainAppBar activeCollection={activeCollection} toggleMainDrawer={toggleMainDrawer}/>
                         <div className={classes.workspace}>
                             <MainDrawer open={mainDrawerOpen}/>
-                            <AssetDetails activeCollection={activeCollection} asset={selectedAsset} open={assetDetailsOpen} onClose={closeAssetDetails}/>
+                            <AssetDetails activeCollection={activeCollection} asset={selectedAsset}/>
 
                             <main className={classes.content}>
                                 <div className={classes.contentPadded}>

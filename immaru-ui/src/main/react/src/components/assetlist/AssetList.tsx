@@ -14,7 +14,7 @@ import {Tag} from '../../repositories/TagRepository'
 import {assetRepository, Asset} from '../../repositories/AssetRepository'
 import {Collection} from '../../repositories/CollectionRepository'
 
-import {AssetThumbnail} from './AssetThumbnail'
+import AssetThumbnail from './AssetThumbnail'
 
 import {hotkeysEnabledFilter} from '../../HotkeyState'
 
