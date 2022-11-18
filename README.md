@@ -20,6 +20,16 @@ For development of Immaru the following tools are required:
 * docker-compose
 * yarn
 
+### Configuration
+
+Configuration of the database and location where media files are stored can be found here:
+
+    immaru-app/src/main/resources/
+
+For development purposes the media files are stored in:
+
+    ${java.io.tmpdir}/data/immaru-dev
+
 ### Running React frontend
 
 Step 1: Start the postgres db using docker compose development configuration.
@@ -27,6 +37,8 @@ Step 1: Start the postgres db using docker compose development configuration.
     docker-compose up
     
 Step 2: Run Immaru in your IDE.
+
+    Run immaru-app/src/main/kotlin/com.earthrevealed.immaru.Application.main
 
 Step 3: Start the react frontend.
 

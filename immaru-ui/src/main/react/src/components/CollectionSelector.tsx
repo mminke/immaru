@@ -46,15 +46,14 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
     const classes = useStyles();
 
     const [collections, setCollections] = useState<Array<Collection>>()
-
-    const [reloadCollections, setReloadCollections] = useState(0)
+    const [openNewCollectionDialog, setOpenNewCollectionDialog] = React.useState(false);
 
     useEffect( () => {
         collectionRepository.collections()
             .then(items => {
                 setCollections(items)
             })
-    }, [reloadCollections])
+    }, [openNewCollectionDialog])
 
     const handleCollectionSelected = (collection: Collection) => {
         onSelected(collection)
@@ -67,12 +66,8 @@ export default function CollectionSelector({onSelected}: CollectionSelectorProps
         setOpenNewCollectionDialog(false)
     }
     const handleCollectionCreated = () => {
-        let counter = reloadCollections + 1
-        setReloadCollections(counter)
         setOpenNewCollectionDialog(false)
     }
-
-    const [openNewCollectionDialog, setOpenNewCollectionDialog] = React.useState(false);
 
     if(collections === undefined) return null;
 

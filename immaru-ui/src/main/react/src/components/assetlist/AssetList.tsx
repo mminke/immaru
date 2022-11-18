@@ -179,7 +179,7 @@ export default function AssetList({
                 }
             </AutoSizer>
             <SelectTagsDialog activeCollection={activeCollection} open={selectTagsDialogIsOpen} onClose={handleSelectTagsDialogClose} onSelect={handleTagsSelected}/>
-            <AddToGroupDialog activeCollection={activeCollection} open={addToGroupDialogIsOpen} onClose={handleAddToGroupDialogClose}/>
+            <AddToGroupDialog activeCollection={activeCollection} assets={selectedAssets} open={addToGroupDialogIsOpen} onClose={handleAddToGroupDialogClose}/>
         </div>
     )
 }

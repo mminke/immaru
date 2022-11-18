@@ -13,6 +13,7 @@ import {enableHotkeys, disableHotkeys} from '../HotkeyState'
 
 import {Collection} from '../repositories/CollectionRepository'
 import {Tag} from '../repositories/TagRepository'
+import {Asset} from '../repositories/AssetRepository'
 
 type Props = {
     activeCollection: Collection,
