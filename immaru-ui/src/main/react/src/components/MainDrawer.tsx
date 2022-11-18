@@ -59,7 +59,7 @@ export default function MainDrawer({open}: MainDrawerProps) {
 
 const mainListItems = (
     <>
-        <ListItem button component={Link} to="/media">
+        <ListItem button component={Link} to="/lightbox">
             <ListItemIcon>
                 <DashboardIcon />
             </ListItemIcon>

@@ -52,11 +52,12 @@ type AssetListProps = {
 }
 
 export default function AssetList({
-                                    activeCollection,
-                                    assets,
-                                    columns = 7,
-                                    onImageSelected: handleImageSelected
-                                  }: AssetListProps) {
+    activeCollection,
+    assets,
+    columns = 7,
+    onImageSelected: handleImageSelected
+}: AssetListProps) {
+
     const classes = useStyles()
     const navigate = useNavigate()
 

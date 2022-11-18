@@ -46,13 +46,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-type AssetThumbnailProps = {
+type Props = {
     asset: Asset,
 }
 
-export const AssetThumbnail = ({
-    asset,
-}: AssetThumbnailProps) => {
+export const AssetThumbnail = ({asset,}: Props) => {
+
     const classes = useStyles();
 
     const url = `collections/${asset.collectionId}/assets/${asset.id}/thumbnail`

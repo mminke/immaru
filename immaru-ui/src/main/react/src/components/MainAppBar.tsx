@@ -23,12 +23,12 @@ const useStyles = makeStyles((theme) => ({
     toolbar: theme.mixins.toolbar,
 }));
 
-type MainAppBarProps = {
+type Props = {
     activeCollection: Collection
     toggleMainDrawer: () => void
 }
 
-export default function MainAppBar({activeCollection, toggleMainDrawer}: MainAppBarProps) {
+export default function MainAppBar({activeCollection, toggleMainDrawer}: Props) {
     const classes = useStyles();
 
     return <>

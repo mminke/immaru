@@ -13,16 +13,16 @@ import {enableHotkeys, disableHotkeys} from '../HotkeyState'
 import {Collection} from '../repositories/CollectionRepository'
 import {Tag} from '../repositories/TagRepository'
 
-type SelectTagsDialogProps = {
+type Props = {
     activeCollection: Collection,
     open: boolean,
     onClose: () => void,
     onSelect: (selectedTags: Array<Tag>) => void
 }
 
-export default function SelectTagsDialog(
-    {activeCollection, open, onClose: handleClose, onSelect: handleSelect}: SelectTagsDialogProps) {
-
+export default function SelectTagsDialog({
+    activeCollection, open, onClose: handleClose, onSelect: handleSelect
+}: Props ) {
     const [tags, setTags] = useState<Tag[]>([])
 
     const handleChangedTags = (tags: Tag[]) => {

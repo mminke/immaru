@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type FileUploadProps = {
+type Props = {
     activeCollection: Collection
 }
 
-export default function FileUpload({activeCollection}: FileUploadProps) {
+export default function FileUpload({activeCollection}: Props) {
     const classes = useStyles();
 
     const [files, setFiles] = useState<File[]>([])

@@ -43,14 +43,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type AssetDetailsProps = {
+type Props = {
     activeCollection: Collection,
     asset: Asset|null,
     open: boolean,
     onClose: () => void
 }
 
-export default function AssetDetails({activeCollection, asset, open, onClose}: AssetDetailsProps) {
+export default function AssetDetails({activeCollection, asset, open, onClose}: Props) {
     const classes = useStyles();
 
     const [tags, setTags] = useState<Tag[]>([])

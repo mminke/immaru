@@ -8,13 +8,13 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {collectionRepository} from '../repositories/CollectionRepository';
 
-type NewCollectionDialogProps = {
+type Props = {
     open: boolean,
     onClose: () => void
     onCreate: () => void
 }
 
-export default function NewCollectionDialog({open, onClose, onCreate}: NewCollectionDialogProps) {
+export default function NewCollectionDialog({open, onClose, onCreate}: Props) {
 
     const [name, setName] = useState<String|null>(null)
 

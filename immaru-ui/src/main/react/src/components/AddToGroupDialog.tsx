@@ -22,8 +22,9 @@ type Props = {
     onClose: () => void,
 }
 
-export default function AddToGroupDialog(
-    {activeCollection, assets, open, onClose: handleClose}: Props) {
+export default function AddToGroupDialog({
+    activeCollection, assets, open, onClose: handleClose
+}: Props) {
 
     const [name, setName] = useState<string>("")
 

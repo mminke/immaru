@@ -18,11 +18,11 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-type AssetViewerProps = {
+type Props = {
     collection: Collection
 }
 
-export default function AssetViewer({collection}: AssetViewerProps) {
+export default function AssetViewer({collection}: Props) {
     const {id} = useParams()
     const navigate = useNavigate()
     const classes = useStyles()

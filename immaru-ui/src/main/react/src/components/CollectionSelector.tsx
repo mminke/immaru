@@ -38,11 +38,11 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-type CollectionSelectorProps = {
+type Props = {
     onSelected: (collection: Collection) => void
 }
 
-export default function CollectionSelector({onSelected}: CollectionSelectorProps) {
+export default function CollectionSelector({onSelected}: Props) {
     const classes = useStyles();
 
     const [collections, setCollections] = useState<Array<Collection>>()
