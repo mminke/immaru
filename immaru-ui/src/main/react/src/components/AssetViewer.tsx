@@ -47,7 +47,7 @@ export default function AssetViewer({collection}: Props) {
         closeAssetViewer()
     });
 
-    if(asset !== undefined) {
+    if(asset !== undefined && asset != null) {
         let url = `/collections/${collection.id}/assets/${asset.id}`
 
         if(asset.mediaType.startsWith("image/")) {
