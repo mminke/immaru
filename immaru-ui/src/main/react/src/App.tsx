@@ -72,7 +72,7 @@ export default function App() {
     }
 
     const [selectedAsset, setSelectedAsset] = useState<Asset|null>(null);
-    const handleImageSelected = (asset: Asset) => {
+    const handleImageSelected = (asset: Asset|null) => {
         setSelectedAsset(asset)
     }
 
@@ -114,7 +114,7 @@ export default function App() {
 
 type LightBoxProps = {
     activeCollection: Collection,
-    onImageSelected?: (asset: Asset ) => void
+    onImageSelected?: (asset: Asset|null ) => void
 }
 
 function LightBox({activeCollection, onImageSelected: handleImageSelected}: LightBoxProps) {

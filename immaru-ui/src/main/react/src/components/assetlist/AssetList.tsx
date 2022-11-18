@@ -48,7 +48,7 @@ type AssetListProps = {
     activeCollection: Collection,
     assets: Asset[],
     columns?: number,
-    onImageSelected?: (asset: Asset ) => void
+    onImageSelected?: (asset: Asset|null ) => void
 }
 
 export default function AssetList({
@@ -71,38 +71,41 @@ export default function AssetList({
     }
 
     const handleImageClick = (event: MouseEvent, asset: Asset) => {
+        let newSelectedAssets = [] as Asset[]
+
         if(!event.ctrlKey && !event.shiftKey) {
-            setSelectedAssets([asset])
+            newSelectedAssets = [asset]
         }
 
         if(event.ctrlKey && !event.shiftKey) {
             if(selectedAssets.includes(asset)) {
-                const newSelectedAssets = selectedAssets.filter(item => item !== asset)
-                setSelectedAssets(newSelectedAssets)
+                newSelectedAssets = selectedAssets.filter(item => item !== asset)
             } else {
-                const newSelectedAssets = selectedAssets.concat(asset)
-                setSelectedAssets(newSelectedAssets)
+                newSelectedAssets = selectedAssets.concat(asset)
             }
         }
         if(event.shiftKey && !event.ctrlKey) {
             if(selectedAssets.length > 0) {
                 const firstSelectedAssetIndex = assets.indexOf(selectedAssets[0])
-                const currentAssetIindex = assets.indexOf(asset)
-                const startIndex = Math.min(firstSelectedAssetIndex, currentAssetIindex)
-                const endIndex = Math.max(firstSelectedAssetIndex, currentAssetIindex)
+                const currentAssetIndex = assets.indexOf(asset)
+                const startIndex = Math.min(firstSelectedAssetIndex, currentAssetIndex)
+                const endIndex = Math.max(firstSelectedAssetIndex, currentAssetIndex)
 
-                let newSelectedAssets = [] as Asset[]
                 for(let i=startIndex; i <= endIndex; i++) {
                     newSelectedAssets.push(assets[i])
                 }
-                setSelectedAssets(newSelectedAssets)
             } else {
-                setSelectedAssets([asset])
+                newSelectedAssets = [asset]
             }
         }
+        setSelectedAssets(newSelectedAssets)
 
         if(handleImageSelected !== undefined) {
-            handleImageSelected(asset)
+            if(newSelectedAssets.length > 0) {
+                handleImageSelected(newSelectedAssets[newSelectedAssets.length-1])
+            } else {
+                handleImageSelected(null)
+            }
         }
     }
 

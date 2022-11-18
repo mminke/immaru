@@ -50,14 +50,18 @@ type Props = {
     asset: Asset|null,
 }
 
+
+
 export default function AssetDetails({activeCollection, asset}: Props) {
     const classes = useStyles();
 
     const [open, setOpen] = useState<boolean>(false)
+
     const toggleAssetDetails = () => {
         setOpen(!open)
     }
 
+    // The component should not know about the hotkey which triggers the open close?!?!??!
     useHotkeys('i', hotkeysEnabledFilter(toggleAssetDetails), [open]);
 
     const [tags, setTags] = useState<Tag[]>([])
@@ -83,10 +87,8 @@ export default function AssetDetails({activeCollection, asset}: Props) {
         }
     }
 
-console.log(asset)
-
     return <>
-        {open&&<Drawer
+        {open&&asset&&<Drawer
             variant="permanent"
             anchor="left"
             open={true}
