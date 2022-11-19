@@ -45,8 +45,8 @@ type Props = {
 export default function CollectionSelector({onSelected}: Props) {
     const classes = useStyles();
 
-    const [collections, setCollections] = useState<Array<Collection>>()
-    const [openNewCollectionDialog, setOpenNewCollectionDialog] = React.useState(false);
+    const [collections, setCollections] = useState<Array<Collection>>([])
+    const [openNewCollectionDialog, setOpenNewCollectionDialog] = useState(false);
 
     useEffect( () => {
         collectionRepository.collections()

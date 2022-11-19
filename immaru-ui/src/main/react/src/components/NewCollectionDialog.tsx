@@ -16,13 +16,14 @@ type Props = {
 
 export default function NewCollectionDialog({open, onClose, onCreate}: Props) {
 
-    const [name, setName] = useState<String|null>(null)
+    const [name, setName] = useState<String>("")
 
     const handleCreate = () => {
-        if(!!name) {
-            collectionRepository.create({ "name": name })
-            setName(null)
-            onCreate()
+        if(!!name && name.length > 0) {
+            collectionRepository
+                .create({ "name": name })
+                .then(() => onCreate())
+            setName("")
         }
     }
 
