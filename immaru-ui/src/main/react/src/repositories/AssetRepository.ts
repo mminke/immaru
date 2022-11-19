@@ -50,14 +50,14 @@ export default class AssetRepository {
         let asset = fetch('/collections/' + collection.id + '/assets/' + id, {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
-                    console.error("Error retrieving assets", response)
+                    console.error("Error retrieving asset in collection " + collection.id + " id " + id, response)
                     return null
                 } else {
                     return response.json()
                 }
             })
             .catch(error => {
-                console.error('Error retrieving assets:', error)
+                console.error("Error retrieving asset in collection " + collection.id + " id " + id, error)
             })
 
         return asset
