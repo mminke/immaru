@@ -30,7 +30,7 @@ export default class AssetRepository {
                 .forEach(tagId => url.searchParams.append('tagIds', tagId))
         }
 
-        let assets = fetch(<any>url, {headers: AssetRepository.headers})
+        let assets = fetch(url, {headers: AssetRepository.headers})
             .then(response => {
                 if(!response.ok) {
                     console.error("Error retrieving assets", response)

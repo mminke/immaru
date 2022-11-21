@@ -36,7 +36,7 @@ export default function AssetViewer({collection}: Props) {
                     setAsset(assetRetrieved)
                 })
         }
-    }, [collection])
+    }, [collection, id])
 
     const closeAssetViewer = () => {
         navigate("/lightbox")
@@ -52,7 +52,7 @@ export default function AssetViewer({collection}: Props) {
 
         if(asset.mediaType.startsWith("image/")) {
             return (
-                <img src={url} className={classes.image}/>
+                <img src={url} alt={asset.originalFilename} className={classes.image}/>
             )
         } else if (asset.mediaType.startsWith("video/")) {
             return (
