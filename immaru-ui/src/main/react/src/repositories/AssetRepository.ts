@@ -75,8 +75,6 @@ export default class AssetRepository {
             )
         })
 
-        console.log('formData: ', formData)
-
         const result = fetch('/collections/' + collection.id + '/assets', {
                 method: 'POST',
                 headers: AssetRepository.headers,
@@ -86,8 +84,6 @@ export default class AssetRepository {
             .catch(error => {
                 console.error('Error uploading files:', error)
             })
-
-        console.log('Successfully uploaded files: ', result)
 
         return result
     }

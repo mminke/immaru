@@ -70,7 +70,7 @@ class AssetResource(
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
     }
 
-    @GetMapping("/assets/{id}")
+    @GetMapping("/assets/{id}/content")
     fun assetContent(
             @PathVariable("collectionId") collectionId: CollectionId,
             @PathVariable("id") id: AssetId,

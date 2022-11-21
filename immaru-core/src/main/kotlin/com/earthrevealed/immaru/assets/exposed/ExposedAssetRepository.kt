@@ -1,13 +1,10 @@
-package com.earthrevealed.immaru.assets
+package com.earthrevealed.immaru.assets.exposed
 
-import com.earthrevealed.immaru.assets.exposed.AssetTable
-import com.earthrevealed.immaru.assets.exposed.AssetTagTable
-import com.earthrevealed.immaru.assets.exposed.ImageTable
-import com.earthrevealed.immaru.assets.exposed.VideoTable
-import com.earthrevealed.immaru.assets.exposed.from
-import com.earthrevealed.immaru.assets.exposed.toAsset
-import com.earthrevealed.immaru.assets.exposed.toEntityId
-import com.earthrevealed.immaru.assets.exposed.toTagId
+import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.Image
+import com.earthrevealed.immaru.assets.Video
 import com.earthrevealed.immaru.domain.CollectionId
 import com.earthrevealed.immaru.domain.TagId
 import org.jetbrains.exposed.sql.JoinType
@@ -77,10 +74,13 @@ class ExposedAssetRepository: AssetRepository {
             }
         }
 
-        return query.orderBy(AssetTable.originalCreatedAt, SortOrder.DESC)
-                .map { assetRecord ->
-                    assetRecord.toAsset {
-                        tagIdsForAsset(assetRecord[AssetTable.id].value)
+        return query
+                .orderBy(AssetTable.originalCreatedAt, SortOrder.DESC)
+                .orderBy(AssetTable.createdAt, SortOrder.DESC)
+                .orderBy(AssetTable.originalFilename, SortOrder.DESC)
+                .map { resultRow ->
+                    resultRow.toAsset {
+                        tagIdsForAsset(resultRow[AssetTable.id].value)
                     }
                 }
     }

@@ -48,7 +48,7 @@ export default function AssetViewer({collection}: Props) {
     });
 
     if(asset !== undefined && asset != null) {
-        let url = `/collections/${collection.id}/assets/${asset.id}`
+        let url = `/collections/${collection.id}/assets/${asset.id}/content`
 
         if(asset.mediaType.startsWith("image/")) {
             return (

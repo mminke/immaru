@@ -25,7 +25,7 @@ class MetadataService(
     fun process(image: Image) {
         val metadata = image.metadata()
 
-        image.originalCreatedAt = OriginalDateOfCreation.of(metadata.orignalCreationDate())
+        image.originalCreatedAt = metadata.originalCreationDate()
         image.width = Width.of(metadata.imageWidth())
         image.height = Height.of(metadata.imageHeight())
     }
@@ -33,7 +33,7 @@ class MetadataService(
     fun process(video: Video) {
         val metadata = video.metadata()
 
-        video.originalCreatedAt = OriginalDateOfCreation.of(metadata.orignalCreationDate())
+        video.originalCreatedAt = metadata.originalCreationDate()
         video.width = Width.of(metadata.imageWidth())
         video.height = Height.of(metadata.imageHeight())
         video.frameRate = FrameRate.UNKNOWN
@@ -45,8 +45,8 @@ class MetadataService(
         return metadata
     }
 
-    private fun Metadata.orignalCreationDate(): String {
-        return this[TikaCoreProperties.CREATED]?:"0001-01-01T00:00:00"
+    private fun Metadata.originalCreationDate(): OriginalDateOfCreation? {
+        return this[TikaCoreProperties.CREATED]?.let { OriginalDateOfCreation.of(it) }
     }
 
     private fun Metadata.imageWidth(): String {
