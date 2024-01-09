@@ -10,8 +10,6 @@ Springboot config files:
 * application.yml
 * application-dev.yml [activated using the dev maven profile]
 
-### Build development image
-
 ## Development
 
 For development of Immaru the following tools are required:
@@ -30,13 +28,13 @@ For development purposes the media files are stored in:
 
     ${java.io.tmpdir}/data/immaru-dev
 
-### Running React frontend
+### Running the backend and frontend
 
 Step 1: Start the postgres db using docker compose development configuration.
 
     docker-compose up
     
-Step 2: Run Immaru in your IDE.
+Step 2: Run the Immaru backend in your IDE.
 
     Run immaru-app/src/main/kotlin/com.earthrevealed.immaru.Application.main
 
@@ -44,6 +42,14 @@ Step 3: Start the react frontend.
 
     cd immaru-ui/src/main/react
     yarn start    
+
+
+## Running Locally
+
+To run Immaru the easiest way is to build the docker image
+and then use docker-compose to startup Immaru with the necessary
+postgres server.
+
 
 ### Building the docker container
 
@@ -53,11 +59,7 @@ To build the docker container, use the build.sh script in the
     cd docker
     ./build.sh
 
-## Running Locally
-
-To run Immaru the easiest way is to build the docker image
-and then use docker-compose to startup Immaru with the necessary
-postgres server.
+### Running Immaru locally
 
     cd docker
     docker-compose up
@@ -68,7 +70,10 @@ postgres server.
         
 ## Immaru Usage
 
-### Uploading files
+Immaru has a React frontend which can be used to view and upload media files. 
+It is also possible to directly use the rest backend calls to interact with Immaru.
+
+### Uploading files using the rest backend
  
 To upload a single file using cUrl:
 
