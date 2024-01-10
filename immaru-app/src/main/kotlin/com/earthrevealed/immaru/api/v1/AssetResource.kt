@@ -42,42 +42,51 @@ import com.earthrevealed.immaru.domain.MediaType as ImmaryMediaType
 @RestController
 @RequestMapping("/collections/{collectionId}")
 class AssetResource(
-        val assetRepository: AssetRepository,
-        val collectionService: CollectionService,
-        val collectionRepository: CollectionRepository
+    val assetRepository: AssetRepository,
+    val collectionService: CollectionService,
+    val collectionRepository: CollectionRepository
 ) {
 
     @GetMapping("/assets", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun assets(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @RequestParam("tagIds", required = false) tagIds: Set<TagId>?
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @RequestParam("tagIds", required = false) tagIds: Set<TagId>?
     ): List<Asset> {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
         return assetRepository.findByTags(collectionId, tagIds)
     }
 
     @GetMapping("/assets/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun asset(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @PathVariable("id") id: AssetId
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @PathVariable("id") id: AssetId
     ): Asset {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
         return assetRepository.get(collectionId, id)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
     }
 
     @GetMapping("/assets/{id}/content")
     fun assetContent(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @PathVariable("id") id: AssetId,
-            response: HttpServletResponse
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @PathVariable("id") id: AssetId,
+        response: HttpServletResponse
     ) {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
         val asset = assetRepository.get(collectionId, id)
         if (asset == null) {
@@ -103,19 +112,22 @@ class AssetResource(
     }
 
     private fun isSupported(mediaType: ImmaryMediaType) =
-            mediaType == MEDIATYPE_IMAGE_JPEG || mediaType == MEDIATYPE_IMAGE_PNG || mediaType == MEDIATYPE_IMAGE_GIF
-                    || mediaType.isCompatible(MEDIATYPE_VIDEO)
+        mediaType == MEDIATYPE_IMAGE_JPEG || mediaType == MEDIATYPE_IMAGE_PNG || mediaType == MEDIATYPE_IMAGE_GIF
+                || mediaType.isCompatible(MEDIATYPE_VIDEO)
 
     @GetMapping("/assets/{id}/thumbnail")
     fun assetThumbnail(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @PathVariable("id") id: AssetId
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @PathVariable("id") id: AssetId
     ): ResponseEntity<ByteArray> {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
         val asset = assetRepository.get(collectionId, id)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${id.value} does not exist.")
 
         val outputStream = when (asset) {
             is Image -> {
@@ -123,11 +135,13 @@ class AssetResource(
 
                 scaleImage(Files.newInputStream(fileLocation))
             }
+
             is Video -> {
                 val path = collectionService.assetPath(collectionId, id)
 
                 extractThumbnail(path)
             }
+
             is Group -> {
                 // Get first asset of group and create thumbnail for that
                 TODO("Not implemented yet")
@@ -137,7 +151,7 @@ class AssetResource(
         val responseHeaders = HttpHeaders()
         responseHeaders.contentType = MediaType.IMAGE_PNG
         responseHeaders.setCacheControl(
-                CacheControl.maxAge(Duration.ofHours(24))
+            CacheControl.maxAge(Duration.ofHours(24))
         )
 
         val imageByteArray = outputStream.toByteArray()
@@ -146,39 +160,42 @@ class AssetResource(
 
     @PostMapping("/assets")
     fun createAsset(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @RequestParam("files") files: List<MultipartFile>
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @RequestParam("files") files: List<MultipartFile>
     ): ResponseEntity<CreationResult> {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
         val collection = collectionRepository.get(collectionId)!!
 
-        val createdAssets = mutableSetOf<Asset>()
-        files
-                .filter { !it.isEmpty }
-                .forEach {
-                    createdAssets.add(collectionService.import(it.bytes, it.originalFilename!!) into collection)
-                }
+        val createdAssets = files
+            .filter { !it.isEmpty }
+            .map { collectionService.import(it.bytes, it.originalFilename!!) into collection }
 
         val locations = createdAssets
-                .map { "/collections/${collectionId.value}/assets/${it.id.value}" }
+            .map { "/collections/${collectionId.value}/assets/${it.id.value}" }
 
         return ResponseEntity(CreationResult(locations), HttpStatus.CREATED)
     }
 
     @PutMapping("/assets/{id}/tags", consumes = [MediaType.APPLICATION_JSON_VALUE])
     fun updateAssetTags(
-            @PathVariable("collectionId") collectionId: CollectionId,
-            @PathVariable("id") assetId: AssetId,
-            @RequestBody assetTagIds: Set<TagId>
+        @PathVariable("collectionId") collectionId: CollectionId,
+        @PathVariable("id") assetId: AssetId,
+        @RequestBody assetTagIds: Set<TagId>
     ): ResponseEntity<String> {
         if (collectionRepository.notExists(collectionId)) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Collection with id ${collectionId.value} does not exist.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Collection with id ${collectionId.value} does not exist."
+            )
         }
 
         val asset = assetRepository.get(collectionId, assetId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Asset with id ${assetId.value} does not exist.")
         val updatedAsset = when (asset.mediaType.type) {
             MEDIATYPE_IMAGE.type -> (asset as Image).copy(tagIds = assetTagIds)
             MEDIATYPE_VIDEO.type -> TODO()
