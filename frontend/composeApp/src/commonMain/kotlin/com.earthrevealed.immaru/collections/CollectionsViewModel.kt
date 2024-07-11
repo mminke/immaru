@@ -15,7 +15,7 @@ class CollectionsViewModel(private val collectionRepository: CollectionRepositor
     init {
         viewModelScope.launch {
             try {
-                collections.value = collectionRepository.collections()
+                collections.value = collectionRepository.all()
             } catch (exception: CollectionRetrievalException) {
                 errorMessage.value = "Cannot retrieve collections!"
             }
