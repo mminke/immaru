@@ -14,14 +14,16 @@ application {
 
 dependencies {
     implementation(projects.core)
-    implementation(libs.logback)
+    implementation(libs.microutils.kotlin.logging.jvm)
+    implementation(libs.logback.classic)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotionation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-//    implementation("io.ktor:ktor-serialization-gson:$ktor_version")
+    compileOnly(libs.r2dbc.spi)
+    runtimeOnly(libs.postresql.r2dbc)
 
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)

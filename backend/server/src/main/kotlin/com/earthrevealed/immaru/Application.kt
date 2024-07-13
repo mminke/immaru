@@ -1,6 +1,5 @@
 package com.earthrevealed.immaru
 
-import SERVER_PORT
 import com.earthrevealed.immaru.routes.api
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -17,7 +16,12 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.routing
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
+    embeddedServer(
+        Netty,
+        port = Configuration.immaru.server.port,
+        host = Configuration.immaru.server.host,
+        module = Application::module
+    )
         .start(wait = true)
 }
 
@@ -31,18 +35,18 @@ fun Application.module() {
         anyHost()
         this.allowHeader("Content-Type")
     }
-//    configureDI()
+    configureDI()
 //    configureDatabaseSchema()
     configureContentNegotiation()
     configureRouting()
 }
 
-//fun Application.configureDI() {
+fun Application.configureDI() {
 //    install(Koin) {
 //        slf4jLogger()
 //        modules(applicationModule)
 //    }
-//}
+}
 
 fun Application.configureContentNegotiation() {
     install(ContentNegotiation) {

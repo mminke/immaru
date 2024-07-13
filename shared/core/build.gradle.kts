@@ -45,7 +45,9 @@ kotlin {
         }
 
         jvmMain.dependencies {
+            implementation(libs.kotlinx.coroutines.reactive)
             implementation(libs.jetbrains.exposed.java.time)
+            compileOnly(libs.r2dbc.spi)
         }
 
         wasmJsMain.dependencies {
