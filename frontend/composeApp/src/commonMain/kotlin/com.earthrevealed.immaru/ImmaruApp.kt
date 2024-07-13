@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,7 +54,11 @@ fun ImmaruApp(
                 )
             }
             composable(route = Screen.Lightbox.name) {
-                Text("Active collection: ${currentCollection.value?.name}")
+                Column {
+                    Text("Active collection: ${currentCollection.value?.name}")
+                    Text("Id: ${currentCollection.value?.id?.value}")
+                    Text("createdAt: ${currentCollection.value?.createdAt}")
+                }
             }
             composable(route = Screen.NewCollection.name) {
                 Text("Create new collection")

@@ -14,13 +14,7 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
     override suspend fun all(): List<Collection> {
         return try {
             httpClient.get("api/collections")
-                .body<List<ApiCollection>>()
-                .map {
-                    collection {
-                        id = CollectionId.fromString(it.id)
-                        name = it.name
-                    }
-                }
+                .body<List<Collection>>()
         } catch (throwable: Throwable) {
             throw CollectionRetrievalException(throwable)
         }
@@ -38,13 +32,6 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
         TODO("Not yet implemented")
     }
 }
-
-@Serializable
-data class ApiCollection(
-    val id: String,
-    val name: String,
-    val createdAt: String
-)
 
 class CollectionRetrievalException(throwable: Throwable) :
     RuntimeException("Cannot retrieve collections.", throwable)
