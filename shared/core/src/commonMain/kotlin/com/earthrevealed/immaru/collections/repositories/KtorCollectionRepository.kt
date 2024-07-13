@@ -13,7 +13,7 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
 
     override suspend fun all(): List<Collection> {
         return try {
-            httpClient.get("collections")
+            httpClient.get("api/collections")
                 .body<List<ApiCollection>>()
                 .map {
                     collection {

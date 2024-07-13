@@ -56,6 +56,9 @@ ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
+ktor-server-content-negotionation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
 common-uuid = { module = "com.benasher44:uuid", version.ref = "benasher44-uuid" }
 jetbrains-exposed = { module = "org.jetbrains.exposed:exposed", version.ref = "jetbrains-exposed" }

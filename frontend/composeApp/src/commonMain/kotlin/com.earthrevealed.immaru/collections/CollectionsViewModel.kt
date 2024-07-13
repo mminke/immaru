@@ -17,6 +17,7 @@ class CollectionsViewModel(private val collectionRepository: CollectionRepositor
             try {
                 collections.value = collectionRepository.all()
             } catch (exception: CollectionRetrievalException) {
+                exception.printStackTrace()
                 errorMessage.value = "Cannot retrieve collections!"
             }
             isLoading.value = false
