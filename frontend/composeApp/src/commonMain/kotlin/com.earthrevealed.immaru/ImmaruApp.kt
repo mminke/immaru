@@ -25,6 +25,7 @@ enum class Screen {
     Collections,
     Lightbox,
     NewCollection,
+    CollectionInfo
 }
 
 @Composable
@@ -50,12 +51,27 @@ fun ImmaruApp(
                         currentCollection.value = it
                         navController.navigate(Screen.Lightbox.name)
                     },
+                    onCollectionInfo = {
+                        currentCollection.value = it
+                        navController.navigate(Screen.CollectionInfo.name)
+                    },
                     onNewCollection = { navController.navigate(Screen.NewCollection.name) }
                 )
             }
             composable(route = Screen.Lightbox.name) {
                 Column {
-                    Text("Active collection: ${currentCollection.value?.name}")
+                    Text("Show lightbox for: ${currentCollection.value?.name}")
+                    Text("Id: ${currentCollection.value?.id?.value}")
+                    Text("createdAt: ${currentCollection.value?.createdAt}")
+                }
+            }
+            composable(route = Screen.CollectionInfo.name) {
+                // TODO: Show collection info
+                // TODO: Allow modifying collection name
+                // TODO: Add save button
+                // TODO: Add delete button
+                Column {
+                    Text("Show info for: ${currentCollection.value?.name}")
                     Text("Id: ${currentCollection.value?.id?.value}")
                     Text("createdAt: ${currentCollection.value?.createdAt}")
                 }

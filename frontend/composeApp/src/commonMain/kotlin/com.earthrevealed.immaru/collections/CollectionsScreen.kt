@@ -27,6 +27,7 @@ fun CollectionScreen(
         )
     },
     onCollectionSelected: (Collection) -> Unit = {},
+    onCollectionInfo: (Collection) -> Unit = {},
     onNewCollection: () -> Unit = {}
 ) {
     Column(
@@ -45,7 +46,11 @@ fun CollectionScreen(
             if (errorMessage.value.isNotBlank()) {
                 ErrorMessage(errorMessage.value)
             } else {
-                CollectionSelector(collections = collections.value, onSelect = onCollectionSelected)
+                CollectionSelector(
+                    collections = collections.value,
+                    onSelect = onCollectionSelected,
+                    onInfo = onCollectionInfo
+                )
 
                 SmallFloatingActionButton(
                     onClick = onNewCollection, Modifier.align(Alignment.End).padding(12.dp)
