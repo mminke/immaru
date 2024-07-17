@@ -80,6 +80,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.cio)
+            runtimeOnly(libs.kotlinx.coroutines.swing)
         }
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
