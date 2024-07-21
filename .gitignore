@@ -4,3 +4,7 @@
 target/
 /backend/server/config/immaru.properties
 /config/immaru.properties
+**/build
+.kotlin
+.gradle
+/local.properties
