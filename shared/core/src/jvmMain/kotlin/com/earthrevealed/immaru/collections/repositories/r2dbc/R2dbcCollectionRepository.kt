@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.collections.repositories.r2dbc
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
+import com.earthrevealed.immaru.collections.CollectionUpdateException
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Result
 import kotlinx.coroutines.flow.Flow
@@ -17,8 +18,32 @@ class R2dbcCollectionRepository(
 ) : CollectionRepository {
     private val tableName = "collections"
 
-    override suspend fun save(collection: Collection) {
+    override suspend fun insert(collection: Collection) {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun update(collection: Collection) {
+        val connection = connectionFactory.create().awaitSingle()
+        connection.beginTransaction()
+        try {
+            val rowsUpdated =
+                connection.createStatement("UPDATE $tableName SET name = $1 WHERE id = $2")
+                    .bind("$1", collection.name)
+                    .bind("$2", collection.id.value)
+                    .execute()
+                    .awaitSingle()
+                    .rowsUpdated
+                    .awaitSingle()
+
+            if (rowsUpdated > 1) {
+                connection.rollbackTransaction()
+                throw CollectionUpdateException("More than one row updated. Transaction rolled back.")
+            }
+            connection.commitTransaction()
+        } catch (throwable: Throwable) {
+            connection.rollbackTransaction()
+            throw CollectionUpdateException(throwable)
+        }
     }
 
     override suspend fun all(): List<Collection> {

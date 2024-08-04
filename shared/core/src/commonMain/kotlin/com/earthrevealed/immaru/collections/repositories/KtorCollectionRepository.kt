@@ -1,13 +1,15 @@
 package com.earthrevealed.immaru.collections.repositories
 
-import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
-import com.earthrevealed.immaru.collections.collection
+import com.earthrevealed.immaru.collections.CollectionRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import kotlinx.serialization.Serializable
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 
 class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionRepository {
 
@@ -20,8 +22,21 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
         }
     }
 
-    override suspend fun save(collection: Collection) {
+    override suspend fun insert(collection: Collection) {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun update(collection: Collection) {
+        try {
+            httpClient.post("api/collections") {
+                contentType(ContentType.Application.Json)
+                setBody(collection)
+            }.also {
+                println("Update status code: ${it.status}")
+            }
+        } catch (throwable: Throwable) {
+            throw CollectionRetrievalException(throwable)
+        }
     }
 
     override suspend fun get(id: CollectionId): Collection? {

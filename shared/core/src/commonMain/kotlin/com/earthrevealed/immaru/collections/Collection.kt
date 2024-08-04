@@ -50,7 +50,7 @@ fun collection(initialization: CollectionBuilder.() -> Unit) =
 @ImmaruBuilder
 class CollectionBuilder {
     var id = CollectionId()
-    var name = "Default"
+    var name = "New collection"
     var creationDateTime: String = "creation Date"
 //    var creationDateTime: OffsetDateTime = OffsetDateTime.now(ClockProvider.clock)
 

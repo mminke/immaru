@@ -1,12 +1,16 @@
 package com.earthrevealed.immaru.routes
 
 import com.earthrevealed.immaru.Configuration
+import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.r2dbc.spi.ConnectionFactories
 
@@ -30,6 +34,11 @@ fun Route.collectionResource() {
             call.respond(
                 collectionRepository.all()
             )
+        }
+        post {
+            val collection = call.receive<Collection>()
+            collectionRepository.update(collection)
+            call.response.status(HttpStatusCode.Accepted)
         }
     }
 }
