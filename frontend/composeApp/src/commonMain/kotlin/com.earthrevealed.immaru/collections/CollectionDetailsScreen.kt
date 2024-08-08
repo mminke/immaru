@@ -8,9 +8,11 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,6 +24,10 @@ fun CollectionDetailsScreen(
     viewModel: CollectionDetailsViewModel,
     onNavigateBack: () -> Unit,
 ) {
+    if (viewModel.state.value == CollectionDetailsViewModel.State.NAVIGATE_BACK) {
+        onNavigateBack()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -54,7 +60,7 @@ fun CollectionDetailsScreen(
                 modifier = Modifier.consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
-                if (viewModel.state.value == CollectionDetailsViewModel.State.SAVING) {
+                if (viewModel.state.value == CollectionDetailsViewModel.State.PROCESSING) {
                     CircularProgressIndicator()
                 } else {
                     if (viewModel.errorMessage.value.isNotBlank()) {
@@ -63,6 +69,13 @@ fun CollectionDetailsScreen(
                         CollectionDetails(viewModel.collection.value, onChange = {
                             viewModel.collection.value = it
                         })
+
+                        //TODO: Only show button if this is a persisted collection
+                        FilledTonalButton(onClick = {
+                            viewModel.deleteCollection()
+                        }) {
+                            Text("Delete")
+                        }
                     }
                 }
             }

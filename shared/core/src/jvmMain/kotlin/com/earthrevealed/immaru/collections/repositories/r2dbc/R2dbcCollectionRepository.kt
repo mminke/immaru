@@ -64,8 +64,29 @@ class R2dbcCollectionRepository(
         TODO("Not yet implemented")
     }
 
-    override suspend fun delete(collection: Collection) {
-        TODO("Not yet implemented")
+    override suspend fun delete(id: CollectionId) {
+        val connection = connectionFactory.create().awaitSingle()
+        connection.beginTransaction()
+
+        try {
+            val rowsUpdated =
+                connection
+                    .createStatement("DELETE FROM $tableName WHERE id = $1")
+                    .bind("$1", id.value)
+                    .execute()
+                    .awaitSingle()
+                    .rowsUpdated
+                    .awaitSingle()
+
+            if (rowsUpdated > 1) {
+                connection.rollbackTransaction()
+                throw CollectionUpdateException("More than one row updated. Transaction rolled back.")
+            }
+            connection.commitTransaction()
+        } catch (throwable: Throwable) {
+            connection.rollbackTransaction()
+            throw CollectionUpdateException(throwable)
+        }
     }
 }
 

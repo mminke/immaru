@@ -15,7 +15,7 @@ class CollectionDetailsViewModel(
 
     fun saveChanges() {
         viewModelScope.launch {
-            state.value = State.SAVING
+            state.value = State.PROCESSING
             try {
                 collectionRepository.save(collection.value)
                 state.value = State.READY
@@ -27,9 +27,24 @@ class CollectionDetailsViewModel(
         }
     }
 
+    fun deleteCollection() {
+        viewModelScope.launch {
+            state.value = State.PROCESSING
+            try {
+                collectionRepository.delete(collection.value.id)
+                state.value = State.NAVIGATE_BACK
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
+                errorMessage.value = "Error occured while deleting collection"
+                state.value = State.ERROR
+            }
+        }
+    }
+
     enum class State {
         READY,
-        SAVING,
+        PROCESSING,
+        NAVIGATE_BACK,
         ERROR
     }
 }

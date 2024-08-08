@@ -21,9 +21,9 @@ class ExposedCollectionRepository : CollectionRepository {
         CollectionTable.select { CollectionTable.id eq id.toEntityId() }
             .firstOrNull()?.toCollection()
 
-    override suspend fun delete(collection: Collection) {
+    override suspend fun delete(id: CollectionId) {
         CollectionTable.deleteWhere {
-            CollectionTable.id eq collection.id.value
+            CollectionTable.id eq id.value
         }
     }
 

@@ -4,7 +4,7 @@ interface CollectionRepository {
     suspend fun save(collection: Collection)
     suspend fun all(): List<Collection>
     suspend fun get(id: CollectionId): Collection?
-    suspend fun delete(collection: Collection)
+    suspend fun delete(id: CollectionId)
 }
 
 class CollectionUpdateException : RuntimeException {
