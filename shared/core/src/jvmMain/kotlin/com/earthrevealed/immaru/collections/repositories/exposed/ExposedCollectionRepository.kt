@@ -4,13 +4,12 @@ import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 
 class ExposedCollectionRepository : CollectionRepository {
 
-    override suspend fun update(collection: Collection) {
+    override suspend fun save(collection: Collection) {
         throw NotImplementedError("Not yet implemented!")
     }
 
@@ -26,10 +25,6 @@ class ExposedCollectionRepository : CollectionRepository {
         CollectionTable.deleteWhere {
             CollectionTable.id eq collection.id.value
         }
-    }
-
-    override suspend fun insert(collection: Collection) {
-        CollectionTable.insert { it.from(collection) }.insertedCount.toLong()
     }
 
     fun notExists(collectionId: CollectionId): Boolean =

@@ -3,12 +3,11 @@ package com.earthrevealed.immaru.collections
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CollectionDetailsViewModel(
-    collection: Collection = collection { },
-    private val collectionRepository: CollectionRepository
+    private val collectionRepository: CollectionRepository,
+    collection: Collection
 ) : ViewModel() {
     val collection = mutableStateOf(collection)
     val errorMessage = mutableStateOf("")
@@ -18,8 +17,7 @@ class CollectionDetailsViewModel(
         viewModelScope.launch {
             state.value = State.SAVING
             try {
-                delay(1000)
-                collectionRepository.update(collection.value)
+                collectionRepository.save(collection.value)
                 state.value = State.READY
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()

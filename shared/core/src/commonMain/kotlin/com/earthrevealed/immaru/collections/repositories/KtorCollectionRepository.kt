@@ -6,9 +6,10 @@ import com.earthrevealed.immaru.collections.CollectionRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
 class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionRepository {
@@ -22,20 +23,18 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
         }
     }
 
-    override suspend fun insert(collection: Collection) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun update(collection: Collection) {
-        try {
-            httpClient.post("api/collections") {
+    override suspend fun save(collection: Collection) {
+        val httpResponse = try {
+            httpClient.put("api/collections") {
                 contentType(ContentType.Application.Json)
                 setBody(collection)
-            }.also {
-                println("Update status code: ${it.status}")
             }
         } catch (throwable: Throwable) {
-            throw CollectionRetrievalException(throwable)
+            throw SaveCollectionException(throwable)
+        }
+
+        if (httpResponse.status != HttpStatusCode.Accepted) {
+            throw SaveCollectionException("Could not save collection. [code=${httpResponse.status}]")
         }
     }
 
@@ -48,5 +47,11 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
     }
 }
 
-class CollectionRetrievalException(throwable: Throwable) :
-    RuntimeException("Cannot retrieve collections.", throwable)
+class CollectionRetrievalException : RuntimeException {
+    constructor(throwable: Throwable) : super("Cannot retrieve collections.", throwable)
+}
+
+class SaveCollectionException : RuntimeException {
+    constructor(throwable: Throwable) : super("Cannot retrieve collections.", throwable)
+    constructor(message: String) : super(message)
+}

@@ -10,7 +10,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
-import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.r2dbc.spi.ConnectionFactories
 
@@ -35,9 +35,9 @@ fun Route.collectionResource() {
                 collectionRepository.all()
             )
         }
-        post {
+        put {
             val collection = call.receive<Collection>()
-            collectionRepository.update(collection)
+            collectionRepository.save(collection)
             call.response.status(HttpStatusCode.Accepted)
         }
     }

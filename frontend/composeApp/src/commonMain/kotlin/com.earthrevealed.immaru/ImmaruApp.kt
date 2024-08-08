@@ -15,6 +15,7 @@ import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionDetailsScreen
 import com.earthrevealed.immaru.collections.CollectionDetailsViewModel
 import com.earthrevealed.immaru.collections.CollectionScreen
+import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -70,14 +71,20 @@ fun ImmaruApp(
             composable(route = Screen.CollectionDetails.name) {
                 CollectionDetailsScreen(
                     viewModel = CollectionDetailsViewModel(
-                        currentCollection.value!!,
-                        collectionRepository
+                        collectionRepository,
+                        currentCollection.value!!
                     ),
                     onNavigateBack = { navController.navigate(Screen.Collections.name) }
                 )
             }
             composable(route = Screen.NewCollection.name) {
-                Text("Create new collection")
+                CollectionDetailsScreen(
+                    viewModel = CollectionDetailsViewModel(
+                        collectionRepository,
+                        collection { }
+                    ),
+                    onNavigateBack = { navController.navigate(Screen.Collections.name) }
+                )
             }
         }
     }

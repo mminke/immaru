@@ -18,18 +18,23 @@ class R2dbcCollectionRepository(
 ) : CollectionRepository {
     private val tableName = "collections"
 
-    override suspend fun insert(collection: Collection) {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun update(collection: Collection) {
+    override suspend fun save(collection: Collection) {
         val connection = connectionFactory.create().awaitSingle()
         connection.beginTransaction()
+
         try {
             val rowsUpdated =
-                connection.createStatement("UPDATE $tableName SET name = $1 WHERE id = $2")
-                    .bind("$1", collection.name)
-                    .bind("$2", collection.id.value)
+                connection
+                    .createStatement(
+                        """
+                        INSERT INTO $tableName
+                        VALUES ($1, $2, now())
+                        ON CONFLICT (id)
+                        DO UPDATE SET name = EXCLUDED.name
+                        """.trimIndent()
+                    )
+                    .bind("$1", collection.id.value)
+                    .bind("$2", collection.name)
                     .execute()
                     .awaitSingle()
                     .rowsUpdated
