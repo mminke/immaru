@@ -24,10 +24,6 @@ fun CollectionDetailsScreen(
     viewModel: CollectionDetailsViewModel,
     onNavigateBack: () -> Unit,
 ) {
-    if (viewModel.state.value == CollectionDetailsViewModel.State.NAVIGATE_BACK) {
-        onNavigateBack()
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -43,7 +39,7 @@ fun CollectionDetailsScreen(
                 actions = {
                     //TODO: Disable if no changes were made yet
                     IconButton(onClick = {
-                        viewModel.saveChanges()
+                        viewModel.saveChanges(onSuccess = { onNavigateBack() })
                     }) {
                         Icon(
                             Icons.Filled.Check,
@@ -72,7 +68,7 @@ fun CollectionDetailsScreen(
 
                         //TODO: Only show button if this is a persisted collection
                         FilledTonalButton(onClick = {
-                            viewModel.deleteCollection()
+                            viewModel.deleteCollection(onSuccess = { onNavigateBack() })
                         }) {
                             Text("Delete")
                         }

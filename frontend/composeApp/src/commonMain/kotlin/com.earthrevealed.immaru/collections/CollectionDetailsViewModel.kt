@@ -13,12 +13,13 @@ class CollectionDetailsViewModel(
     val errorMessage = mutableStateOf("")
     val state = mutableStateOf(State.READY)
 
-    fun saveChanges() {
+    fun saveChanges(onSuccess: () -> Unit) {
         viewModelScope.launch {
             state.value = State.PROCESSING
             try {
                 collectionRepository.save(collection.value)
                 state.value = State.READY
+                onSuccess()
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 errorMessage.value = "Error occured while saving collection"
@@ -27,12 +28,13 @@ class CollectionDetailsViewModel(
         }
     }
 
-    fun deleteCollection() {
+    fun deleteCollection(onSuccess: () -> Unit) {
         viewModelScope.launch {
             state.value = State.PROCESSING
             try {
                 collectionRepository.delete(collection.value.id)
-                state.value = State.NAVIGATE_BACK
+                state.value = State.READY
+                onSuccess()
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 errorMessage.value = "Error occured while deleting collection"
@@ -44,7 +46,6 @@ class CollectionDetailsViewModel(
     enum class State {
         READY,
         PROCESSING,
-        NAVIGATE_BACK,
         ERROR
     }
 }
