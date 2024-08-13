@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru.collections.repositories.r2dbc
 
+import com.benasher44.uuid.uuidFrom
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
@@ -93,7 +94,7 @@ class R2dbcCollectionRepository(
 private fun Result.mapToDomain(): Flow<Collection> {
     return map { row, _ ->
         Collection(
-            id = CollectionId(row.get("id", UUID::class.java)),
+            id = CollectionId(uuidFrom(row.get("id", String::class.java)!!)),
             name = row.get("name", String::class.java)!!,
             //TODO: Change to OffsetDateTime
             createdAt = row.get("created_at", LocalDateTime::class.java)!!.toString(),

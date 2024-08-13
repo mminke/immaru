@@ -43,6 +43,9 @@ kotlin {
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.ktor.client.core)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
 
         jvmMain.dependencies {
             implementation(libs.kotlinx.coroutines.reactive)

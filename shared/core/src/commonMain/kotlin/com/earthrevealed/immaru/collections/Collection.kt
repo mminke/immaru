@@ -42,7 +42,11 @@ data class Collection(
     val id: CollectionId,
     val name: String,
     val createdAt: String
-)
+) {
+    init {
+        require(name.length <= 100) { "Collection name should not exceed a length of 100 characters" }
+    }
+}
 
 fun collection(initialization: CollectionBuilder.() -> Unit) =
     CollectionBuilder().apply(initialization).build()
