@@ -59,6 +59,7 @@ fun CollectionDetailsScreen(
                             Icons.Filled.Check,
                             contentDescription = "Save changes"
                         )
+
                     }
                 }
 
@@ -80,11 +81,12 @@ fun CollectionDetailsScreen(
                             viewModel.collection.value = it
                         })
 
-                        //TODO: Only show button if this is a persisted collection
-                        FilledTonalButton(onClick = {
-                            showConfirmDeleteDialog.value = true
-                        }) {
-                            Text("Delete")
+                        if (!viewModel.isNew) {
+                            FilledTonalButton(onClick = {
+                                showConfirmDeleteDialog.value = true
+                            }) {
+                                Text("Delete")
+                            }
                         }
                     }
                 }

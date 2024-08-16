@@ -82,7 +82,8 @@ fun ImmaruApp(
                 CollectionDetailsScreen(
                     viewModel = CollectionDetailsViewModel(
                         collectionRepository,
-                        collection { }
+                        collection { },
+                        isNew = true
                     ),
                     onNavigateBack = { navController.navigate(Screen.Collections.name) }
                 )

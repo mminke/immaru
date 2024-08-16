@@ -7,7 +7,8 @@ import kotlinx.coroutines.launch
 
 class CollectionDetailsViewModel(
     private val collectionRepository: CollectionRepository,
-    collection: Collection
+    collection: Collection,
+    val isNew: Boolean = false
 ) : ViewModel() {
     val collection = mutableStateOf(collection)
     val errorMessage = mutableStateOf("")
