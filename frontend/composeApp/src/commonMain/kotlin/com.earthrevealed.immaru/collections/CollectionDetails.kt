@@ -8,6 +8,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -27,6 +29,6 @@ fun CollectionDetails(
             },
             Modifier.fillMaxWidth()
         )
-        Text(collection.createdAt)
+        Text(collection.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).toString())
     }
 }

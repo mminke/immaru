@@ -14,6 +14,7 @@ androidx-test-junit = "1.1.5"
 compose-plugin = "1.6.10"
 
 junit = "4.13.2"
+kotlinxDatetime = "0.6.0"
 kotlinxSerializationPlugin = "1.8.21"
 kotlinxSerialization = "1.6.3"
 kotlinxSerializationJson = "1.6.3"
@@ -25,7 +26,6 @@ benasher44-uuid = "0.8.4"
 compose-multiplatform = "1.6.10"
 lifecycleViewModel = "2.8.0"
 navigationCompose = "2.7.0-alpha07"
-jetbrains-exposed = "0.37.1"
 
 r2dbc = "1.0.0.RELEASE"
 postgresql_r2dbc_version = "1.0.0.RELEASE"
@@ -34,6 +34,7 @@ kotlinx-coroutines = "1.8.1"
 kotlin-logging = "2.1.21"
 
 [libraries]
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewModel" }
 #lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel"}
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewModel" }
@@ -74,8 +75,6 @@ ktor-server-content-negotionation = { module = "io.ktor:ktor-server-content-nego
 
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
 common-uuid = { module = "com.benasher44:uuid", version.ref = "benasher44-uuid" }
-jetbrains-exposed = { module = "org.jetbrains.exposed:exposed", version.ref = "jetbrains-exposed" }
-jetbrains-exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "jetbrains-exposed" }
 
 r2dbc-spi = { module = "io.r2dbc:r2dbc-spi", version.ref = "r2dbc" }
 postresql-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version.ref = "postgresql_r2dbc_version" }

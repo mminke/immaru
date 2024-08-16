@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru.collections
 
+import com.earthrevealed.immaru.support.FixedClock
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -15,20 +16,21 @@ class CollectionTest {
         val result = Collection(
             id = CollectionId(),
             name = VALID_NAME,
-            createdAt = ""
+            createdAt = FixedClock.now()
         )
 
         assertNotNull(result)
         assertEquals(VALID_NAME, result.name)
+        assertEquals(FixedClock.now(), result.createdAt)
     }
 
     @Test
-    fun shouldFailToCreateCollectionForInvalidInput() {
+    fun shouldFailToCreateCollectionForInvalidName() {
         assertFails {
             Collection(
                 id = CollectionId(),
                 name = INVALID_NAME,
-                createdAt = ""
+                createdAt = FixedClock.now()
             )
         }
     }

@@ -39,9 +39,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.common.uuid)
-            implementation(libs.kotlinx.serialization.core)
             implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.serialization.core)
+            api(libs.common.uuid)
+            api(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -49,7 +50,6 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(libs.kotlinx.coroutines.reactive)
-            implementation(libs.jetbrains.exposed.java.time)
             compileOnly(libs.r2dbc.spi)
         }
 

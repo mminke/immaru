@@ -1,6 +1,6 @@
 package com.earthrevealed.immaru.collections.repositories.r2dbc
 
-import com.benasher44.uuid.uuidFrom
+import com.benasher44.uuid.Uuid
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import java.time.LocalDateTime
-import java.util.UUID
+import java.time.ZoneId
 
 class R2dbcCollectionRepository(
     private val connectionFactory: ConnectionFactory
@@ -29,13 +31,14 @@ class R2dbcCollectionRepository(
                     .createStatement(
                         """
                         INSERT INTO $tableName
-                        VALUES ($1, $2, now())
+                        VALUES ($1, $2, $3)
                         ON CONFLICT (id)
                         DO UPDATE SET name = EXCLUDED.name
                         """.trimIndent()
                     )
                     .bind("$1", collection.id.value)
                     .bind("$2", collection.name)
+                    .bind("$3", collection.createdAt.toJavaInstant())
                     .execute()
                     .awaitSingle()
                     .rowsUpdated
@@ -93,11 +96,14 @@ class R2dbcCollectionRepository(
 
 private fun Result.mapToDomain(): Flow<Collection> {
     return map { row, _ ->
+        val createdAtTimestamp =
+            row.get("created_at", LocalDateTime::class.java)!!.atZone(ZoneId.systemDefault())
+        val createdAt = Instant.fromEpochMilliseconds(createdAtTimestamp.toInstant().toEpochMilli())
+
         Collection(
-            id = CollectionId(uuidFrom(row.get("id", String::class.java)!!)),
+            id = CollectionId(row.get("id", Uuid::class.java)!!),
             name = row.get("name", String::class.java)!!,
-            //TODO: Change to OffsetDateTime
-            createdAt = row.get("created_at", LocalDateTime::class.java)!!.toString(),
+            createdAt = createdAt,
         )
     }.asFlow()
 }
