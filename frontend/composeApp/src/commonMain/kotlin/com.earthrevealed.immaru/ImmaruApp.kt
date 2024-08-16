@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru
 
+import Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -97,7 +98,7 @@ val globalHttpClient = try {
         }
 
         defaultRequest {
-            url("http://10.0.2.2:8080")
+            url(Configuration.immaruUrl)
         }
     }
 } catch (exception: RuntimeException) {
