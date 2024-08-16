@@ -25,10 +25,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.earthrevealed.immaru.collections.CollectionDetailsViewModel.State.ISDIRTY
 import com.earthrevealed.immaru.common.ErrorMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +39,8 @@ fun CollectionDetailsScreen(
     viewModel: CollectionDetailsViewModel,
     onNavigateBack: () -> Unit,
 ) {
+    val collection = viewModel.collection.collectAsState()
+
     val showConfirmDeleteDialog = remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
@@ -51,10 +55,12 @@ fun CollectionDetailsScreen(
                     }
                 },
                 actions = {
-                    //TODO: Disable if no changes were made yet
-                    IconButton(onClick = {
-                        viewModel.saveChanges(onSuccess = { onNavigateBack() })
-                    }) {
+                    IconButton(
+                        onClick = {
+                            viewModel.saveChanges(onSuccess = { onNavigateBack() })
+                        },
+                        enabled = viewModel.state.value == ISDIRTY
+                    ) {
                         Icon(
                             Icons.Filled.Check,
                             contentDescription = "Save changes"
@@ -77,8 +83,8 @@ fun CollectionDetailsScreen(
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
                     } else {
-                        CollectionDetails(viewModel.collection.value, onChange = {
-                            viewModel.collection.value = it
+                        CollectionDetails(collection.value, onChange = {
+                            viewModel.updateCollection(it)
                         })
 
                         if (!viewModel.isNew) {

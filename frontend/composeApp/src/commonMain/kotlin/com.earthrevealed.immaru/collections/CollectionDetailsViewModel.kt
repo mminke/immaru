@@ -3,6 +3,9 @@ package com.earthrevealed.immaru.collections
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CollectionDetailsViewModel(
@@ -10,7 +13,9 @@ class CollectionDetailsViewModel(
     collection: Collection,
     val isNew: Boolean = false
 ) : ViewModel() {
-    val collection = mutableStateOf(collection)
+    private val _collection = MutableStateFlow(collection)
+    val collection: StateFlow<Collection> = _collection.asStateFlow()
+
     val errorMessage = mutableStateOf("")
     val state = mutableStateOf(State.READY)
 
@@ -44,8 +49,14 @@ class CollectionDetailsViewModel(
         }
     }
 
+    fun updateCollection(updatedCollection: Collection) {
+        _collection.value = updatedCollection
+        state.value = State.ISDIRTY
+    }
+
     enum class State {
         READY,
+        ISDIRTY,
         PROCESSING,
         ERROR
     }
