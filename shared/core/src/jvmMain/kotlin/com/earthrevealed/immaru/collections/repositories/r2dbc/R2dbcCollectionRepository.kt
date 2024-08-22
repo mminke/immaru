@@ -4,7 +4,8 @@ import com.benasher44.uuid.Uuid
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
-import com.earthrevealed.immaru.collections.CollectionUpdateException
+import com.earthrevealed.immaru.collections.DeleteCollectionException
+import com.earthrevealed.immaru.collections.SaveCollectionException
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Result
 import kotlinx.coroutines.flow.Flow
@@ -46,12 +47,12 @@ class R2dbcCollectionRepository(
 
             if (rowsUpdated > 1) {
                 connection.rollbackTransaction()
-                throw CollectionUpdateException("More than one row updated. Transaction rolled back.")
+                throw SaveCollectionException("More than one row updated. Transaction rolled back.")
             }
             connection.commitTransaction()
         } catch (throwable: Throwable) {
             connection.rollbackTransaction()
-            throw CollectionUpdateException(throwable)
+            throw SaveCollectionException(throwable)
         }
     }
 
@@ -84,12 +85,12 @@ class R2dbcCollectionRepository(
 
             if (rowsUpdated > 1) {
                 connection.rollbackTransaction()
-                throw CollectionUpdateException("More than one row updated. Transaction rolled back.")
+                throw DeleteCollectionException("More than one row updated. Transaction rolled back.")
             }
             connection.commitTransaction()
         } catch (throwable: Throwable) {
             connection.rollbackTransaction()
-            throw CollectionUpdateException(throwable)
+            throw DeleteCollectionException(throwable)
         }
     }
 }

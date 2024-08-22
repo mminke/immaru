@@ -14,6 +14,17 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
+@Serializable
+data class Collection(
+    val id: CollectionId,
+    val name: String,
+    val createdAt: Instant
+) {
+    init {
+        require(name.length <= 100) { "Collection name should not exceed a length of 100 characters" }
+    }
+}
+
 @Serializable(with = CollectionIdSerializer::class)
 data class CollectionId(
     val value: Uuid = uuid4()
@@ -36,17 +47,6 @@ object CollectionIdSerializer : KSerializer<CollectionId> {
     override fun deserialize(decoder: Decoder): CollectionId {
         val value = decoder.decodeString()
         return CollectionId.fromString(value)
-    }
-}
-
-@Serializable
-data class Collection(
-    val id: CollectionId,
-    val name: String,
-    val createdAt: Instant
-) {
-    init {
-        require(name.length <= 100) { "Collection name should not exceed a length of 100 characters" }
     }
 }
 

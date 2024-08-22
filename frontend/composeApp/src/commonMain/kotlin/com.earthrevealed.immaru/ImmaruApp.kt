@@ -1,10 +1,8 @@
 package com.earthrevealed.immaru
 
 import Configuration
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -12,12 +10,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionDetailsScreen
 import com.earthrevealed.immaru.collections.CollectionDetailsViewModel
 import com.earthrevealed.immaru.collections.CollectionScreen
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
+import com.earthrevealed.immaru.lightbox.LightboxScreen
+import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -38,6 +39,7 @@ fun ImmaruApp(
     navController: NavHostController = rememberNavController()
 ) {
     val collectionRepository = KtorCollectionRepository(globalHttpClient)
+    val assetRepository = KtorAssetRepository(globalHttpClient)
 
     val currentCollection = mutableStateOf<Collection?>(null)
 
@@ -63,11 +65,13 @@ fun ImmaruApp(
                 )
             }
             composable(route = Screen.Lightbox.name) {
-                Column {
-                    Text("Show lightbox for: ${currentCollection.value?.name}")
-                    Text("Id: ${currentCollection.value?.id?.value}")
-                    Text("createdAt: ${currentCollection.value?.createdAt}")
-                }
+                LightboxScreen(
+                    viewModel = LightboxViewModel(
+                        assetRepository,
+                        currentCollection.value!!
+                    ),
+                    onNavigateBack = { navController.navigate(Screen.Collections.name) }
+                )
             }
             composable(route = Screen.CollectionDetails.name) {
                 CollectionDetailsScreen(

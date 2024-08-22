@@ -3,6 +3,9 @@ package com.earthrevealed.immaru.collections.repositories
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
+import com.earthrevealed.immaru.collections.CollectionRetrievalException
+import com.earthrevealed.immaru.collections.DeleteCollectionException
+import com.earthrevealed.immaru.collections.SaveCollectionException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -59,18 +62,4 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
             throw DeleteCollectionException("Could not delete collection. [code=${httpResponse.status}]")
         }
     }
-}
-
-class CollectionRetrievalException : RuntimeException {
-    constructor(throwable: Throwable) : super("Cannot retrieve collections.", throwable)
-}
-
-class SaveCollectionException : RuntimeException {
-    constructor(throwable: Throwable) : super("Cannot save collection.", throwable)
-    constructor(message: String) : super(message)
-}
-
-class DeleteCollectionException : RuntimeException {
-    constructor(throwable: Throwable) : super("Cannot delete collection.", throwable)
-    constructor(message: String) : super(message)
 }

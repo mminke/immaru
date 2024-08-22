@@ -3,7 +3,6 @@ package com.earthrevealed.immaru.collections
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.earthrevealed.immaru.collections.repositories.CollectionRetrievalException
 import kotlinx.coroutines.launch
 
 class CollectionsViewModel(private val collectionRepository: CollectionRepository) :

@@ -7,8 +7,16 @@ interface CollectionRepository {
     suspend fun delete(id: CollectionId)
 }
 
-class CollectionUpdateException : RuntimeException {
-    constructor(message: String) : super(message)
+class CollectionRetrievalException : RuntimeException {
+    constructor(throwable: Throwable) : super("Cannot retrieve collections.", throwable)
+}
 
-    constructor(cause: Throwable) : super("Could not update collection.", cause)
+class SaveCollectionException : RuntimeException {
+    constructor(throwable: Throwable) : super("Cannot save collection.", throwable)
+    constructor(message: String) : super(message)
+}
+
+class DeleteCollectionException : RuntimeException {
+    constructor(throwable: Throwable) : super("Cannot delete collection.", throwable)
+    constructor(message: String) : super(message)
 }
