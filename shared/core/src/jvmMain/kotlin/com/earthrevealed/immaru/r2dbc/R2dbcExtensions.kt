@@ -5,6 +5,7 @@ import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Row
 import io.r2dbc.spi.Statement
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.Instant
 import java.time.LocalDateTime
@@ -16,18 +17,18 @@ suspend fun <T> ConnectionFactory.useConnection(executeUsing: suspend Connection
     return try {
         executeUsing(connection)
     } finally {
-        connection.close()
+        connection.close().awaitFirstOrNull()
     }
 }
 
 suspend fun Connection.useTransaction(executeUsing: suspend Connection.() -> Unit) {
-    beginTransaction()
+    beginTransaction().awaitFirstOrNull()
     try {
         executeUsing()
 
-        commitTransaction()
+        commitTransaction().awaitFirstOrNull()
     } catch (throwable: Throwable) {
-        rollbackTransaction()
+        rollbackTransaction().awaitFirstOrNull()
         throw throwable
     }
 }

@@ -59,22 +59,24 @@ class R2dbcCollectionRepository(
     }
 
     override suspend fun all(): List<Collection> {
-        return connectionFactory.create().awaitSingle()
-            .createStatement("SELECT * FROM $tableName ORDER BY name")
-            .execute()
-            .awaitSingle()
-            .mapToDomain()
-            .toList()
+        return connectionFactory.useConnection {
+            createStatement("SELECT * FROM $tableName ORDER BY name")
+                .execute()
+                .awaitSingle()
+                .mapToDomain()
+                .toList()
+        }
     }
 
     override suspend fun get(id: CollectionId): Collection? {
-        return connectionFactory.create().awaitSingle()
-            .createStatement("SELECT * FROM $tableName WHERE id = $1")
-            .bind("$1", id.value)
-            .execute()
-            .awaitSingle()
-            .mapToDomain()
-            .firstOrNull()
+        return connectionFactory.useConnection {
+            createStatement("SELECT * FROM $tableName WHERE id = $1")
+                .bind("$1", id.value)
+                .execute()
+                .awaitSingle()
+                .mapToDomain()
+                .firstOrNull()
+        }
     }
 
     override suspend fun delete(id: CollectionId) {
