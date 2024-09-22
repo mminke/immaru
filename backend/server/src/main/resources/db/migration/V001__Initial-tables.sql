@@ -1,4 +1,4 @@
-create TABLE collections (
+CREATE TABLE collections (
     id UUID,
     name TEXT,
     created_at TIMESTAMP,
@@ -6,18 +6,18 @@ create TABLE collections (
     PRIMARY KEY (id)
 );
 
-create TABLE assets (
+CREATE TABLE assets (
     id UUID,
-    collection_id UUID NOT NULL REFERENCES collections ON delete RESTRICT,
+    collection_id UUID NOT NULL REFERENCES collections ON DELETE RESTRICT,
     original_filename TEXT,
     created_at TIMESTAMP,
 
     PRIMARY KEY (id)
 );
 
-create TABLE tags (
+CREATE TABLE tags (
     id UUID,
-    collection_id UUID NOT NULL REFERENCES collections ON delete CASCADE,
+    collection_id UUID NOT NULL REFERENCES collections ON DELETE CASCADE,
     name TEXT,
     created_at TIMESTAMP,
 

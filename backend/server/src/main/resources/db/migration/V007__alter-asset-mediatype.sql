@@ -1,2 +1,2 @@
-alter table assets
-    alter COLUMN media_type drop NOT NULL;;
+ALTER TABLE assets
+    ALTER COLUMN media_type DROP NOT NULL;
