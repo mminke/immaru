@@ -52,6 +52,12 @@ kotlin {
             implementation(libs.kotlinx.coroutines.reactive)
             compileOnly(libs.r2dbc.spi)
         }
+        jvmTest.dependencies {
+            implementation(libs.junit.jupiter)
+            implementation(libs.kotlinx.serialization.json)
+
+            runtimeOnly(libs.postgresql.r2dbc)
+        }
 
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)

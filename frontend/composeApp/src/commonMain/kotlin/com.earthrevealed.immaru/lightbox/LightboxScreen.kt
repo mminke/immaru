@@ -62,7 +62,7 @@ fun LightboxScreen(
                         viewModel.assets.value.forEach {
                             Column {
                                 Text(it.id.toString())
-                                Text(it.originalFilename)
+                                Text(it.name)
                             }
                         }
                     }

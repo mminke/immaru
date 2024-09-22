@@ -3,6 +3,7 @@ package com.earthrevealed.immaru
 import mu.KotlinLogging
 import java.io.File
 import java.io.FileInputStream
+import java.nio.file.Path
 import java.util.Properties
 
 private val logger = KotlinLogging.logger { }
@@ -20,11 +21,22 @@ object Configuration {
             object r2dbc {
                 val url = configuration.getProperty("immaru.database.r2dbc.url")
             }
+            object flyway {
+                object jdbc {
+                    val url = configuration.getProperty("immaru.database.flyway.jdbc.url")
+                    val username = configuration.getProperty("immaru.database.flyway.jdbc.username")
+                    val password = configuration.getProperty("immaru.database.flyway.jdbc.password")
+                }
+            }
+        }
+
+        object library {
+            val path = Path.of(configuration.getProperty("immaru.library.root.path"))
         }
     }
 }
 
-fun loadProperties(filename: String): Properties = Properties().also {
+private fun loadProperties(filename: String): Properties = Properties().also {
     val file = File(filename)
     logger.info { "Loading properties from file: ${file.absoluteFile}" }
     it.load(
@@ -32,5 +44,3 @@ fun loadProperties(filename: String): Properties = Properties().also {
     )
     logger.debug { "Properties loaded:\n$it" }
 }
-
-class ConfigurationException(msg: String) : RuntimeException(msg)

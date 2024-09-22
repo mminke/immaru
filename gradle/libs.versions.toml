@@ -11,35 +11,31 @@ androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.5.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
-compose-plugin = "1.6.10"
 
-junit = "4.13.2"
-kotlinxDatetime = "0.6.0"
-kotlinxSerializationPlugin = "1.8.21"
-kotlinxSerialization = "1.6.3"
-kotlinxSerializationJson = "1.6.3"
+kotlin-logging = "2.1.21"
+kotlinx-datetime = "0.6.0"
+kotlinx-serialization-plugin = "1.8.21"
+kotlinx-serialization = "1.6.3"
+kotlinx-serialization-json = "1.6.3"
+kotlinx-coroutines = "1.8.1"
 ktor-plugin = "2.3.11"
+junit = "4.13.2"
 #ktor = "2.3.11"
 ktor = "2.3.3-wasm0"
 logback = "1.5.6"
 benasher44-uuid = "0.8.4"
 compose-multiplatform = "1.6.10"
-lifecycleViewModel = "2.8.0"
-navigationCompose = "2.7.0-alpha07"
+lifecycle-view-model = "2.8.0"
+navigation-compose = "2.7.0-alpha07"
 
 r2dbc = "1.0.0.RELEASE"
 postgresql_r2dbc_version = "1.0.0.RELEASE"
-
-kotlinx-coroutines = "1.8.1"
-kotlin-logging = "2.1.21"
+postgresql_jdbc_version = "42.5.4"
+flyway-core = "9.8.1"
+apache-tika = "2.9.2"
+junitJupiter = "5.8.1"
 
 [libraries]
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewModel" }
-#lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel"}
-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewModel" }
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -51,15 +47,23 @@ androidx-material = { group = "com.google.android.material", name = "material", 
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 
-kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+
+lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-view-model" }
+#lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewModel"}
+lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-view-model" }
+
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 
 microutils-kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -74,19 +78,26 @@ ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktor-server-content-negotionation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
+
 common-uuid = { module = "com.benasher44:uuid", version.ref = "benasher44-uuid" }
 
 r2dbc-spi = { module = "io.r2dbc:r2dbc-spi", version.ref = "r2dbc" }
-postresql-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version.ref = "postgresql_r2dbc_version" }
+postgresql-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version.ref = "postgresql_r2dbc_version" }
+postgresql-jdbc = { module = "org.postgresql:postgresql", version.ref = "postgresql_jdbc_version" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway-core" }
+
+
+apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
+
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
 
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-plugin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinxSerializationPlugin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization-plugin" }

@@ -14,8 +14,10 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.routing.routing
+import org.flywaydb.core.Flyway
 
 fun main() {
+
     embeddedServer(
         Netty,
         port = Configuration.immaru.server.port,
@@ -36,7 +38,7 @@ fun Application.module() {
         this.allowHeader("Content-Type")
     }
     configureDI()
-//    configureDatabaseSchema()
+    configureDatabaseSchema()
     configureContentNegotiation()
     configureRouting()
 }
@@ -77,11 +79,19 @@ fun Application.configureContentNegotiation() {
     }
 }
 
-//fun Application.configureDatabaseSchema() {
-//    val flyway by inject<Flyway>()
-//
-//    flyway.migrate()
-//}
+fun configureDatabaseSchema() {
+    val flyway = Flyway.configure()
+        .dataSource(
+            Configuration.immaru.database.flyway.jdbc.url,
+            Configuration.immaru.database.flyway.jdbc.username,
+            Configuration.immaru.database.flyway.jdbc.password
+        )
+        .schemas("immaru")
+        .locations("classpath:db/migration")
+        .load()
+
+    flyway.migrate()
+}
 
 fun Application.configureRouting() {
     routing {
