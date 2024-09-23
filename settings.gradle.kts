@@ -31,11 +31,9 @@ dependencyResolutionManagement {
 
 include(":core")
 include(":composeApp")
-include(":library")
 include(":server")
 
 
 project(":core").projectDir = file("shared/core")
 project(":composeApp").projectDir = file("frontend/composeApp")
-project(":library").projectDir = file("backend/library")
 project(":server").projectDir = file("backend/server")

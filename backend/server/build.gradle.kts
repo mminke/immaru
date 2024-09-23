@@ -14,7 +14,6 @@ application {
 
 dependencies {
     implementation(projects.core)
-    implementation(projects.library)
 
     implementation(libs.microutils.kotlin.logging.jvm)
     implementation(libs.logback.classic)

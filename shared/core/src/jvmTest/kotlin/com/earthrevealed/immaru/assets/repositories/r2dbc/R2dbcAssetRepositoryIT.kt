@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.assets.repositories.r2dbc
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import com.earthrevealed.immaru.common.AuditFields
@@ -12,6 +13,7 @@ import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
+import java.nio.file.Files
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,7 +26,8 @@ class R2dbcAssetRepositoryIT {
     private var connectionFactory: ConnectionFactory =
         ConnectionFactories.get("r2dbc:postgresql://immaru_dev:immaru_dev@localhost:5432/immaru_dev?schema=immaru")
     private var collectionRepository = R2dbcCollectionRepository(connectionFactory)
-    private var assetRepository = R2dbcAssetRepository(connectionFactory)
+    private var library = Library(Files.createTempDirectory("immaru-testing"))
+    private var assetRepository = R2dbcAssetRepository(connectionFactory, library)
     private val collection = collection { name = "Test collection" }
 
     @BeforeTest

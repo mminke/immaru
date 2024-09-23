@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru.library
+package com.earthrevealed.immaru.assets.library
 
 import com.earthrevealed.immaru.assets.FileAsset
 import java.nio.file.Path

@@ -9,6 +9,7 @@ import com.earthrevealed.immaru.assets.MediaType
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
+import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.r2dbc.bindNullable
 import com.earthrevealed.immaru.r2dbc.getString
 import com.earthrevealed.immaru.r2dbc.getTimestamp
@@ -27,7 +28,8 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
 
 class R2dbcAssetRepository(
-    private val connectionFactory: ConnectionFactory
+    private val connectionFactory: ConnectionFactory,
+    private val library: Library
 ) : AssetRepository {
     private val selectColumns = """
             assets.id, 
@@ -118,6 +120,18 @@ class R2dbcAssetRepository(
             }
 
         }
+    }
+
+    override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
+        require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset"}
+
+        val detectedMediaType =
+            library.writeContentForAsset(asset, content)
+        asset.update {
+            mediaType = detectedMediaType
+        }
+
+        save(asset)
     }
 
     private suspend fun Connection.saveToAssetTable(asset: FileAsset) {

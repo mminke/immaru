@@ -8,7 +8,7 @@ import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
-import com.earthrevealed.immaru.library.Library
+import com.earthrevealed.immaru.assets.library.Library
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -66,8 +66,8 @@ fun Route.collectionApi() {
 fun Route.assetApi() {
     val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
     val collectionRepository = R2dbcCollectionRepository(connectionFactory)
-    val assetRepository = R2dbcAssetRepository(connectionFactory)
     val library = Library(Configuration.immaru.library.path)
+    val assetRepository = R2dbcAssetRepository(connectionFactory, library)
 
     route("assets") {
         get {
@@ -159,13 +159,7 @@ fun Route.assetApi() {
 
                 val binaryDataChannel: ByteReadChannel = call.request.receiveChannel()
 
-                val detectedMediaType =
-                    library.writeContentForAsset(asset, binaryDataChannel.toFlow())
-                asset.update {
-                    mediaType = detectedMediaType
-                }
-
-                assetRepository.save(asset)
+                assetRepository.saveContentFor(asset, binaryDataChannel.toFlow())
 
                 call.respond(HttpStatusCode.OK, "File uploaded successfully")
             }

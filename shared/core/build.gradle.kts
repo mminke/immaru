@@ -50,6 +50,8 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(libs.kotlinx.coroutines.reactive)
+            implementation(libs.microutils.kotlin.logging.jvm)
+            implementation(libs.apache.tika.core)
             compileOnly(libs.r2dbc.spi)
         }
         jvmTest.dependencies {
