@@ -22,6 +22,7 @@ dependencies {
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotionation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.kotlinx.io.core)
 
     implementation(libs.flyway.core)
     runtimeOnly(libs.postgresql.jdbc)

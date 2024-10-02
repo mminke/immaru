@@ -7,9 +7,9 @@ import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
 import com.earthrevealed.immaru.assets.SaveAssetException
+import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
-import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.r2dbc.bindNullable
 import com.earthrevealed.immaru.r2dbc.getString
 import com.earthrevealed.immaru.r2dbc.getTimestamp
@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
+import kotlinx.io.Sink
+import kotlinx.io.Source
 
 class R2dbcAssetRepository(
     private val connectionFactory: ConnectionFactory,
@@ -122,11 +124,15 @@ class R2dbcAssetRepository(
         }
     }
 
-    override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
+    override fun getContentFor(asset: FileAsset): Sink {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {
         require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset"}
 
         val detectedMediaType =
-            library.writeContentForAsset(asset, content)
+            library.writeContentForAsset(asset, contentSource)
         asset.update {
             mediaType = detectedMediaType
         }

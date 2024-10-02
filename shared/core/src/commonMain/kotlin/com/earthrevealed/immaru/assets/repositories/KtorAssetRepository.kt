@@ -10,7 +10,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.appendPathSegments
-import kotlinx.coroutines.flow.Flow
+import kotlinx.io.Sink
+import kotlinx.io.Source
 
 class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository {
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
@@ -44,7 +45,11 @@ class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository 
         TODO("Not yet implemented")
     }
 
-    override suspend fun saveContentFor(asset: FileAsset, toFlow: Flow<ByteArray>) {
+    override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getContentFor(asset: FileAsset): Sink {
         TODO("Not yet implemented")
     }
 

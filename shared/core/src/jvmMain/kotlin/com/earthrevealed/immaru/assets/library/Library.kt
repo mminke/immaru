@@ -3,9 +3,9 @@ package com.earthrevealed.immaru.assets.library
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.io.Source
+import kotlinx.io.asSink
 import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
@@ -24,25 +24,18 @@ class Library(private val libraryRoot: Path) {
         Files.createDirectories(libraryRoot)
     }
 
-    fun writeContentForAsset(asset: FileAsset, binaryDataFlow: Flow<ByteArray>): MediaType {
-        check(asset.mediaTypeIsNotDefined) { "Media type already defined. [assetId=${asset.id}" }
-
+    fun writeContentForAsset(asset: FileAsset, contentSource: Source): MediaType {
         return runBlocking(Dispatchers.IO) {
+            Files.createDirectories(absoluteDestinationFolderFor(asset))
             // TODO: Check the file does not yet exist for the id (ignore extension)
 
-            Files.createDirectories(absoluteDestinationFolderFor(asset))
             val absoluteFileLocation = absoluteFileLocationFor(asset)
-
             Files.newOutputStream(absoluteFileLocation).use { os ->
-                binaryDataFlow.collect { bytes ->
-                    withContext(Dispatchers.IO) {
-                        os.write(bytes)
-
-                        //TODO: While saving create a SHA-1 checksum
-                    }
-                }
+                //TODO: While saving create a SHA-1 checksum
+                contentSource.transferTo(os.asSink())
             }
 
+            //TODO: If possible also determine media type using the contentSource
             val detectedMediaType = Files.newInputStream(absoluteFileLocation).use { fis ->
                 TikaInputStream.get(fis).use { tis ->
                     val detectedMimeType = Tika().detect(tis, Metadata())
@@ -55,10 +48,6 @@ class Library(private val libraryRoot: Path) {
             logger.debug { "Finished import asset [${asset.id}]" }
             detectedMediaType
         }
-    }
-
-    fun fileForAsset(asset: FileAsset): File {
-        return absoluteFileLocationFor(asset).toFile()
     }
 
     private fun absoluteFileLocationFor(asset: FileAsset): Path =

@@ -4,11 +4,12 @@ import com.earthrevealed.immaru.Configuration
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
-import com.earthrevealed.immaru.assets.library.Library
+import com.earthrevealed.kotlin.io.ktor.toSource
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
@@ -16,7 +17,6 @@ import io.ktor.server.application.call
 import io.ktor.server.request.contentType
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondFile
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
@@ -25,13 +25,7 @@ import io.ktor.server.routing.route
 import io.ktor.util.KtorDsl
 import io.ktor.util.pipeline.PipelineContext
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.consumeEachBufferRange
-import io.ktor.utils.io.pool.ByteArrayPool
-import io.ktor.utils.io.pool.useInstance
 import io.r2dbc.spi.ConnectionFactories
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
@@ -125,8 +119,9 @@ fun Route.assetApi() {
                     return@get
                 }
 
-                val file = library.fileForAsset(asset)
-                call.respondFile(file)
+                val sink = assetRepository.getContentFor(asset)
+                TODO("Use Sink")
+                //                call.respondFile(sink)
             }
 
             put("/content") {
@@ -159,54 +154,13 @@ fun Route.assetApi() {
 
                 val binaryDataChannel: ByteReadChannel = call.request.receiveChannel()
 
-                assetRepository.saveContentFor(asset, binaryDataChannel.toFlow())
+                assetRepository.saveContentFor(asset, binaryDataChannel.toSource())
 
                 call.respond(HttpStatusCode.OK, "File uploaded successfully")
             }
         }
     }
 }
-
-fun ByteReadChannel.toFlow(): Flow<ByteArray> {
-    return flow<ByteArray> {
-        copyTo(this)
-    }
-}
-
-// TODO: Check below again, this does not seam to work
-fun ByteReadChannel.toFlow2(): Flow<ByteArray> {
-    val flow: Flow<ByteArray> = flow {
-        this@toFlow2.consumeEachBufferRange { buf, last ->
-            emit(buf.array())
-            !last // a bit ugly
-        }
-    }
-    return flow
-}
-
-suspend fun ByteReadChannel.copyTo(
-    flowCollector: FlowCollector<ByteArray>,
-    limit: Long = Long.MAX_VALUE
-): Long {
-    require(limit >= 0) { "Limit shouldn't be negative: $limit" }
-
-    ByteArrayPool.useInstance { buffer ->
-        var copied = 0L
-        val bufferSize = buffer.size.toLong()
-
-        while (copied < limit) {
-            val rc = readAvailable(buffer, 0, minOf(limit - copied, bufferSize).toInt())
-            if (rc == -1) break
-            if (rc > 0) {
-                flowCollector.emit(buffer.copyOf(rc))
-                copied += rc
-            }
-        }
-
-        return copied
-    }
-}
-
 
 @KtorDsl
 fun Route.get(

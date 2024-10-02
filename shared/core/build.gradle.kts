@@ -41,6 +41,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.serialization.core)
+            implementation(libs.kotlinx.io.core)
             api(libs.common.uuid)
             api(libs.kotlinx.datetime)
         }

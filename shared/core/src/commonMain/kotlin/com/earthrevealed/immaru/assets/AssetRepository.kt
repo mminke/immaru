@@ -1,14 +1,16 @@
 package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.collections.CollectionId
-import kotlinx.coroutines.flow.Flow
+import kotlinx.io.Sink
+import kotlinx.io.Source
 
 interface AssetRepository {
     suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset?
     suspend fun findAllFor(collectionId: CollectionId): List<Asset>
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
-    suspend fun saveContentFor(asset: FileAsset, toFlow: Flow<ByteArray>)
+    fun getContentFor(asset: FileAsset): Sink
+    suspend fun saveContentFor(asset: FileAsset, contentSource: Source)
 }
 
 class AssetRetrievalException : RuntimeException {
