@@ -13,7 +13,6 @@ import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
-import kotlinx.io.files.Path as KotlinxIoPath
 
 private val logger = KotlinLogging.logger { }
 
@@ -27,7 +26,7 @@ class Library(private val libraryRoot: Path) {
 
     fun readContentForAsset(asset: FileAsset): Source {
         return SystemFileSystem.source(
-            KotlinxIoPath(
+            Path(
                 absoluteFileLocationFor(asset).toString()
             )
         ).buffered()
@@ -35,19 +34,20 @@ class Library(private val libraryRoot: Path) {
 
     fun writeContentForAsset(asset: FileAsset, contentSource: Source): MediaType {
         return runBlocking(Dispatchers.IO) {
-            SystemFileSystem.createDirectories(KotlinxIoPath(absoluteDestinationFolderFor(asset).toString()))
-
-            // TODO: Check the file does not yet exist for the id (ignore extension)
             val absoluteFileLocation = absoluteFileLocationFor(asset)
 
-            SystemFileSystem.sink(KotlinxIoPath(absoluteFileLocation.toString())).use {
+            require(!absoluteFileLocation.exists()) { "File already exists. overwriting content is not allowed." }
+
+            SystemFileSystem.createDirectories(Path(absoluteDestinationFolderFor(asset).toString()))
+
+            SystemFileSystem.sink(Path(absoluteFileLocation.toString())).use {
                 //TODO: While saving create a SHA-1 checksum
                 contentSource.transferTo(it)
             }
 
             //TODO: If possible also determine media type using the contentSource
             val detectedMediaType =
-                SystemFileSystem.source(KotlinxIoPath(absoluteFileLocation.toString()))
+                SystemFileSystem.source(Path(absoluteFileLocation.toString()))
                     .buffered()
                     .asInputStream().use { sis ->
                         TikaInputStream.get(sis).use { tis ->
@@ -69,4 +69,8 @@ class Library(private val libraryRoot: Path) {
     private fun absoluteDestinationFolderFor(asset: FileAsset): Path =
         Path(libraryRoot, asset.destinationFolder().toString())
 
+
+    private fun Path.exists(): Boolean {
+        return SystemFileSystem.metadataOrNull(this) != null
+    }
 }

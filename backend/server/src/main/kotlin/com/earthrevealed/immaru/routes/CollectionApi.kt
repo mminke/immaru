@@ -122,10 +122,11 @@ fun Route.assetApi() {
                     return@get
                 }
 
-                val source = assetRepository.getContentFor(asset)
+                assetRepository.getContentFor(asset).use { source ->
+                    call.respondOutputStream(ContentType.parse(asset.mediaType.toString())) {
+                        source.transferTo(this.asSink())
+                    }
 
-                call.respondOutputStream(ContentType.parse(asset.mediaType.toString())) {
-                    source.transferTo(this.asSink())
                 }
             }
 
@@ -157,8 +158,9 @@ fun Route.assetApi() {
                     return@put
                 }
 
-                val contentSource = call.receiveStream().asSource().buffered()
-                assetRepository.saveContentFor(asset, contentSource)
+                call.receiveStream().asSource().buffered().use { source ->
+                    assetRepository.saveContentFor(asset, source)
+                }
 
                 call.respond(HttpStatusCode.OK, "File uploaded successfully")
             }
