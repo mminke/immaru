@@ -1,7 +1,7 @@
 package com.earthrevealed.immaru.assets.library
 
 import com.earthrevealed.immaru.assets.FileAsset
-import java.nio.file.Path
+import kotlinx.io.files.Path
 
 /**
  * Determine the destination folder to store the asset in.
@@ -10,10 +10,10 @@ import java.nio.file.Path
  * destination folder = /a4/e6/d2/38/
  */
 fun FileAsset.destinationFolder(): Path {
-    var subFolders = Path.of("")
+    var subFolders = Path("")
     (0..3).forEach {
         val offset = (it * 2)
-        subFolders = subFolders.resolve(id.value.toString().substring(offset + 0..offset + 1))
+        subFolders = Path(subFolders, id.value.toString().substring(offset + 0..offset + 1))
     }
     return subFolders
 }
@@ -29,5 +29,4 @@ fun FileAsset.extension(): String? {
     return null
 }
 
-fun FileAsset.internalFilelocation(): Path = destinationFolder()
-    .resolve(internalFilename())
+fun FileAsset.internalFilelocation(): Path = Path(destinationFolder(), internalFilename())

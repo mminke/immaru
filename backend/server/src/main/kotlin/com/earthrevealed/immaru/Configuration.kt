@@ -1,9 +1,9 @@
 package com.earthrevealed.immaru
 
+import kotlinx.io.files.Path
 import mu.KotlinLogging
 import java.io.File
 import java.io.FileInputStream
-import java.nio.file.Path
 import java.util.Properties
 
 private val logger = KotlinLogging.logger { }
@@ -31,7 +31,7 @@ object Configuration {
         }
 
         object library {
-            val path = Path.of(configuration.getProperty("immaru.library.root.path"))
+            val path = Path(configuration.getProperty("immaru.library.root.path"))
         }
     }
 }
