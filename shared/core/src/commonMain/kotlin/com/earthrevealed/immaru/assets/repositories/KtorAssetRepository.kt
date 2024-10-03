@@ -49,7 +49,7 @@ class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository 
         TODO("Not yet implemented")
     }
 
-    override fun getContentFor(asset: FileAsset): Sink {
+    override fun getContentFor(asset: FileAsset): Source {
         TODO("Not yet implemented")
     }
 

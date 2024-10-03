@@ -6,13 +6,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.Source
 import kotlinx.io.asSink
+import kotlinx.io.buffered
+import kotlinx.io.files.SystemFileSystem
 import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlinx.io.files.Path as KotlinxIoPath
 
 private val logger = KotlinLogging.logger { }
 
@@ -23,6 +25,15 @@ class Library(private val libraryRoot: Path) {
 
         Files.createDirectories(libraryRoot)
     }
+
+    fun readContentForAsset(asset: FileAsset): Source {
+        return SystemFileSystem.source(
+            KotlinxIoPath(
+                absoluteFileLocationFor(asset).toString()
+            )
+        ).buffered()
+    }
+
 
     fun writeContentForAsset(asset: FileAsset, contentSource: Source): MediaType {
         return runBlocking(Dispatchers.IO) {

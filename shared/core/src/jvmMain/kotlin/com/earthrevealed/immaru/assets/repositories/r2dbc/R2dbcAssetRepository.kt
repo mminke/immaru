@@ -124,8 +124,8 @@ class R2dbcAssetRepository(
         }
     }
 
-    override fun getContentFor(asset: FileAsset): Sink {
-        TODO("Not yet implemented")
+    override fun getContentFor(asset: FileAsset): Source {
+        return library.readContentForAsset(asset)
     }
 
     override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {

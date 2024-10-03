@@ -9,7 +9,7 @@ interface AssetRepository {
     suspend fun findAllFor(collectionId: CollectionId): List<Asset>
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
-    fun getContentFor(asset: FileAsset): Sink
+    fun getContentFor(asset: FileAsset): Source
     suspend fun saveContentFor(asset: FileAsset, contentSource: Source)
 }
 

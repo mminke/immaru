@@ -9,14 +9,15 @@ import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
-import com.earthrevealed.kotlin.io.ktor.toSource
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.call
 import io.ktor.server.request.contentType
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondOutputStream
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
@@ -24,8 +25,10 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.util.KtorDsl
 import io.ktor.util.pipeline.PipelineContext
-import io.ktor.utils.io.ByteReadChannel
 import io.r2dbc.spi.ConnectionFactories
+import kotlinx.io.asSink
+import kotlinx.io.asSource
+import kotlinx.io.buffered
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
@@ -119,9 +122,11 @@ fun Route.assetApi() {
                     return@get
                 }
 
-                val sink = assetRepository.getContentFor(asset)
-                TODO("Use Sink")
-                //                call.respondFile(sink)
+                val source = assetRepository.getContentFor(asset)
+
+                call.respondOutputStream(ContentType.parse(asset.mediaType.toString())) {
+                    source.transferTo(this.asSink())
+                }
             }
 
             put("/content") {
@@ -152,9 +157,8 @@ fun Route.assetApi() {
                     return@put
                 }
 
-                val binaryDataChannel: ByteReadChannel = call.request.receiveChannel()
-
-                assetRepository.saveContentFor(asset, binaryDataChannel.toSource())
+                val contentSource = call.receiveStream().asSource().buffered()
+                assetRepository.saveContentFor(asset, contentSource)
 
                 call.respond(HttpStatusCode.OK, "File uploaded successfully")
             }
