@@ -68,6 +68,9 @@ kotlin {
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.lifecycle.runtime.compose)
             implementation(libs.navigation.compose)
+            implementation(libs.coil3)
+            implementation(libs.coil3.compose)
+            implementation(libs.coil3.network.ktor)
         }
         androidMain.dependencies {
             implementation(compose.preview)

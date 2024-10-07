@@ -1,7 +1,6 @@
 package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.collections.CollectionId
-import kotlinx.io.Sink
 import kotlinx.io.Source
 
 interface AssetRepository {
@@ -9,7 +8,7 @@ interface AssetRepository {
     suspend fun findAllFor(collectionId: CollectionId): List<Asset>
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
-    fun getContentFor(asset: FileAsset): Source
+    suspend fun getContentFor(asset: FileAsset): Source
     suspend fun saveContentFor(asset: FileAsset, contentSource: Source)
 }
 

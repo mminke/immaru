@@ -124,7 +124,7 @@ class R2dbcAssetRepository(
         }
     }
 
-    override fun getContentFor(asset: FileAsset): Source {
+    override suspend fun getContentFor(asset: FileAsset): Source {
         return library.readContentForAsset(asset)
     }
 

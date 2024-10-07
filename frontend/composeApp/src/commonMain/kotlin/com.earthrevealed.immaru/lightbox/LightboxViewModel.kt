@@ -1,19 +1,21 @@
 package com.earthrevealed.immaru.lightbox
 
+import Configuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import kotlinx.coroutines.launch
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
     private val currentCollection: Collection
-) :
-    ViewModel() {
+) : ViewModel() {
+
     val assets = mutableStateOf<List<Asset>>(emptyList())
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
@@ -30,3 +32,6 @@ class LightboxViewModel(
         }
     }
 }
+
+val FileAsset.contentUrl
+    get() = "${Configuration.immaruUrl}/api/collections/${this.collectionId.value}/assets/${this.id.value}/content"

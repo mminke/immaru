@@ -28,6 +28,7 @@ benasher44-uuid = "0.8.4"
 compose-multiplatform = "1.6.10"
 lifecycle-view-model = "2.8.0"
 navigation-compose = "2.7.0-alpha07"
+coil3 = "3.0.0-alpha10"
 
 r2dbc = "1.0.0.RELEASE"
 postgresql_r2dbc_version = "1.0.0.RELEASE"
@@ -47,6 +48,10 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+
+coil3 = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil3"}
+coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3"}
+coil3-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }

@@ -1,5 +1,7 @@
 package com.earthrevealed.immaru.lightbox
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +22,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.common.ErrorMessage
 
 
@@ -59,11 +66,8 @@ fun LightboxScreen(
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
                     } else {
-                        viewModel.assets.value.forEach {
-                            Column {
-                                Text(it.id.toString())
-                                Text(it.name)
-                            }
+                        viewModel.assets.value.forEach { asset ->
+                            AssetThumbnail(asset)
                         }
                     }
                 }
@@ -77,4 +81,33 @@ fun LightboxScreen(
             }
         }
     )
+}
+
+@Composable
+fun AssetThumbnail(
+    asset: Asset,
+) {
+    Box(
+        contentAlignment = Alignment.BottomStart
+    ) {
+        if(asset is FileAsset) {
+            AsyncImage(
+                model = asset.contentUrl,
+                contentDescription = null,
+            )
+        } else {
+            TODO( "Not a file asset, define an image placeholder")
+        }
+
+        Box(
+            modifier = Modifier
+                .background(Color.LightGray.copy(alpha = 0.5f))
+                .fillMaxWidth()
+                .padding(4.dp)
+        ) {
+            Column {
+                Text(asset.name, color = Color.White)
+            }
+        }
+    }
 }
