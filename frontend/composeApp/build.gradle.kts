@@ -71,6 +71,8 @@ kotlin {
             implementation(libs.coil3)
             implementation(libs.coil3.compose)
             implementation(libs.coil3.network.ktor)
+            implementation(libs.kotlinx.io.core)
+            implementation("io.github.vinceglb:filekit-compose:0.8.7")
         }
         androidMain.dependencies {
             implementation(compose.preview)
@@ -136,6 +138,10 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "com.earthrevealed.immaru"
             packageVersion = "1.0.0"
+
+            linux {
+                modules("jdk.security.auth")
+            }
         }
     }
 }

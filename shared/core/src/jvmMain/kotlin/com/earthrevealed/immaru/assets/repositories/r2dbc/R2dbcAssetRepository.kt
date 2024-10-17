@@ -28,6 +28,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
 import kotlinx.io.Sink
 import kotlinx.io.Source
+import java.time.Instant
 
 class R2dbcAssetRepository(
     private val connectionFactory: ConnectionFactory,
@@ -164,7 +165,7 @@ class R2dbcAssetRepository(
             .bind("$1", asset.id.value)
             .bind("$2", asset.collectionId.value)
             .bind("$3", asset.name)
-            .bind("$4", asset.originalCreatedOn.toJavaInstant())
+            .bind("$4", Instant.now()) // TODO: Remove here and add to some kind of metadata area
             .bind("$5", asset.originalFilename)
             .bind("$6", asset.auditFields.createdOn.toJavaInstant())
             .bind("$7", asset.auditFields.lastModifiedOn.toJavaInstant())
@@ -194,7 +195,6 @@ class R2dbcAssetRepository(
             name = getString("name"),
             mediaType = mediaType,
             originalFilename = getString("original_filename"),
-            originalCreatedOn = getTimestamp("original_created_at"),
             auditFields = toAuditFields()
         )
     }

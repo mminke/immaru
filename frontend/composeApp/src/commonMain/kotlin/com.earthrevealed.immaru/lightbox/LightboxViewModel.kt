@@ -9,18 +9,38 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
+import com.earthrevealed.immaru.coroutines.DispatcherProvider
+import com.earthrevealed.immaru.coroutines.awaitFor
+import io.github.vinceglb.filekit.core.PlatformFile
+import io.github.vinceglb.filekit.core.PlatformInputStream
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.pool.ByteArrayPool
+import io.ktor.utils.io.pool.useInstance
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.io.Buffer
+import kotlinx.io.RawSource
+import kotlinx.io.Source
+import kotlinx.io.buffered
+import kotlin.coroutines.CoroutineContext
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
     private val currentCollection: Collection
 ) : ViewModel() {
-
     val assets = mutableStateOf<List<Asset>>(emptyList())
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
 
     init {
+        refreshAssets()
+    }
+
+    private fun refreshAssets() {
         viewModelScope.launch {
             try {
                 assets.value = assetRepository.findAllFor(currentCollection.id)
@@ -30,6 +50,84 @@ class LightboxViewModel(
             }
             isLoading.value = false
         }
+    }
+
+    fun createAssetFor(file: PlatformFile) {
+        val newAsset = FileAsset(
+            currentCollection.id,
+            file.name,
+        )
+        viewModelScope.launch {
+            withContext(DispatcherProvider.io()) {
+                assetRepository.save(newAsset)
+            }
+
+            // Transfer the file
+            if (false && file.supportsStreams()) {
+                println("SUPPORTS STREAMS")
+                val platformInputStream = file.getStream()
+                val contentSource = object : RawSource {
+                    override fun close() {
+                        println("Closing source")
+                        platformInputStream.close()
+                    }
+
+                    override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
+                        require(byteCount <= Int.MAX_VALUE)
+
+                        println("READING AT MOST TO")
+                        val test = awaitFor {
+                            ByteArrayPool.useInstance { buffer ->
+                                var copied = 0
+                                val bufferSize = buffer.size.toLong()
+
+                                with(DispatcherProvider.io()) {
+                                    println("ENTERING WHILE LOOP")
+                                    while (copied < byteCount) {
+                                        println("COPIED $copied OF $byteCount")
+                                        val rc =
+                                            platformInputStream.readInto(buffer, byteCount.toInt())
+
+                                        println("FINISHED READING INTO BUFFER")
+                                        if (rc == -1) {
+                                            if (copied == 0) copied = -1
+                                            break
+                                        }
+                                        if (rc > 0) {
+                                            sink.write(buffer.copyOf(rc))
+                                            copied += rc
+                                        }
+                                    }
+                                    println("COPIED $copied")
+
+                                    copied
+                                }
+                            }
+                        }
+                        return test.toLong()
+
+//                        return awaitFor {
+//                            println("WAITING FOR RESULT")
+//                            val result = test.await().toLong()
+//                            println("WAITING FINISHED: $result")
+//                            result
+//                        }
+                    }
+                }
+
+                println("START SAVING CONTENT")
+                assetRepository.saveContentFor(newAsset, contentSource.buffered())
+
+            } else {
+                println("SAVE USING BYTEARRAY: file size: ${file.getSize()}")
+                val buffer = Buffer().apply {
+                    write(file.readBytes(), 0, file.getSize()!!.toInt())
+                }
+                assetRepository.saveContentFor(newAsset, buffer)
+            }
+        }
+
+        refreshAssets()
     }
 }
 

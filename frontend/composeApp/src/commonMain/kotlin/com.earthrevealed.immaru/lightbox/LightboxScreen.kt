@@ -28,6 +28,11 @@ import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.common.ErrorMessage
+import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.PickerMode
+import io.github.vinceglb.filekit.core.PickerType
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +41,23 @@ fun LightboxScreen(
     viewModel: LightboxViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val filePicker = rememberFilePickerLauncher(
+        type = PickerType.ImageAndVideo,
+        mode = PickerMode.Multiple()
+    ) { files ->
+        println("FILES SIZE: ${files?.size}")
+        files?.forEach { file ->
+            println("FILE SELECTED: ${file.name} [size=${file.getSize()}, $file]")
+
+            // Create the asset
+//            file.name
+//            val size: Long = file.getSize()
+
+            viewModel.createAssetFor(file)
+
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -75,7 +97,7 @@ fun LightboxScreen(
         },
         floatingActionButton = {
             SmallFloatingActionButton(
-                onClick = {}
+                onClick = { filePicker.launch() }
             ) {
                 Icon(Icons.Filled.Add, "Add a assets.")
             }
@@ -90,13 +112,13 @@ fun AssetThumbnail(
     Box(
         contentAlignment = Alignment.BottomStart
     ) {
-        if(asset is FileAsset) {
+        if (asset is FileAsset) {
             AsyncImage(
                 model = asset.contentUrl,
                 contentDescription = null,
             )
         } else {
-            TODO( "Not a file asset, define an image placeholder")
+            TODO("Not a file asset, define an image placeholder")
         }
 
         Box(

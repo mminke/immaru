@@ -51,7 +51,6 @@ sealed class Asset {
 @SerialName("FileAsset")
 class FileAsset : Asset {
     val originalFilename: String
-    val originalCreatedOn: Instant
 
     var mediaType: MediaType? = null
         private set(value) {
@@ -65,11 +64,9 @@ class FileAsset : Asset {
     constructor(
         collectionId: CollectionId,
         originalFilename: String,
-        originalCreatedOn: Instant
     ) : super(collectionId = collectionId, name = originalFilename) {
         this.name = originalFilename
         this.originalFilename = originalFilename
-        this.originalCreatedOn = originalCreatedOn
     }
 
     // This constructor is needed to recreate an existing asset from persistence
@@ -79,7 +76,6 @@ class FileAsset : Asset {
         name: String,
         mediaType: MediaType?,
         originalFilename: String,
-        originalCreatedOn: Instant,
         auditFields: AuditFields,
     ) : super(
         id = id,
@@ -88,7 +84,6 @@ class FileAsset : Asset {
         auditFields = auditFields
     ) {
         this.originalFilename = originalFilename
-        this.originalCreatedOn = originalCreatedOn
         this.mediaType = mediaType
     }
 
