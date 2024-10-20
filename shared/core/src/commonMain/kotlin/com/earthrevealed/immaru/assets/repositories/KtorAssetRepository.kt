@@ -17,6 +17,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.content.ChannelWriterContent
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.pool.ByteArrayPool
 import io.ktor.utils.io.pool.useInstance
@@ -82,25 +83,23 @@ class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository 
                 }
                 setBody(ChannelWriterContent(
                     {
-                        println("START READING FROM CONTENT SOURCE")
                         while (!contentSource.exhausted()) {
-                            println("NOT EXHAUSTED YET")
                             val buffer = ByteArrayPool.borrow()
                             val count = contentSource.readAtMostTo(buffer)
-                            println("WRITING BYTES $count")
 
                             if(count == -1) break
 
-                            this.writeAvailable(buffer, 0, count)
+                            this.writeFully(buffer, 0, count)
                         }
-                        println("FINISHED READING FROM CONTENT SOURCE")
                         contentSource.close()
                     },
                     ContentType.Application.OctetStream
                 ))
             }
 
-            println("Response: $httpResponse")
+            if(!httpResponse.status.isSuccess()) {
+                throw SaveAssetException("Something went wrong saving the content [status=${httpResponse.status}]")
+            }
         } catch (throwable: Throwable) {
             throw SaveAssetException(throwable)
         }

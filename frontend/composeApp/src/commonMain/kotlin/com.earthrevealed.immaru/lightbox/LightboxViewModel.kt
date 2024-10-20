@@ -12,21 +12,13 @@ import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import com.earthrevealed.immaru.coroutines.awaitFor
 import io.github.vinceglb.filekit.core.PlatformFile
-import io.github.vinceglb.filekit.core.PlatformInputStream
-import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.pool.ByteArrayPool
 import io.ktor.utils.io.pool.useInstance
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.io.Buffer
 import kotlinx.io.RawSource
-import kotlinx.io.Source
 import kotlinx.io.buffered
-import kotlin.coroutines.CoroutineContext
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
@@ -119,10 +111,10 @@ class LightboxViewModel(
                 assetRepository.saveContentFor(newAsset, contentSource.buffered())
 
             } else {
-                println("SAVE USING BYTEARRAY: file size: ${file.getSize()}")
                 val buffer = Buffer().apply {
-                    write(file.readBytes(), 0, file.getSize()!!.toInt())
-                }
+                    val content = file.readBytes()
+                    write(content, 0, content.size)
+               }
                 assetRepository.saveContentFor(newAsset, buffer)
             }
         }
