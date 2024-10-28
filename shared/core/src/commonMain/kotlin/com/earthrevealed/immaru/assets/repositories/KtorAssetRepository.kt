@@ -5,12 +5,19 @@ import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.collections.CollectionId
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
+import io.ktor.http.content.ChannelWriterContent
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.pool.ByteArrayPool
 import io.ktor.utils.io.pool.useInstance
@@ -51,11 +58,51 @@ class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository 
     }
 
     override suspend fun save(asset: Asset) {
-        TODO("Not yet implemented")
+        try {
+            httpClient.put("api/collections") {
+                url {
+                    appendPathSegments(asset.collectionId.value.toString())
+                    appendPathSegments("assets")
+                }
+                contentType(ContentType.Application.Json)
+                setBody(asset)
+            }
+        } catch (throwable: Throwable) {
+            throw SaveAssetException(throwable)
+        }
     }
 
     override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {
-        TODO("Not yet implemented")
+        try {
+            val httpResponse = httpClient.put("api/collections") {
+                url {
+                    appendPathSegments(asset.collectionId.value.toString())
+                    appendPathSegments("assets")
+                    appendPathSegments(asset.id.value.toString())
+                    appendPathSegments("content")
+                }
+                setBody(ChannelWriterContent(
+                    {
+                        while (!contentSource.exhausted()) {
+                            val buffer = ByteArrayPool.borrow()
+                            val count = contentSource.readAtMostTo(buffer)
+
+                            if(count == -1) break
+
+                            this.writeFully(buffer, 0, count)
+                        }
+                        contentSource.close()
+                    },
+                    ContentType.Application.OctetStream
+                ))
+            }
+
+            if(!httpResponse.status.isSuccess()) {
+                throw SaveAssetException("Something went wrong saving the content [status=${httpResponse.status}]")
+            }
+        } catch (throwable: Throwable) {
+            throw SaveAssetException(throwable)
+        }
     }
 
     override suspend fun getContentFor(asset: FileAsset): Source {
