@@ -3,11 +3,14 @@ package com.earthrevealed.immaru.lightbox
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
@@ -31,8 +35,6 @@ import com.earthrevealed.immaru.common.ErrorMessage
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.PickerType
-import kotlinx.coroutines.Dispatchers
-import kotlin.coroutines.CoroutineContext
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,16 +47,8 @@ fun LightboxScreen(
         type = PickerType.ImageAndVideo,
         mode = PickerMode.Multiple()
     ) { files ->
-        println("FILES SIZE: ${files?.size}")
         files?.forEach { file ->
-            println("FILE SELECTED: ${file.name} [size=${file.getSize()}, $file]")
-
-            // Create the asset
-//            file.name
-//            val size: Long = file.getSize()
-
             viewModel.createAssetFor(file)
-
         }
     }
 
@@ -75,12 +69,9 @@ fun LightboxScreen(
             )
         },
         content = { innerPadding ->
-            Column(
-                Modifier.fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .consumeWindowInsets(innerPadding)
+            Box(
+                modifier = Modifier.consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (viewModel.isLoading.value) {
                     CircularProgressIndicator()
@@ -88,8 +79,12 @@ fun LightboxScreen(
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
                     } else {
-                        viewModel.assets.value.forEach { asset ->
-                            AssetThumbnail(asset)
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(minSize = 128.dp)
+                        ) {
+                            items(viewModel.assets.value) { asset ->
+                                AssetThumbnail(asset)
+                            }
                         }
                     }
                 }
@@ -110,12 +105,20 @@ fun AssetThumbnail(
     asset: Asset,
 ) {
     Box(
-        contentAlignment = Alignment.BottomStart
+        contentAlignment = Alignment.BottomStart,
+        modifier = Modifier
+            .background(Color.Red)
+            .aspectRatio(1f)
     ) {
         if (asset is FileAsset) {
             AsyncImage(
                 model = asset.contentUrl,
                 contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+
             )
         } else {
             TODO("Not a file asset, define an image placeholder")
