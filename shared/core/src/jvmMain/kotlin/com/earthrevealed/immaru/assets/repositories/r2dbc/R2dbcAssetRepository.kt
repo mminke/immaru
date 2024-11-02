@@ -11,6 +11,7 @@ import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.r2dbc.bindNullable
+import com.earthrevealed.immaru.r2dbc.getByteArray
 import com.earthrevealed.immaru.r2dbc.getString
 import com.earthrevealed.immaru.r2dbc.getTimestamp
 import com.earthrevealed.immaru.r2dbc.getUuid
@@ -26,7 +27,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
-import kotlinx.io.Sink
 import kotlinx.io.Source
 import java.time.Instant
 
@@ -39,6 +39,7 @@ class R2dbcAssetRepository(
             collection_id, 
             name,
             media_type, 
+            content_hash,
             original_created_at, 
             original_filename, 
             created_at, 
@@ -130,13 +131,12 @@ class R2dbcAssetRepository(
     }
 
     override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {
-        require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset"}
+        require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset" }
 
-        val detectedMediaType =
+        val writeResult =
             library.writeContentForAsset(asset, contentSource)
-        asset.update {
-            mediaType = detectedMediaType
-        }
+
+        asset.registerContentDetails(writeResult.mediaType, writeResult.contentHash)
 
         save(asset)
     }
@@ -158,8 +158,9 @@ class R2dbcAssetRepository(
                 ON CONFLICT (id)
                 DO UPDATE SET 
                     name = EXCLUDED.name,
-                    last_modified_at = EXCLUDED.last_modified_at,
-                    media_type = $8
+                    media_type = $8,
+                    content_hash = $9,
+                    last_modified_at = EXCLUDED.last_modified_at
             """.trimIndent()
         )
             .bind("$1", asset.id.value)
@@ -170,6 +171,7 @@ class R2dbcAssetRepository(
             .bind("$6", asset.auditFields.createdOn.toJavaInstant())
             .bind("$7", asset.auditFields.lastModifiedOn.toJavaInstant())
             .bindNullable("$8", asset.mediaType?.toString(), String::class.java)
+            .bindNullable("$9", asset.contentHash, ByteArray::class.java)
             .execute()
             .awaitSingle()
             .rowsUpdated
@@ -187,14 +189,15 @@ class R2dbcAssetRepository(
     }
 
     private fun Row.toAsset(): Asset {
-        val mediaType = get("media_type", String::class.java)?.let { MediaType.parse(it) }
+        val mediaType = getString("media_type")?.let { MediaType.parse(it) }
 
         return FileAsset(
             id = AssetId(getUuid("id")),
             collectionId = CollectionId(getUuid("collection_id")),
-            name = getString("name"),
+            name = getString("name")!!,
+            originalFilename = getString("original_filename")!!,
             mediaType = mediaType,
-            originalFilename = getString("original_filename"),
+            contentHash = getByteArray("content_hash"),
             auditFields = toAuditFields()
         )
     }
@@ -202,8 +205,8 @@ class R2dbcAssetRepository(
 
 private fun Row.toAuditFields(): AuditFields {
     return AuditFields(
-        createdOn = getTimestamp("created_at"),
-        lastModifiedOn = getTimestamp("last_modified_at")
+        createdOn = getTimestamp("created_at")!!,
+        lastModifiedOn = getTimestamp("last_modified_at")!!
     )
 }
 

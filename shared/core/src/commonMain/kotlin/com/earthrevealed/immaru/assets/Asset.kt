@@ -5,7 +5,6 @@ import com.benasher44.uuid.uuid4
 import com.benasher44.uuid.uuidFrom
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
-import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -45,6 +44,10 @@ sealed class Asset {
         this.name = name
         this.auditFields = auditFields
     }
+
+    protected fun touch() {
+        this.auditFields.registerModification()
+    }
 }
 
 @Serializable
@@ -55,6 +58,12 @@ class FileAsset : Asset {
     var mediaType: MediaType? = null
         private set(value) {
             check(field == null) { "Media type can only be set once" }
+            field = value
+        }
+
+    var contentHash: ByteArray? = null
+        private set(value) {
+            check(field == null) { "Hash can only be set once" }
             field = value
         }
 
@@ -76,6 +85,7 @@ class FileAsset : Asset {
         name: String,
         mediaType: MediaType?,
         originalFilename: String,
+        contentHash: ByteArray?,
         auditFields: AuditFields,
     ) : super(
         id = id,
@@ -85,18 +95,20 @@ class FileAsset : Asset {
     ) {
         this.originalFilename = originalFilename
         this.mediaType = mediaType
+        this.contentHash = contentHash
     }
 
-    class FileAssetUpdater(var name: String, var mediaType: MediaType?)
+    fun registerContentDetails(mediaType: MediaType, hash: ByteArray) {
+        this.mediaType = mediaType
+        this.contentHash = hash
 
-    fun update(collectChanges: FileAssetUpdater.() -> Unit) {
-        val updater = FileAssetUpdater(this.name, this.mediaType)
-        updater.collectChanges()
+        this.touch()
+    }
 
-        this.name = updater.name
-        this.mediaType = updater.mediaType
+    fun changeName(name: String) {
+        this.name = name
 
-        this.auditFields.registerModification()
+        this.touch()
     }
 
     override fun equals(other: Any?) = when (other) {
@@ -113,6 +125,10 @@ class FileAsset : Asset {
 data class AssetId(
     val value: Uuid = uuid4()
 ) {
+    override fun toString(): String {
+        return value.toString()
+    }
+
     companion object {
         fun fromString(value: String) = AssetId(
             uuidFrom(value)

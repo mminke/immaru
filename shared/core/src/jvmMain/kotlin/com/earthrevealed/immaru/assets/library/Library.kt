@@ -2,6 +2,7 @@ package com.earthrevealed.immaru.assets.library
 
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.io.HashSink
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.Source
@@ -32,7 +33,8 @@ class Library(private val libraryRoot: Path) {
         ).buffered()
     }
 
-    fun writeContentForAsset(asset: FileAsset, contentSource: Source): MediaType {
+    @OptIn(ExperimentalStdlibApi::class)
+    fun writeContentForAsset(asset: FileAsset, contentSource: Source): WriteResult {
         return runBlocking(Dispatchers.IO) {
             val absoluteFileLocation = absoluteFileLocationFor(asset)
 
@@ -40,12 +42,15 @@ class Library(private val libraryRoot: Path) {
 
             SystemFileSystem.createDirectories(Path(absoluteDestinationFolderFor(asset).toString()))
 
-            SystemFileSystem.sink(Path(absoluteFileLocation.toString())).use {
-                //TODO: While saving create a SHA-1 checksum
-                contentSource.transferTo(it)
+
+            val hashSink = HashSink()
+            SystemFileSystem.sink(Path(absoluteFileLocation.toString())).use { fileSink ->
+                hashSink.pipeTo(fileSink)
+                hashSink.use {
+                    contentSource.transferTo(it)
+                }
             }
 
-            //TODO: If possible also determine media type using the contentSource
             val detectedMediaType =
                 SystemFileSystem.source(Path(absoluteFileLocation.toString()))
                     .buffered()
@@ -58,10 +63,19 @@ class Library(private val libraryRoot: Path) {
                         }
                     }
 
-            logger.debug { "Finished import asset [${asset.id}]" }
-            detectedMediaType
+            logger.debug { "Finished import asset [id=${asset.id}, sha256=${hashSink.hashValue!!.toHexString()}]" }
+
+            WriteResult(
+                detectedMediaType,
+                hashSink.hashValue!!
+            )
         }
     }
+
+    data class WriteResult(
+        val mediaType: MediaType,
+        val contentHash: ByteArray
+    )
 
     private fun absoluteFileLocationFor(asset: FileAsset): Path =
         Path(libraryRoot, asset.internalFilelocation().toString())

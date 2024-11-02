@@ -41,12 +41,12 @@ fun <T> Statement.bindNullable(name: String, value: T?, clazz: Class<T>): Statem
     }
 }
 
-fun Row.getUuid(fieldName: String) = get(fieldName, Uuid::class.java)!!
-fun Row.getString(fieldName: String) = get(fieldName, String::class.java)!!
+fun Row.getUuid(fieldName: String) = get(fieldName, Uuid::class.java)
+fun Row.getString(fieldName: String) = get(fieldName, String::class.java)
 fun Row.getTimestamp(fieldName: String) =
-    get(fieldName, LocalDateTime::class.java)!!.atZone(ZoneId.systemDefault()).let {
+    get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())?.let {
         Instant.fromEpochMilliseconds(it.toInstant().toEpochMilli())
     }
 
-fun Row.getInt(fieldName: String) =
-    get(fieldName, java.lang.Integer::class.java)!!.toInt()
+fun Row.getInt(fieldName: String) = get(fieldName, java.lang.Integer::class.java)?.toInt()
+fun Row.getByteArray(fieldName: String): ByteArray? = get(fieldName, ByteArray::class.java)
