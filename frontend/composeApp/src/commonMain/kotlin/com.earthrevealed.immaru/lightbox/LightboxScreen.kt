@@ -14,8 +14,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DriveFolderUpload
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -23,6 +26,8 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,9 +37,13 @@ import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.common.ErrorMessage
+import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.core.PlatformDirectory
+import io.github.vinceglb.filekit.core.PlatformFiles
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,15 +52,6 @@ fun LightboxScreen(
     viewModel: LightboxViewModel,
     onNavigateBack: () -> Unit
 ) {
-    val filePicker = rememberFilePickerLauncher(
-        type = PickerType.ImageAndVideo,
-        mode = PickerMode.Multiple()
-    ) { files ->
-        files?.forEach { file ->
-            viewModel.createAssetFor(file)
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -91,14 +91,75 @@ fun LightboxScreen(
             }
         },
         floatingActionButton = {
-            SmallFloatingActionButton(
-                onClick = { filePicker.launch() }
-            ) {
-                Icon(Icons.Filled.Add, "Add a assets.")
-            }
+            UploadFloatingActionButtons(
+                onFilesPicked = { files -> files.forEach { file ->
+                    viewModel.createAssetFor(file)
+                } },
+                onDirectoryPicked = { directory ->
+                    viewModel.createAssetsFor(directory)
+                }
+            )
         }
     )
 }
+
+@Composable
+fun UploadFloatingActionButtons(
+    onFilesPicked: (PlatformFiles) -> Unit,
+    onDirectoryPicked: (PlatformDirectory) -> Unit
+) {
+    val showSmallButtons = remember { mutableStateOf(false) }
+
+    val filePicker = rememberFilePickerLauncher(
+        title = "Select file(s)",
+        type = PickerType.ImageAndVideo,
+        mode = PickerMode.Multiple()
+    ) { files ->
+        if (files != null) onFilesPicked(files)
+        showSmallButtons.value = false
+    }
+    val directoryPicker = rememberDirectoryPickerLauncher(
+        title = "Select folder"
+    ) { directory ->
+        if(directory != null) onDirectoryPicked(directory)
+        showSmallButtons.value = false
+    }
+
+    if (FileKit.isDirectoryPickerSupported()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (showSmallButtons.value) {
+                SmallFloatingActionButton(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    onClick = { filePicker.launch() }
+                ) {
+                    Icon(Icons.Filled.UploadFile, "Add a file.")
+                }
+                SmallFloatingActionButton(
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    onClick = { directoryPicker.launch() }
+                ) {
+                    Icon(Icons.Filled.DriveFolderUpload, "Add a folder.")
+                }
+            }
+            FloatingActionButton(
+                onClick = {
+                    showSmallButtons.value = !showSmallButtons.value
+                }
+            ) {
+                Icon(Icons.Filled.Add, "Add assets.")
+            }
+        }
+    } else {
+        FloatingActionButton(
+            onClick = { filePicker.launch() }
+        ) {
+            Icon(Icons.Filled.Add, "Add assets.")
+        }
+    }
+}
+
 
 @Composable
 fun AssetThumbnail(

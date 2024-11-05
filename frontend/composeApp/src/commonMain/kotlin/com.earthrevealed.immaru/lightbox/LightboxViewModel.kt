@@ -11,6 +11,7 @@ import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import com.earthrevealed.immaru.coroutines.awaitFor
+import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFile
 import io.github.vinceglb.filekit.core.PlatformInputStream
 import io.ktor.utils.io.pool.ByteArrayPool
@@ -61,6 +62,10 @@ class LightboxViewModel(
 
             refreshAssets()
         }
+    }
+
+    fun createAssetsFor(directory: PlatformDirectory?) {
+        println("TODO: Implement loading from directory: ${directory.toString()}")
     }
 
     private suspend fun transferFile(

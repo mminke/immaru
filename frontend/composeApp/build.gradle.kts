@@ -72,6 +72,7 @@ kotlin {
             implementation(libs.coil3.compose)
             implementation(libs.coil3.network.ktor)
             implementation(libs.kotlinx.io.core)
+            implementation(compose.materialIconsExtended)
             implementation("io.github.vinceglb:filekit-compose:0.8.7")
         }
         androidMain.dependencies {
