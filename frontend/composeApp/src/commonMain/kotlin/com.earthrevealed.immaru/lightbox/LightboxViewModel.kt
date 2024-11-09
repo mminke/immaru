@@ -11,6 +11,7 @@ import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import com.earthrevealed.immaru.coroutines.awaitFor
+import dev.zwander.kotlin.file.filekit.toKmpFile
 import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFile
 import io.github.vinceglb.filekit.core.PlatformInputStream
@@ -55,17 +56,39 @@ class LightboxViewModel(
         viewModelScope.launch {
             withContext(DispatcherProvider.io()) {
                 assetRepository.save(newAsset)
-            }
 
-            // Transfer the file
-            transferFile(file, newAsset)
+                transferFile(file, newAsset)
+            }
 
             refreshAssets()
         }
     }
 
-    fun createAssetsFor(directory: PlatformDirectory?) {
-        println("TODO: Implement loading from directory: ${directory.toString()}")
+    fun createAssetsFor(directory: PlatformDirectory) {
+        val kmpDirectory = directory.toKmpFile()
+
+        kmpDirectory.listFiles()?.forEach { file ->
+            if (file.isFile()) {
+                println("Processing file: ${file.getName()}")
+
+                val newAsset = FileAsset(
+                    currentCollection.id,
+                    file.getName(),
+                )
+                viewModelScope.launch {
+                    withContext(DispatcherProvider.io()) {
+                        assetRepository.save(newAsset)
+
+                        // Transfer the file
+                        val contentSource = file.openInputStream()
+                            ?: throw IllegalStateException("Cannot open inputstream for file")
+                        assetRepository.saveContentFor(newAsset, contentSource)
+                    }
+
+                    refreshAssets()
+                }
+            }
+        }
     }
 
     private suspend fun transferFile(

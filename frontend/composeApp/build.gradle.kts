@@ -7,18 +7,39 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
-//    alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
+    androidTarget {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+
+    jvm {
+    }
+
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Immaru"
+            isStatic = true
+        }
+    }
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp"
+        moduleName = "Immaru"
         browser {
             commonWebpackConfig {
-                outputFileName = "composeApp.js"
+                outputFileName = "immaru.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
                         // Serve sources to debug inside browser
@@ -30,28 +51,8 @@ kotlin {
         binaries.executable()
     }
 
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
-
-    jvm("desktop")
-
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
-
     sourceSets {
-        val desktopMain by getting
+//        val desktopMain by getting
 
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -74,6 +75,8 @@ kotlin {
             implementation(libs.kotlinx.io.core)
             implementation(compose.materialIconsExtended)
             implementation("io.github.vinceglb:filekit-compose:0.8.7")
+            implementation("dev.zwander:kmpfile:0.6.1")
+            implementation("dev.zwander:kmpfile-filekit:0.6.1")
         }
         androidMain.dependencies {
             implementation(compose.preview)
@@ -83,7 +86,7 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.cio)
         }
-        desktopMain.dependencies {
+        jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.cio)
             runtimeOnly(libs.kotlinx.coroutines.swing)
