@@ -35,7 +35,12 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
-    jvm()
+    jvm {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_21
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
