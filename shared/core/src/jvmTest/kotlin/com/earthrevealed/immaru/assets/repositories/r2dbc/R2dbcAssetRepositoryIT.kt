@@ -1,18 +1,15 @@
 package com.earthrevealed.immaru.assets.repositories.r2dbc
 
-import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
-import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
-import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.support.truncateNanos
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemTemporaryDirectory
 import kotlin.test.AfterTest
@@ -51,13 +48,8 @@ class R2dbcAssetRepositoryIT {
     @Test
     fun `test saving a new file asset and retrieving it`() {
         val fileAsset = FileAsset(
-            AssetId(),
             collection.id,
             "test.jpg",
-            mediaType = MediaType.IMAGE_JPEG,
-            "1234.jpg",
-            Clock.System.now(),
-            AuditFields(),
         )
 
         runBlocking {
@@ -78,7 +70,6 @@ class R2dbcAssetRepositoryIT {
         val fileAsset = FileAsset(
             collectionId = collection.id,
             originalFilename = "1234.jpg",
-            originalCreatedOn = Clock.System.now(),
         )
 
         runBlocking {
@@ -95,7 +86,6 @@ class R2dbcAssetRepositoryIT {
         val fileAsset = FileAsset(
             collectionId = collection.id,
             originalFilename = "1234.jpg",
-            originalCreatedOn = Clock.System.now(),
         )
 
         runBlocking {
@@ -111,22 +101,19 @@ class R2dbcAssetRepositoryIT {
 
             delay(1000)
 
-            assetToModify.update {
-                name = "my new name"
-                mediaType = MediaType.IMAGE_JPEG
-            }
+            assetToModify.changeName("my new name")
+            assetToModify.registerContentDetails(IMAGE_JPEG, ByteArray(0))
 
             assetRepository.save(assetToModify)
             val result = assetRepository.findById(collection.id, fileAsset.id)!! as FileAsset
 
             assertNotNull(result)
             assertEquals("my new name", result.name)
-            assertEquals(MediaType.IMAGE_JPEG, result.mediaType)
+            assertEquals(IMAGE_JPEG, result.mediaType)
             assertNotEquals(
                 result.auditFields.lastModifiedOn.truncateNanos(),
                 result.auditFields.createdOn.truncateNanos()
             )
         }
     }
-
 }

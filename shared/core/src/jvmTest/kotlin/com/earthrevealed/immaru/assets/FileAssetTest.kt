@@ -1,13 +1,14 @@
 package com.earthrevealed.immaru.assets
 
+import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.support.FixedClock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.HOUR
-import kotlinx.datetime.Instant
 import kotlinx.datetime.plus
 import kotlinx.serialization.json.Json
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,21 +23,23 @@ class FileAssetTest {
         FixedClock.reset()
     }
 
+    @AfterTest
+    fun tearDown() {
+        ClockProvider.clock = Clock.System
+    }
+
     @Test
     fun `test creating new file asset`() {
         val collectionId = CollectionId()
-        val originalCreatedOn = Instant.parse("2024-09-21T21:02:59.138453254Z")
         val fileAsset = FileAsset(
             collectionId = collectionId,
             originalFilename = "1234.jpg",
-            originalCreatedOn = originalCreatedOn
         )
 
         assertNotNull(fileAsset.id)
         assertEquals(collectionId, fileAsset.collectionId)
         assertEquals("1234.jpg", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
-        assertEquals(originalCreatedOn, fileAsset.originalCreatedOn)
         assertNull(fileAsset.mediaType)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdOn)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.lastModifiedOn)
@@ -45,26 +48,21 @@ class FileAssetTest {
     @Test
     fun `test updating a file asset`() {
         val collectionId = CollectionId()
-        val originalCreatedOn = Instant.parse("2024-09-21T21:02:59.138453254Z")
         val fileAsset = FileAsset(
             collectionId = collectionId,
             originalFilename = "1234.jpg",
-            originalCreatedOn = originalCreatedOn
         )
 
         FixedClock.setClockTo(FixedClock.DEFAULT_INSTANT.plus(1, HOUR))
 
-        fileAsset.update {
-            name = "a new name"
-            mediaType = MediaType.IMAGE_JPEG
-        }
+        fileAsset.changeName("a new name")
+        fileAsset.registerContentDetails(IMAGE_JPEG, ByteArray(0))
 
         assertNotNull(fileAsset.id)
         assertEquals(collectionId, fileAsset.collectionId)
         assertEquals("a new name", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
-        assertEquals(originalCreatedOn, fileAsset.originalCreatedOn)
-        assertEquals(MediaType.IMAGE_JPEG, fileAsset.mediaType)
+        assertEquals(IMAGE_JPEG, fileAsset.mediaType)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdOn)
         assertEquals(FixedClock.DEFAULT_INSTANT.plus(1, HOUR), fileAsset.auditFields.lastModifiedOn)
     }
@@ -74,7 +72,6 @@ class FileAssetTest {
         val fileAsset = FileAsset(
             collectionId = CollectionId(),
             originalFilename = "1234.jpg",
-            originalCreatedOn = Clock.System.now()
         )
 
         val json = Json { ignoreUnknownKeys = true }
@@ -82,10 +79,9 @@ class FileAssetTest {
         println("asset.name: ${fileAsset.name}")
         println(json.encodeToString(Asset.serializer(), fileAsset))
 
-        fileAsset.update {
-            name = "some name"
-            mediaType = MediaType.IMAGE_JPEG
-        }
+        fileAsset.changeName("some name")
+        fileAsset.registerContentDetails(IMAGE_JPEG, ByteArray(0))
+
         val jsonText = json.encodeToString(Asset.serializer(), fileAsset)
         println()
         println()
@@ -97,8 +93,7 @@ class FileAssetTest {
         assertNotNull(asset.auditFields.lastModifiedOn)
         if (asset is FileAsset) {
             assertEquals("1234.jpg", asset.originalFilename)
-            assertEquals(fileAsset.originalCreatedOn, asset.originalCreatedOn)
-            assertEquals(MediaType.IMAGE_JPEG, asset.mediaType)
+            assertEquals(IMAGE_JPEG, asset.mediaType)
         }
     }
 }
