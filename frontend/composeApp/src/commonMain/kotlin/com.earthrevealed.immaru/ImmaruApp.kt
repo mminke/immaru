@@ -66,10 +66,8 @@ fun ImmaruApp(
             }
             composable(route = Screen.Lightbox.name) {
                 LightboxScreen(
-                    viewModel = LightboxViewModel(
-                        assetRepository,
-                        currentCollection.value!!
-                    ),
+                    assetRepository,
+                    currentCollection.value!!,
                     onNavigateBack = { navController.navigate(Screen.Collections.name) }
                 )
             }

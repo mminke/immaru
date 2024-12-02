@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -33,9 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.ErrorMessage
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
@@ -49,7 +53,9 @@ import io.github.vinceglb.filekit.core.PlatformFiles
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LightboxScreen(
-    viewModel: LightboxViewModel,
+    assetRepository: AssetRepository,
+    collection: Collection,
+    viewModel: LightboxViewModel = viewModel { LightboxViewModel(assetRepository, collection) },
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -74,7 +80,14 @@ fun LightboxScreen(
                     .padding(innerPadding),
             ) {
                 if (viewModel.isLoading.value) {
-                    CircularProgressIndicator()
+                    Box( modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 } else {
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
