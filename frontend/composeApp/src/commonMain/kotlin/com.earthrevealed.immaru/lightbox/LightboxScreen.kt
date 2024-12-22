@@ -1,6 +1,8 @@
 package com.earthrevealed.immaru.lightbox
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -56,7 +58,9 @@ fun LightboxScreen(
     assetRepository: AssetRepository,
     collection: Collection,
     viewModel: LightboxViewModel = viewModel { LightboxViewModel(assetRepository, collection) },
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onViewAsset: (Asset) -> Unit,
+    onAssetsSelected: (List<Asset>) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -80,9 +84,10 @@ fun LightboxScreen(
                     .padding(innerPadding),
             ) {
                 if (viewModel.isLoading.value) {
-                    Box( modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center)
@@ -96,7 +101,12 @@ fun LightboxScreen(
                             columns = GridCells.Adaptive(minSize = 128.dp)
                         ) {
                             items(viewModel.assets.value) { asset ->
-                                AssetThumbnail(asset)
+                                AssetThumbnail(
+                                    asset,
+                                    onClick = {asset -> onViewAsset(asset)},
+                                    onDoubleClick = {asset -> println("double clicked ${asset}")},
+                                    onLongClick = {asset -> println("long clicked ${asset}")},
+                                )
                             }
                         }
                     }
@@ -105,9 +115,11 @@ fun LightboxScreen(
         },
         floatingActionButton = {
             UploadFloatingActionButtons(
-                onFilesPicked = { files -> files.forEach { file ->
-                    viewModel.createAssetFor(file)
-                } },
+                onFilesPicked = { files ->
+                    files.forEach { file ->
+                        viewModel.createAssetFor(file)
+                    }
+                },
                 onDirectoryPicked = { directory ->
                     viewModel.createAssetsFor(directory)
                 }
@@ -134,7 +146,7 @@ fun UploadFloatingActionButtons(
     val directoryPicker = rememberDirectoryPickerLauncher(
         title = "Select folder"
     ) { directory ->
-        if(directory != null) onDirectoryPicked(directory)
+        if (directory != null) onDirectoryPicked(directory)
         showSmallButtons.value = false
     }
 
@@ -174,15 +186,24 @@ fun UploadFloatingActionButtons(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AssetThumbnail(
     asset: Asset,
+    onClick: (Asset) -> Unit,
+    onDoubleClick: (Asset) -> Unit,
+    onLongClick: (Asset) -> Unit
 ) {
     Box(
         contentAlignment = Alignment.BottomStart,
         modifier = Modifier
             .background(Color.Red)
             .aspectRatio(1f)
+            .combinedClickable(
+                onClick = { onClick(asset) },
+                onDoubleClick = { onDoubleClick(asset) },
+                onLongClick = { onLongClick(asset) }
+            )
     ) {
         if (asset is FileAsset) {
             AsyncImage(
