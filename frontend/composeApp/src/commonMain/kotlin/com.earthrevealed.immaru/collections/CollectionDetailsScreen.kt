@@ -30,15 +30,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.earthrevealed.immaru.collections.CollectionDetailsViewModel.State.ISDIRTY
 import com.earthrevealed.immaru.common.ErrorMessage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionDetailsScreen(
-    viewModel: CollectionDetailsViewModel,
+    collectionRepository: CollectionRepository,
+    originalCollection: Collection,
+    isNew: Boolean = false,
     onNavigateBack: () -> Unit,
 ) {
+    val viewModel = viewModel { CollectionDetailsViewModel(collectionRepository, originalCollection, isNew)}
     val collection = viewModel.collection.collectAsState()
 
     val showConfirmDeleteDialog = remember { mutableStateOf(false) }

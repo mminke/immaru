@@ -17,7 +17,6 @@ import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionDetailsScreen
-import com.earthrevealed.immaru.collections.CollectionDetailsViewModel
 import com.earthrevealed.immaru.collections.CollectionScreen
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
@@ -89,25 +88,21 @@ fun ImmaruApp(
                         globalViewModal.selectAssets(listOf(asset))
                         navController.navigate(Screen.Asset.name)
                     },
-                    onAssetsSelected = { (assets) -> Unit  },
+                    onAssetsSelected = { (assets) -> Unit },
                 )
             }
             composable(route = Screen.CollectionDetails.name) {
                 CollectionDetailsScreen(
-                    viewModel = CollectionDetailsViewModel(
-                        collectionRepository,
-                        globalViewModal.currentCollection.value!!
-                    ),
+                    collectionRepository,
+                    globalViewModal.currentCollection.value!!,
                     onNavigateBack = { navController.navigate(Screen.Collections.name) }
                 )
             }
             composable(route = Screen.NewCollection.name) {
                 CollectionDetailsScreen(
-                    viewModel = CollectionDetailsViewModel(
-                        collectionRepository,
-                        collection { },
-                        isNew = true
-                    ),
+                    collectionRepository,
+                    collection { },
+                    isNew = true,
                     onNavigateBack = { navController.navigate(Screen.Collections.name) }
                 )
             }

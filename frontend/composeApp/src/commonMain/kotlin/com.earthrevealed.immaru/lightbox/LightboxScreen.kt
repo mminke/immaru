@@ -57,11 +57,12 @@ import io.github.vinceglb.filekit.core.PlatformFiles
 fun LightboxScreen(
     assetRepository: AssetRepository,
     collection: Collection,
-    viewModel: LightboxViewModel = viewModel { LightboxViewModel(assetRepository, collection) },
     onNavigateBack: () -> Unit,
     onViewAsset: (Asset) -> Unit,
     onAssetsSelected: (List<Asset>) -> Unit,
 ) {
+    val viewModel = viewModel { LightboxViewModel(assetRepository, collection) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -103,9 +104,9 @@ fun LightboxScreen(
                             items(viewModel.assets.value) { asset ->
                                 AssetThumbnail(
                                     asset,
-                                    onClick = {asset -> onViewAsset(asset)},
-                                    onDoubleClick = {asset -> println("double clicked ${asset}")},
-                                    onLongClick = {asset -> println("long clicked ${asset}")},
+                                    onClick = { asset -> onViewAsset(asset) },
+                                    onDoubleClick = { asset -> println("double clicked ${asset}") },
+                                    onLongClick = { asset -> println("long clicked ${asset}") },
                                 )
                             }
                         }
