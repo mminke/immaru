@@ -36,10 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
-import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.ErrorMessage
@@ -50,19 +48,19 @@ import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFiles
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LightboxScreen(
-    assetRepository: AssetRepository,
     collection: Collection,
+    viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
     onNavigateBack: () -> Unit,
     onViewAsset: (Asset) -> Unit,
     onAssetsSelected: (List<Asset>) -> Unit,
 ) {
-    val viewModel = viewModel { LightboxViewModel(assetRepository, collection) }
-
     Scaffold(
         topBar = {
             TopAppBar(

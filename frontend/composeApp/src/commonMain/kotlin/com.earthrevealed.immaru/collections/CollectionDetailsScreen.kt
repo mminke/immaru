@@ -33,16 +33,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.earthrevealed.immaru.collections.CollectionDetailsViewModel.State.ISDIRTY
 import com.earthrevealed.immaru.common.ErrorMessage
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionDetailsScreen(
-    collectionRepository: CollectionRepository,
     originalCollection: Collection,
     isNew: Boolean = false,
+    viewModel: CollectionDetailsViewModel = koinViewModel {
+        parametersOf(
+            originalCollection,
+            isNew
+        )
+    },
     onNavigateBack: () -> Unit,
 ) {
-    val viewModel = viewModel { CollectionDetailsViewModel(collectionRepository, originalCollection, isNew)}
     val collection = viewModel.collection.collectAsState()
 
     val showConfirmDeleteDialog = remember { mutableStateOf(false) }

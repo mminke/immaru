@@ -56,8 +56,6 @@ kotlin {
 //    }
 
     sourceSets {
-//        val desktopMain by getting
-
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -69,7 +67,6 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(compose.components.resources)
             implementation(projects.core)
-//            api(libs.lifecycle.viewmodel)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.lifecycle.runtime.compose)
             implementation(libs.navigation.compose)
@@ -81,11 +78,13 @@ kotlin {
             implementation("io.github.vinceglb:filekit-compose:0.8.7")
             implementation("dev.zwander:kmpfile:0.6.1")
             implementation("dev.zwander:kmpfile-filekit:0.6.1")
+            implementation(libs.koin.compose.viewmodel.nav)
         }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.cio)
+            implementation(libs.koin.android)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.cio)
@@ -95,6 +94,7 @@ kotlin {
             implementation(libs.ktor.client.cio)
             runtimeOnly(libs.kotlinx.coroutines.swing)
         }
+//        val desktopMain by getting
         wasmJsMain.dependencies {
             implementation(libs.ktor.client.js)
         }

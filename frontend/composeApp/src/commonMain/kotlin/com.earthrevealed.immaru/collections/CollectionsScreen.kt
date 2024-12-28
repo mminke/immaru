@@ -20,16 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.earthrevealed.immaru.common.ErrorMessage
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionScreen(
-    collectionRepository: CollectionRepository,
-    collectionViewModel: CollectionsViewModel = viewModel {
-        CollectionsViewModel(
-            collectionRepository
-        )
-    },
+    collectionViewModel: CollectionsViewModel = koinViewModel(),
     onCollectionSelected: (Collection) -> Unit = {},
     onCollectionInfo: (Collection) -> Unit = {},
     onNewCollection: () -> Unit = {},
