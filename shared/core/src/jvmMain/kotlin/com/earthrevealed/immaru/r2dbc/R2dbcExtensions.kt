@@ -1,6 +1,5 @@
 package com.earthrevealed.immaru.r2dbc
 
-import com.benasher44.uuid.Uuid
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Row
@@ -10,6 +9,8 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.UUID
+import kotlin.uuid.toKotlinUuid
 
 suspend fun <T> ConnectionFactory.useConnection(executeUsing: suspend Connection.() -> T): T {
     val connection = create().awaitSingle()
@@ -41,7 +42,7 @@ fun <T> Statement.bindNullable(name: String, value: T?, clazz: Class<T>): Statem
     }
 }
 
-fun Row.getUuid(fieldName: String) = get(fieldName, Uuid::class.java)
+fun Row.getUuid(fieldName: String) = get(fieldName, UUID::class.java).toKotlinUuid()
 fun Row.getString(fieldName: String) = get(fieldName, String::class.java)
 fun Row.getTimestamp(fieldName: String) =
     get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())?.let {

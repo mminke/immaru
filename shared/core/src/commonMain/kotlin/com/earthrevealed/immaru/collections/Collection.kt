@@ -1,8 +1,5 @@
 package com.earthrevealed.immaru.collections
 
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
-import com.benasher44.uuid.uuidFrom
 import com.earthrevealed.immaru.common.ImmaruBuilder
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -13,6 +10,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlin.uuid.Uuid
 
 @Serializable
 data class Collection(
@@ -27,11 +25,11 @@ data class Collection(
 
 @Serializable(with = CollectionIdSerializer::class)
 data class CollectionId(
-    val value: Uuid = uuid4()
+    val value: Uuid = Uuid.random()
 ) {
     companion object {
         fun fromString(value: String) = CollectionId(
-            uuidFrom(value)
+            Uuid.parse(value)
         )
     }
 }

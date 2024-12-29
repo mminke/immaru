@@ -23,7 +23,6 @@ ktor-plugin = "2.3.11"
 junit = "4.13.2"
 ktor = "3.0.2"
 logback = "1.5.6"
-benasher44-uuid = "0.8.4"
 compose-multiplatform = "1.6.10"
 lifecycle-view-model = "2.8.0"
 navigation-compose = "2.7.0-alpha07"
@@ -90,8 +89,6 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "k
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktor-server-content-negotionation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "ktor" }
-
-common-uuid = { module = "com.benasher44:uuid", version.ref = "benasher44-uuid" }
 
 r2dbc-spi = { module = "io.r2dbc:r2dbc-spi", version.ref = "r2dbc" }
 postgresql-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version.ref = "postgresql_r2dbc_version" }

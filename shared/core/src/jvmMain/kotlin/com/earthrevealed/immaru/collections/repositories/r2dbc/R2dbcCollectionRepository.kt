@@ -1,11 +1,11 @@
 package com.earthrevealed.immaru.collections.repositories.r2dbc
 
-import com.benasher44.uuid.Uuid
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.DeleteCollectionException
 import com.earthrevealed.immaru.collections.SaveCollectionException
+import com.earthrevealed.immaru.r2dbc.getUuid
 import com.earthrevealed.immaru.r2dbc.useConnection
 import com.earthrevealed.immaru.r2dbc.useTransaction
 import io.r2dbc.spi.ConnectionFactory
@@ -19,6 +19,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlin.uuid.toJavaUuid
 
 class R2dbcCollectionRepository(
     private val connectionFactory: ConnectionFactory
@@ -38,7 +39,7 @@ class R2dbcCollectionRepository(
                         DO UPDATE SET name = EXCLUDED.name
                         """.trimIndent()
                         )
-                            .bind("$1", collection.id.value)
+                            .bind("$1", collection.id.value.toJavaUuid())
                             .bind("$2", collection.name)
                             .bind("$3", collection.createdAt.toJavaInstant())
                             .execute()
@@ -71,7 +72,7 @@ class R2dbcCollectionRepository(
     override suspend fun get(id: CollectionId): Collection? {
         return connectionFactory.useConnection {
             createStatement("SELECT * FROM $tableName WHERE id = $1")
-                .bind("$1", id.value)
+                .bind("$1", id.value.toJavaUuid())
                 .execute()
                 .awaitSingle()
                 .mapToDomain()
@@ -85,7 +86,7 @@ class R2dbcCollectionRepository(
                 useTransaction {
                     val rowsUpdated =
                         createStatement("DELETE FROM $tableName WHERE id = $1")
-                            .bind("$1", id.value)
+                            .bind("$1", id.value.toJavaUuid())
                             .execute()
                             .awaitSingle()
                             .rowsUpdated
@@ -111,7 +112,7 @@ private fun Result.mapToDomain(): Flow<Collection> {
         val createdAt = Instant.fromEpochMilliseconds(createdAtTimestamp.toInstant().toEpochMilli())
 
         Collection(
-            id = CollectionId(row.get("id", Uuid::class.java)!!),
+            id = CollectionId(row.getUuid("id")!!),
             name = row.get("name", String::class.java)!!,
             createdAt = createdAt,
         )

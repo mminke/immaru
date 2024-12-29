@@ -1,8 +1,5 @@
 package com.earthrevealed.immaru.assets
 
-import com.benasher44.uuid.Uuid
-import com.benasher44.uuid.uuid4
-import com.benasher44.uuid.uuidFrom
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import kotlinx.serialization.KSerializer
@@ -13,6 +10,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlin.uuid.Uuid
 
 @Serializable
 sealed class Asset {
@@ -123,7 +121,7 @@ class FileAsset : Asset {
 
 @Serializable(with = AssetIdSerializer::class)
 data class AssetId(
-    val value: Uuid = uuid4()
+    val value: Uuid = Uuid.random()
 ) {
     override fun toString(): String {
         return value.toString()
@@ -131,7 +129,7 @@ data class AssetId(
 
     companion object {
         fun fromString(value: String) = AssetId(
-            uuidFrom(value)
+            Uuid.parse(value)
         )
     }
 }

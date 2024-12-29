@@ -29,6 +29,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
 import kotlinx.io.Source
 import java.time.Instant
+import kotlin.uuid.toJavaUuid
 
 class R2dbcAssetRepository(
     private val connectionFactory: ConnectionFactory,
@@ -63,8 +64,8 @@ class R2dbcAssetRepository(
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
         return connectionFactory.useConnection {
             createStatement(selectAssetByIdQuery)
-                .bind("$1", collectionId.value)
-                .bind("$2", assetId.value)
+                .bind("$1", collectionId.value.toJavaUuid())
+                .bind("$2", assetId.value.toJavaUuid())
                 .execute()
                 .awaitSingle()
                 .mapToDomain()
@@ -75,7 +76,7 @@ class R2dbcAssetRepository(
     override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
         return connectionFactory.useConnection {
             createStatement(selectAssetsQuery)
-                .bind("$1", collectionId.value)
+                .bind("$1", collectionId.value.toJavaUuid())
                 .execute()
                 .awaitSingle()
                 .mapToDomain()
@@ -107,7 +108,7 @@ class R2dbcAssetRepository(
                         "DELETE FROM assets WHERE id = $1",
                     ).map { query ->
                         createStatement(query)
-                            .bind("$1", id.value)
+                            .bind("$1", id.value.toJavaUuid())
                             .execute()
                             .awaitSingle()
                             .rowsUpdated
@@ -163,8 +164,8 @@ class R2dbcAssetRepository(
                     last_modified_at = EXCLUDED.last_modified_at
             """.trimIndent()
         )
-            .bind("$1", asset.id.value)
-            .bind("$2", asset.collectionId.value)
+            .bind("$1", asset.id.value.toJavaUuid())
+            .bind("$2", asset.collectionId.value.toJavaUuid())
             .bind("$3", asset.name)
             .bind("$4", Instant.now()) // TODO: Remove here and add to some kind of metadata area
             .bind("$5", asset.originalFilename)
