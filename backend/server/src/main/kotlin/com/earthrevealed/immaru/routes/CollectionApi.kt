@@ -11,20 +11,18 @@ import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
 import io.ktor.server.request.contentType
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondOutputStream
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingHandler
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
-import io.ktor.util.KtorDsl
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.utils.io.KtorDsl
 import io.r2dbc.spi.ConnectionFactories
 import kotlinx.io.asSink
 import kotlinx.io.asSource
@@ -171,7 +169,7 @@ fun Route.assetApi() {
 @KtorDsl
 fun Route.get(
     vararg paths: String,
-    body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
+    body: RoutingHandler
 ) {
     paths.forEach { path ->
         get(path, body)

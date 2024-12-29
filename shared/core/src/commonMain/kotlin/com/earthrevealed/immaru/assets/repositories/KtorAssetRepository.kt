@@ -21,6 +21,8 @@ import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.pool.ByteArrayPool
 import io.ktor.utils.io.pool.useInstance
+import io.ktor.utils.io.readAvailable
+import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.runBlocking
@@ -81,23 +83,25 @@ class KtorAssetRepository(private val httpClient: HttpClient) : AssetRepository 
                     appendPathSegments(asset.id.value.toString())
                     appendPathSegments("content")
                 }
-                setBody(ChannelWriterContent(
-                    {
-                        while (!contentSource.exhausted()) {
-                            val buffer = ByteArrayPool.borrow()
-                            val count = contentSource.readAtMostTo(buffer)
+                setBody(
+                    ChannelWriterContent(
+                        {
+                            while (!contentSource.exhausted()) {
+                                val buffer = ByteArrayPool.borrow()
+                                val count = contentSource.readAtMostTo(buffer)
 
-                            if(count == -1) break
+                                if (count == -1) break
 
-                            this.writeFully(buffer, 0, count)
-                        }
-                        contentSource.close()
-                    },
-                    ContentType.Application.OctetStream
-                ))
+                                this.writeFully(buffer, 0, count)
+                            }
+                            contentSource.close()
+                        },
+                        ContentType.Application.OctetStream
+                    )
+                )
             }
 
-            if(!httpResponse.status.isSuccess()) {
+            if (!httpResponse.status.isSuccess()) {
                 throw SaveAssetException("Something went wrong saving the content [status=${httpResponse.status}]")
             }
         } catch (throwable: Throwable) {
