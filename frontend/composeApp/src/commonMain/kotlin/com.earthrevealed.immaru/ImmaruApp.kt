@@ -1,12 +1,15 @@
 package com.earthrevealed.immaru
 
 import Configuration
+import DataStoreConfigurationRepository
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -39,6 +42,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
+import org.koin.core.module.Module
 
 
 enum class Screen {
@@ -61,7 +65,11 @@ class GlobalViewModel: ViewModel() {
 }
 
 val appModule = module {
+    singleOf(::DataStoreConfigurationRepository)
+
     single {
+        val dataStore: DataStore<Preferences> = get()
+
         HttpClient {
             install(ContentNegotiation) {
                 json()
@@ -72,6 +80,7 @@ val appModule = module {
             }
         }
     }
+
     singleOf(::KtorCollectionRepository) { bind<CollectionRepository>() }
     singleOf(::KtorAssetRepository) { bind<AssetRepository>() }
 
@@ -81,8 +90,9 @@ val appModule = module {
 }
 
 @Composable
-fun ImmaruApp() {
+fun ImmaruApp(platformSpecificModule: Module) {
     KoinApplication(application = {
+        platformSpecificModule.apply { modules(this) }
         modules(appModule)
     }) {
         MainNavigation()

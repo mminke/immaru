@@ -1,12 +1,11 @@
 package com.earthrevealed.immaru
 
-import com.earthrevealed.immaru.ImmaruApp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import createAndroidDataStore
 import io.github.vinceglb.filekit.core.FileKit
+import org.koin.dsl.module
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,13 +14,11 @@ class MainActivity : ComponentActivity() {
         FileKit.init(this)
 
         setContent {
-            ImmaruApp()
+            ImmaruApp(
+                module {
+                    single { createAndroidDataStore(this@MainActivity) }
+                }
+            )
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    ImmaruApp()
 }
