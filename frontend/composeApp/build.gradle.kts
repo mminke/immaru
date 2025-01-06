@@ -83,6 +83,7 @@ kotlin {
             implementation("dev.zwander:kmpfile:0.6.1")
             implementation("dev.zwander:kmpfile-filekit:0.6.1")
             implementation(libs.koin.compose.viewmodel.nav)
+            implementation("androidx.datastore:datastore-preferences:1.1.1")
         }
         androidMain.dependencies {
             implementation(compose.preview)
