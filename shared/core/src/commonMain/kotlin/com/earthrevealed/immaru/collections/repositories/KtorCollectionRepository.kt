@@ -21,8 +21,6 @@ class KtorCollectionRepository(private val httpClientProvider: HttpClientProvide
     CollectionRepository {
 
     override suspend fun all(): List<Collection> {
-        println("MORTEN: retrieving all collections")
-        println("MORTEN: using ")
         return try {
             httpClientProvider.httpClient.value
                 ?.get("api/collections")
