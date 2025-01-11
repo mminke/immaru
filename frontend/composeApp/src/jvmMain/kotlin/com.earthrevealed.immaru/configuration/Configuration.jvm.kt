@@ -7,7 +7,7 @@ actual object Configuration {
 }
 
 fun createJvmDataStore(): DataStore<Preferences> = createDataStore(
-    producePath = { Path("config").toAbsolutePath().toString().also {
+    producePath = { Path("config").resolve(DATASTORE_FILENAME).toAbsolutePath().toString().also {
         println("Using config path: $it")
     } }
 )
