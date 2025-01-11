@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,6 +29,7 @@ fun ConfigurationScreen(
     viewModel: ConfigurationViewModel = koinViewModel(key = initialServerUrl) {
         parametersOf(initialServerUrl)
     },
+    onNavigateBack: (() -> Unit) = {},
 ) {
     val serverUrl = viewModel.serverUrl
 
@@ -32,8 +37,19 @@ fun ConfigurationScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Configuration" )
-                }
+                    Text("Configuration")
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.saveConfiguration()
+                        onNavigateBack()
+                    }) {
+                        Icon(
+                            Icons.Filled.ArrowBack,
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
             )
         },
         content = { innerPadding ->
@@ -51,10 +67,6 @@ fun ConfigurationScreen(
                         viewModel.updateUrl(it)
                     }
                 )
-                Button(onClick = {
-                    viewModel.saveConfiguration()
-                 }) { Text("Configure") }
-
             }
         },
     )

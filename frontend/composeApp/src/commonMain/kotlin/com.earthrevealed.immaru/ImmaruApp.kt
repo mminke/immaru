@@ -23,7 +23,7 @@ import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionDetailsScreen
 import com.earthrevealed.immaru.collections.CollectionRepository
-import com.earthrevealed.immaru.collections.CollectionScreen
+import com.earthrevealed.immaru.collections.CollectionsScreen
 import com.earthrevealed.immaru.collections.CollectionsViewModel
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
@@ -65,7 +65,12 @@ enum class Screen {
     Asset,
 }
 
-class GlobalViewModel : ViewModel() {
+class GlobalViewModel(
+    configurationRepository: DataStoreConfigurationRepository
+) : ViewModel() {
+    val serverUrl = configurationRepository.getValue("immaru.server.url")
+        .filterNotNull()
+
     val currentCollection = mutableStateOf<Collection?>(null)
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
@@ -134,19 +139,7 @@ fun ImmaruApp(platformSpecificModule: Module) {
         platformSpecificModule.apply { modules(this) }
         modules(appModule)
     }) {
-        val httpClientProvider = koinInject<HttpClientProvider>()
-        val httpClient = httpClientProvider.httpClient.collectAsState()
-
-        val configurationRepository = koinInject<DataStoreConfigurationRepository>()
-        val serverUrl: State<String> = configurationRepository.getValue("immaru.server.url")
-            .filterNotNull()
-            .collectAsState("")
-
-        if (httpClient.value == null) {
-            ConfigurationScreen(serverUrl.value)
-        } else {
-            MainNavigation()
-        }
+        MainNavigation()
     }
 }
 
@@ -156,18 +149,32 @@ fun MainNavigation(
     globalViewModel: GlobalViewModel = koinViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
+    val httpClientProvider = koinInject<HttpClientProvider>()
+    val httpClient = httpClientProvider.httpClient.collectAsState()
+
+    val startDestination = if (httpClient.value == null) {
+        Screen.Configuration.name
+    } else {
+        Screen.Collections.name
+    }
+
     MaterialTheme {
         NavHost(
             navController = navController,
-            startDestination = Screen.Collections.name,
+            startDestination = startDestination,
             modifier = Modifier
                 .fillMaxSize()
         ) {
             composable(route = Screen.Configuration.name) {
-                ConfigurationScreen("todo")
+                val serverUrl = globalViewModel.serverUrl.collectAsState("")
+
+                ConfigurationScreen(
+                    serverUrl.value,
+                    onNavigateBack = { navController.navigate(Screen.Collections.name) },
+                )
             }
             composable(route = Screen.Collections.name) {
-                CollectionScreen(
+                CollectionsScreen(
                     onCollectionSelected = {
                         globalViewModel.currentCollection.value = it
                         navController.navigate(Screen.Lightbox.name)
@@ -176,7 +183,8 @@ fun MainNavigation(
                         globalViewModel.currentCollection.value = it
                         navController.navigate(Screen.CollectionDetails.name)
                     },
-                    onNewCollection = { navController.navigate(Screen.NewCollection.name) }
+                    onNewCollection = { navController.navigate(Screen.NewCollection.name) },
+                    onOpenConfiguration = { navController.navigate(Screen.Configuration.name) }
                 )
             }
             composable(route = Screen.Lightbox.name) {
