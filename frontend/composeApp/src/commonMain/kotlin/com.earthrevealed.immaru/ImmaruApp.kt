@@ -22,6 +22,7 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionDetailsScreen
+import com.earthrevealed.immaru.collections.CollectionDetailsViewModel
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.CollectionsScreen
 import com.earthrevealed.immaru.collections.CollectionsViewModel
@@ -52,6 +53,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -106,6 +108,9 @@ val appModule = module {
     viewModelOf(::ConfigurationViewModel)
     viewModelOf(::GlobalViewModel)
     viewModelOf(::CollectionsViewModel)
+    viewModel {
+        CollectionDetailsViewModel(get(), get(), get())
+    }
     viewModelOf(::LightboxViewModel)
 }
 
