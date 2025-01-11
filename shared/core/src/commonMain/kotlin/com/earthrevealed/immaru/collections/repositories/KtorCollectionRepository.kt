@@ -6,7 +6,7 @@ import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.CollectionRetrievalException
 import com.earthrevealed.immaru.collections.DeleteCollectionException
 import com.earthrevealed.immaru.collections.SaveCollectionException
-import io.ktor.client.HttpClient
+import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
@@ -17,29 +17,34 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 
-class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionRepository {
+class KtorCollectionRepository(private val httpClientProvider: HttpClientProvider) :
+    CollectionRepository {
 
     override suspend fun all(): List<Collection> {
+        println("MORTEN: retrieving all collections")
+        println("MORTEN: using ")
         return try {
-            httpClient.get("api/collections")
-                .body<List<Collection>>()
+            httpClientProvider.httpClient.value
+                ?.get("api/collections")
+                ?.body<List<Collection>>()
+                ?: emptyList()
         } catch (throwable: Throwable) {
             throw CollectionRetrievalException(throwable)
         }
     }
 
     override suspend fun save(collection: Collection) {
-        val httpResponse = try {
-            httpClient.put("api/collections") {
-                contentType(ContentType.Application.Json)
-                setBody(collection)
-            }
+        try {
+            httpClientProvider.httpClient.value?.put("api/collections") {
+                    contentType(ContentType.Application.Json)
+                    setBody(collection)
+                }
         } catch (throwable: Throwable) {
             throw SaveCollectionException(throwable)
-        }
-
-        if (httpResponse.status != HttpStatusCode.NoContent) {
-            throw SaveCollectionException("Could not save collection. [code=${httpResponse.status}]")
+        }?.also { response ->
+            if (response.status != HttpStatusCode.NoContent) {
+                throw SaveCollectionException("Could not save collection. [code=${response.status}]")
+            }
         }
     }
 
@@ -48,18 +53,19 @@ class KtorCollectionRepository(private val httpClient: HttpClient) : CollectionR
     }
 
     override suspend fun delete(id: CollectionId) {
-        val httpResponse = try {
-            httpClient.delete("api/collections/") {
+        try {
+            httpClientProvider.httpClient.value?.delete("api/collections/") {
                 url {
                     appendPathSegments(id.value.toString())
                 }
             }
         } catch (throwable: Throwable) {
             throw DeleteCollectionException(throwable)
-        }
+        }?.also { response ->
+            if (response.status != HttpStatusCode.NoContent) {
+                throw DeleteCollectionException("Could not delete collection. [code=${response.status}]")
+            }
 
-        if (httpResponse.status != HttpStatusCode.NoContent) {
-            throw DeleteCollectionException("Could not delete collection. [code=${httpResponse.status}]")
         }
     }
 }
