@@ -5,6 +5,7 @@ import DataStoreConfigurationRepository
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -26,26 +27,37 @@ import com.earthrevealed.immaru.collections.CollectionScreen
 import com.earthrevealed.immaru.collections.CollectionsViewModel
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
+import com.earthrevealed.immaru.common.HttpClientProvider
+import com.earthrevealed.immaru.configuration.ConfigurationScreen
+import com.earthrevealed.immaru.configuration.ConfigurationViewModel
 import com.earthrevealed.immaru.lightbox.LightboxScreen
+import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import com.earthrevealed.immaru.lightbox.LightboxViewModel
-import org.koin.core.module.Module
 
 
 enum class Screen {
+    Configuration,
     Collections,
     NewCollection,
     CollectionDetails,
@@ -53,7 +65,7 @@ enum class Screen {
     Asset,
 }
 
-class GlobalViewModel: ViewModel() {
+class GlobalViewModel : ViewModel() {
     val currentCollection = mutableStateOf<Collection?>(null)
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
@@ -81,12 +93,39 @@ val appModule = module {
         }
     }
 
+    singleOf(::ImmaruHttpClientProvider) { bind<HttpClientProvider>() }
+
     singleOf(::KtorCollectionRepository) { bind<CollectionRepository>() }
     singleOf(::KtorAssetRepository) { bind<AssetRepository>() }
 
+    viewModelOf(::ConfigurationViewModel)
     viewModelOf(::GlobalViewModel)
     viewModelOf(::CollectionsViewModel)
     viewModelOf(::LightboxViewModel)
+}
+
+class ImmaruHttpClientProvider(private val configurationRepository: DataStoreConfigurationRepository) :
+    HttpClientProvider {
+    private var currentHttpClient: HttpClient? = null
+
+    override val httpClient = configurationRepository.getValue("immaru.server.url")
+        .map { serverUrl ->
+            currentHttpClient?.close()
+
+            serverUrl?.let {
+                HttpClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+
+                    defaultRequest {
+                        url(serverUrl)
+                    }
+                }.also {
+                    currentHttpClient = it
+                }
+            }
+        }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, null)
 }
 
 @Composable
@@ -95,7 +134,19 @@ fun ImmaruApp(platformSpecificModule: Module) {
         platformSpecificModule.apply { modules(this) }
         modules(appModule)
     }) {
-        MainNavigation()
+        val httpClientProvider = koinInject<HttpClientProvider>()
+        val httpClient = httpClientProvider.httpClient.collectAsState()
+
+        val configurationRepository = koinInject<DataStoreConfigurationRepository>()
+        val serverUrl: State<String> = configurationRepository.getValue("immaru.server.url")
+            .filterNotNull()
+            .collectAsState("")
+
+        if (httpClient.value == null) {
+            ConfigurationScreen(serverUrl.value)
+        } else {
+            MainNavigation()
+        }
     }
 }
 
@@ -105,7 +156,6 @@ fun MainNavigation(
     globalViewModel: GlobalViewModel = koinViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
-
     MaterialTheme {
         NavHost(
             navController = navController,
@@ -113,6 +163,9 @@ fun MainNavigation(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            composable(route = Screen.Configuration.name) {
+                ConfigurationScreen("todo")
+            }
             composable(route = Screen.Collections.name) {
                 CollectionScreen(
                     onCollectionSelected = {
