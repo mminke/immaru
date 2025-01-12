@@ -211,7 +211,8 @@ fun AssetThumbnail(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
+                    .wrapContentHeight(),
+                onError = { println("Something went wrong loading the image: ${it.result.throwable}")}
 
             )
         } else {
