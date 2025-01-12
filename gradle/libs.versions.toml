@@ -51,7 +51,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 
 coil3 = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil3"}
 coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3"}
-coil3-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor2", version.ref = "coil3" }
+coil3-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
 
 koin-android = {module = "io.insert-koin:koin-android", version.ref = "koin"}
 koin-compose-viewmodel = {module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin"}
