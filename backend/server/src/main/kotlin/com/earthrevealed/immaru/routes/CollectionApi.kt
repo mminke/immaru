@@ -98,6 +98,24 @@ fun Route.assetApi() {
         }
 
         route("/{asset-id}") {
+            get {
+                val collectionId = CollectionId.fromString(call.parameters["collection-id"]!!)
+                if (collectionRepository.get(collectionId) == null) { //TODO: replace with collectionRepository.exists(collectionId)
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+
+                val assetId = AssetId.fromString(call.parameters["asset-id"]!!)
+                val asset = assetRepository.findById(collectionId, assetId)
+                if (asset == null) {
+                    logger.warn { "No asset found while trying to process content for asset." }
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+
+                call.respond(asset)
+            }
+
             get("/content") {
                 val collectionId = CollectionId.fromString(call.parameters["collection-id"]!!)
                 val collection = collectionRepository.get(collectionId)
