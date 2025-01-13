@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -30,8 +30,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.earthrevealed.immaru.collections.CollectionDetailsViewModel.State.ISDIRTY
+import com.earthrevealed.immaru.collections.CollectionDetailsViewModel.State.PROCESSING
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -84,11 +85,13 @@ fun CollectionDetailsScreen(
         content = { innerPadding ->
             Column(
                 // consume insets as scaffold doesn't do it by default
-                modifier = Modifier.consumeWindowInsets(innerPadding)
-                    .padding(innerPadding),
+                modifier = Modifier
+                    .consumeWindowInsets(innerPadding)
+                    .padding(innerPadding)
+                    .fillMaxWidth()
             ) {
-                if (viewModel.state.value == CollectionDetailsViewModel.State.PROCESSING) {
-                    CircularProgressIndicator()
+                if (viewModel.state.value == PROCESSING) {
+                   CenteredProgressIndicator()
                 } else {
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)

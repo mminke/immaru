@@ -24,7 +24,6 @@ class CollectionDetailsViewModel(
             state.value = State.PROCESSING
             try {
                 collectionRepository.save(collection.value)
-                state.value = State.READY
                 onSuccess()
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()

@@ -42,6 +42,7 @@ import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
@@ -82,19 +83,12 @@ fun LightboxScreen(
         },
         content = { innerPadding ->
             Box(
-                modifier = Modifier.consumeWindowInsets(innerPadding)
+                modifier = Modifier
+                    .consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
                 if (viewModel.isLoading.value) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                    CenteredProgressIndicator()
                 } else {
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
