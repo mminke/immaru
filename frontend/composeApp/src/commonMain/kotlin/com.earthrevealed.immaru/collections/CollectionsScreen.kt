@@ -9,7 +9,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,8 +17,8 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -51,18 +50,18 @@ fun CollectionsScreen(
         },
         content = { innerPadding ->
             Column(
-                Modifier.fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier
                     .consumeWindowInsets(innerPadding)
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(innerPadding)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
                 val isLoading = collectionViewModel.isLoading
                 val errorMessage = collectionViewModel.errorMessage
                 val collections = collectionViewModel.collections
 
                 if (isLoading.value) {
-                    CircularProgressIndicator()
+                    CenteredProgressIndicator()
                 } else {
                     if (errorMessage.value.isNotBlank()) {
                         ErrorMessage(errorMessage.value)
