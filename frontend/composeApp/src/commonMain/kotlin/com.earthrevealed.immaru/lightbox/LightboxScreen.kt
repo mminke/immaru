@@ -29,6 +29,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
@@ -48,6 +50,7 @@ import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFiles
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -56,10 +59,10 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun LightboxScreen(
     collection: Collection,
-    viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
     onNavigateBack: () -> Unit,
     onViewAsset: (Asset) -> Unit,
     onAssetsSelected: (List<Asset>) -> Unit,
+    viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
 ) {
     Scaffold(
         topBar = {
@@ -191,7 +194,8 @@ fun AssetThumbnail(
     asset: Asset,
     onClick: (Asset) -> Unit,
     onDoubleClick: (Asset) -> Unit,
-    onLongClick: (Asset) -> Unit
+    onLongClick: (Asset) -> Unit,
+    assetViewModel: AssetViewModel = koinInject(),
 ) {
     Box(
         contentAlignment = Alignment.BottomStart,
@@ -205,15 +209,16 @@ fun AssetThumbnail(
             )
     ) {
         if (asset is FileAsset) {
+            val contentUrl = assetViewModel.contentUrlForAsset(asset).collectAsState(null)
+
             AsyncImage(
-                model = asset.contentUrl,
+                model = contentUrl.value,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                onError = { println("Something went wrong loading the image: ${it.result.throwable}")}
-
+                onError = { println("ERROR: Something went wrong loading the image: ${it.result.throwable}") }
             )
         } else {
             TODO("Not a file asset, define an image placeholder")

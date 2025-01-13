@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.FileAsset
-import com.earthrevealed.immaru.lightbox.contentUrl
+import org.koin.compose.koinInject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +69,7 @@ fun AssetScreen(
 @Composable
 fun Asset(
     asset: Asset,
+    assetViewModel: AssetViewModel = koinInject(),
 ) {
     Box(
         contentAlignment = Alignment.BottomStart,
@@ -76,9 +78,11 @@ fun Asset(
             .aspectRatio(1f)
     ) {
         if (asset is FileAsset) {
+            val contentUrl = assetViewModel.contentUrlForAsset(asset).collectAsState(null)
+
             AsyncImage(
-                model = asset.contentUrl,
-                contentDescription = null,
+                model = contentUrl.value,
+                contentDescription = asset.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()

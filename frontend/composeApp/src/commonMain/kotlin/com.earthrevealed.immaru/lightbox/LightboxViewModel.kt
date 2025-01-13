@@ -1,6 +1,5 @@
 package com.earthrevealed.immaru.lightbox
 
-import Configuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -111,10 +110,6 @@ class LightboxViewModel(
         }
     }
 }
-
-val FileAsset.contentUrl
-    get() = "${Configuration.immaruUrl}/api/collections/${this.collectionId.value}/assets/${this.id.value}/content"
-
 
 class PlatformInputStreamSource(
     private val platformInputStream: PlatformInputStream
