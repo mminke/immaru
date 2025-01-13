@@ -1,10 +1,8 @@
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.earthrevealed.immaru.configuration.datastore.DATASTORE_FILENAME
+import com.earthrevealed.immaru.configuration.datastore.createDataStore
 import kotlin.io.path.Path
-
-actual object Configuration {
-    actual val immaruUrl = "http://localhost:8080"
-}
 
 fun createJvmDataStore(): DataStore<Preferences> = createDataStore(
     producePath = { Path("config").resolve(DATASTORE_FILENAME).toAbsolutePath().toString().also {

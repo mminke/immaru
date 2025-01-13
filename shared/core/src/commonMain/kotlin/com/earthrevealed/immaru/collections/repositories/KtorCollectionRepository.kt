@@ -17,8 +17,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 
-class KtorCollectionRepository(private val httpClientProvider: HttpClientProvider) :
-    CollectionRepository {
+class KtorCollectionRepository(
+    private val httpClientProvider: HttpClientProvider
+) : CollectionRepository {
 
     override suspend fun all(): List<Collection> {
         return try {
@@ -34,9 +35,9 @@ class KtorCollectionRepository(private val httpClientProvider: HttpClientProvide
     override suspend fun save(collection: Collection) {
         try {
             httpClientProvider.httpClient.value?.put("api/collections") {
-                    contentType(ContentType.Application.Json)
-                    setBody(collection)
-                }
+                contentType(ContentType.Application.Json)
+                setBody(collection)
+            }
         } catch (throwable: Throwable) {
             throw SaveCollectionException(throwable)
         }?.also { response ->

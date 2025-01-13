@@ -1,9 +1,9 @@
-package com.earthrevaled.immaru.configuration
+package com.earthrevaled.immaru.configuration.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import createDataStore
-import DATASTORE_FILENAME
+import com.earthrevealed.immaru.configuration.datastore.DATASTORE_FILENAME
+import com.earthrevealed.immaru.configuration.datastore.createDataStore
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager

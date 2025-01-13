@@ -1,22 +1,18 @@
 package com.earthrevealed.immaru
 
-import Configuration
-import DataStoreConfigurationRepository
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.earthrevealed.immaru.asset.AssetScreen
+import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
@@ -29,8 +25,11 @@ import com.earthrevealed.immaru.collections.CollectionsViewModel
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
 import com.earthrevealed.immaru.common.HttpClientProvider
+import com.earthrevealed.immaru.configuration.Configuration
+import com.earthrevealed.immaru.configuration.ConfigurationRepository
 import com.earthrevealed.immaru.configuration.ConfigurationScreen
 import com.earthrevealed.immaru.configuration.ConfigurationViewModel
+import com.earthrevealed.immaru.configuration.datastore.DataStoreConfigurationRepository
 import com.earthrevealed.immaru.lightbox.LightboxScreen
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
@@ -43,7 +42,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -68,10 +66,9 @@ enum class Screen {
 }
 
 class GlobalViewModel(
-    configurationRepository: DataStoreConfigurationRepository
+    configurationRepository: ConfigurationRepository
 ) : ViewModel() {
-    val serverUrl = configurationRepository.getValue("immaru.server.url")
-        .filterNotNull()
+    val configuration = configurationRepository.configuration
 
     val currentCollection = mutableStateOf<Collection?>(null)
 
@@ -84,21 +81,7 @@ class GlobalViewModel(
 }
 
 val appModule = module {
-    singleOf(::DataStoreConfigurationRepository)
-
-    single {
-        val dataStore: DataStore<Preferences> = get()
-
-        HttpClient {
-            install(ContentNegotiation) {
-                json()
-            }
-
-            defaultRequest {
-                url(Configuration.immaruUrl)
-            }
-        }
-    }
+    singleOf(::DataStoreConfigurationRepository) { bind<ConfigurationRepository>() }
 
     singleOf(::ImmaruHttpClientProvider) { bind<HttpClientProvider>() }
 
@@ -112,17 +95,19 @@ val appModule = module {
         CollectionDetailsViewModel(get(), get(), get())
     }
     viewModelOf(::LightboxViewModel)
+    viewModelOf(::AssetViewModel)
 }
 
-class ImmaruHttpClientProvider(private val configurationRepository: DataStoreConfigurationRepository) :
+class ImmaruHttpClientProvider(private val configurationRepository: ConfigurationRepository) :
     HttpClientProvider {
     private var currentHttpClient: HttpClient? = null
 
-    override val httpClient = configurationRepository.getValue("immaru.server.url")
-        .map { serverUrl ->
+    override val httpClient = configurationRepository
+        .configuration
+        .map { configuration ->
             currentHttpClient?.close()
 
-            serverUrl?.let {
+            configuration.serverUrl?.let { serverUrl ->
                 HttpClient {
                     install(ContentNegotiation) {
                         json()
@@ -171,10 +156,10 @@ fun MainNavigation(
                 .fillMaxSize()
         ) {
             composable(route = Screen.Configuration.name) {
-                val serverUrl = globalViewModel.serverUrl.collectAsState("")
+                val configuration = globalViewModel.configuration.collectAsState(Configuration())
 
                 ConfigurationScreen(
-                    serverUrl.value,
+                    configuration.value,
                     onNavigateBack = { navController.navigate(Screen.Collections.name) },
                 )
             }

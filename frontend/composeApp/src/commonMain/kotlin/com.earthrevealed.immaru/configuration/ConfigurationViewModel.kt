@@ -1,16 +1,15 @@
 package com.earthrevealed.immaru.configuration
 
-import DataStoreConfigurationRepository
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
 class ConfigurationViewModel(
-    private val configurationRepository: DataStoreConfigurationRepository,
-    initialServerUrl: String
+    private val configurationRepository: ConfigurationRepository,
+    private val initialConfiguration: Configuration
 ) : ViewModel() {
-    val serverUrl = mutableStateOf(initialServerUrl)
+    val serverUrl = mutableStateOf(initialConfiguration.serverUrl?:"")
 
     fun updateUrl(newUrl: String) {
         serverUrl.value = newUrl
@@ -18,9 +17,10 @@ class ConfigurationViewModel(
 
     fun saveConfiguration() {
         viewModelScope.launch {
-            configurationRepository.savePreference(
-                "immaru.server.url",
-                serverUrl.value
+            configurationRepository.update(
+                initialConfiguration.copy(
+                    serverUrl = serverUrl.value
+                )
             )
         }
     }

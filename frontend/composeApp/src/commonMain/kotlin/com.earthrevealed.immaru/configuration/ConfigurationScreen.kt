@@ -25,9 +25,9 @@ import org.koin.core.parameter.parametersOf
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfigurationScreen(
-    initialServerUrl: String,
-    viewModel: ConfigurationViewModel = koinViewModel(key = initialServerUrl) {
-        parametersOf(initialServerUrl)
+    configuration: Configuration,
+    viewModel: ConfigurationViewModel = koinViewModel(key = configuration.serverUrl) {
+        parametersOf(configuration)
     },
     onNavigateBack: (() -> Unit) = {},
 ) {
