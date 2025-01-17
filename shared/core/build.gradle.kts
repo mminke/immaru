@@ -66,7 +66,13 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.junit.jupiter)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.flyway.core)
+            implementation("org.testcontainers:postgresql:1.20.4")
+            implementation("org.testcontainers:r2dbc:1.20.4")
 
+            implementation("org.slf4j:slf4j-simple:2.0.16")
+
+            runtimeOnly(libs.postgresql.jdbc)
             runtimeOnly(libs.postgresql.r2dbc)
         }
 
@@ -85,5 +91,23 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+// This buildscript is a temporary workaround to make Android Studio run the immaru-server jvm
+// with the proper flyway scripts. Android studio does not include the resources folder of dependencies
+// so the resources are copied directly to the classes folder by this script.
+// see: https://youtrack.jetbrains.com/issue/KTIJ-16582/Consumer-Kotlin-JVM-library-cannot-access-a-Kotlin-Multiplatform-JVM-target-resources-in-multi-module-Gradle-project\
+tasks {
+    val jvmProcessResources by getting
+    val fixMissingResources by creating(Copy::class) {
+        dependsOn(jvmProcessResources)
+        from("$buildDir/processedResources/jvm/main")
+        into("$buildDir/classes/kotlin/jvm/main")
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+    val jvmJar by getting(Jar::class) {
+        dependsOn(fixMissingResources)
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }

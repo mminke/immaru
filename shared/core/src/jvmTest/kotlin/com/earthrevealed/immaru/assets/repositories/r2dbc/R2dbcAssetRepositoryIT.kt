@@ -1,17 +1,21 @@
 package com.earthrevealed.immaru.assets.repositories.r2dbc
 
+import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.library.Library
+import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import com.earthrevealed.immaru.support.truncateNanos
 import io.r2dbc.spi.ConnectionFactories
-import io.r2dbc.spi.ConnectionFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemTemporaryDirectory
+import org.flywaydb.core.Flyway
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.PostgreSQLContainer.POSTGRESQL_PORT
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -20,16 +24,39 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+val PostgresqlContainer = PostgreSQLContainer("postgres:17.2")
+
+val <PostgreSQLContainer> PostgreSQLContainer.r2dbcUrl: String
+    get() {
+        val host = PostgresqlContainer.host
+        val port = PostgresqlContainer.getMappedPort(POSTGRESQL_PORT)
+        val databaseName = PostgresqlContainer.databaseName
+        val username = PostgresqlContainer.username
+        val password = PostgresqlContainer.password
+        return "r2dbc:postgresql://$username:$password@$host:$port/$databaseName"
+    }
+
 class R2dbcAssetRepositoryIT {
-    private var connectionFactory: ConnectionFactory =
-        ConnectionFactories.get("r2dbc:postgresql://immaru_dev:immaru_dev@localhost:5432/immaru_dev?schema=immaru")
-    private var collectionRepository = R2dbcCollectionRepository(connectionFactory)
-    private var library = Library(Path(SystemTemporaryDirectory, "immaru-testing"))
-    private var assetRepository = R2dbcAssetRepository(connectionFactory, library)
+    private lateinit var collectionRepository: CollectionRepository
+    private val library = Library(Path(SystemTemporaryDirectory, "immaru-testing"))
+    private lateinit var assetRepository: AssetRepository
     private val collection = collection { name = "Test collection" }
 
     @BeforeTest
     fun setup() {
+        PostgresqlContainer.start()
+
+        val connectionFactory = ConnectionFactories.get(PostgresqlContainer.r2dbcUrl.also { println("R2DBC url: $it") })
+        collectionRepository = R2dbcCollectionRepository(connectionFactory)
+        assetRepository = R2dbcAssetRepository(connectionFactory, library)
+
+        Flyway.configure()
+            .dataSource(PostgresqlContainer.jdbcUrl, PostgresqlContainer.username, PostgresqlContainer.password)
+            .locations("classpath:db/migration")
+            .load()
+            .migrate()
+
+
         runBlocking {
             collectionRepository.save(collection)
         }
@@ -37,12 +64,7 @@ class R2dbcAssetRepositoryIT {
 
     @AfterTest
     fun tearDown() {
-//        runBlocking {
-//            assetRepository.findAllFor(collection.id).forEach { asset ->
-//                assetRepository.delete(asset.id)
-//            }
-//            collectionRepository.delete(collection.id)
-//        }
+        PostgresqlContainer.stop()
     }
 
     @Test

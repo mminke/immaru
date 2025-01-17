@@ -10,3 +10,18 @@ plugins {
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.serialization) apply false
 }
+
+
+// This buildscript is a temporary workaround to make the jib plugin work correctly.
+// see: https://github.com/GoogleContainerTools/jib/issues/4235
+buildscript {
+    dependencies {
+        classpath("commons-codec:commons-codec:1.16.1")
+    }
+    configurations.all {
+        resolutionStrategy {
+            force("org.apache.commons:commons-compress:1.26.0")
+            force("commons-codec:commons-codec:1.16.1")
+        }
+    }
+}

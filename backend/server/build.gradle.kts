@@ -2,14 +2,35 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     application
+    id("com.google.cloud.tools.jib") version "3.4.4"
 }
 
 group = "com.earthrevealed.immaru"
 version = "1.0.0"
+
 application {
     mainClass.set("com.earthrevealed.immaru.ApplicationKt")
     applicationDefaultJvmArgs =
         listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
+}
+
+jib {
+    to {
+        image = "mminke/immaru-server"
+//        tags = setOf("$version", "$version.${extra["buildNumber"]}")
+    }
+    container {
+        volumes = listOf("/config", "/data")
+        ports = listOf("8080")
+        labels = mapOf(
+            "maintainer" to "Morten Minke",
+            "org.opencontainers.image.title" to "Immaru Server",
+            "org.opencontainers.image.description" to "The backend server used to store and manage all assets.",
+            "org.opencontainers.image.version" to "$version",
+            "org.opencontainers.image.authors" to "Morten Minke",
+            "org.opencontainers.image.url" to "https://github.com/mminke/immaru",
+        )
+    }
 }
 
 dependencies {
