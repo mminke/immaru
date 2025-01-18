@@ -6,7 +6,7 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5532:5432
+      - "5532:5432"
     environment:
       POSTGRES_USER: immaru_local
       POSTGRES_PASSWORD: immaru_local

@@ -112,7 +112,7 @@ private fun Result.mapToDomain(): Flow<Collection> {
         val createdAt = Instant.fromEpochMilliseconds(createdAtTimestamp.toInstant().toEpochMilli())
 
         Collection(
-            id = CollectionId(row.getUuid("id")!!),
+            id = CollectionId(row.getUuid("id")),
             name = row.get("name", String::class.java)!!,
             createdAt = createdAt,
         )
