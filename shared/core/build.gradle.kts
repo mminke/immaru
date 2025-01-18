@@ -61,7 +61,7 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.junit.jupiter)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.flyway.core)
+            implementation(libs.bundles.flyway)
             implementation(libs.testcontainers.postgresql)
             implementation(libs.testcontainers.r2dbc)
 

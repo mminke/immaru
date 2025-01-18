@@ -46,16 +46,15 @@ class R2dbcAssetRepositoryIT {
     fun setup() {
         PostgresqlContainer.start()
 
-        val connectionFactory = ConnectionFactories.get(PostgresqlContainer.r2dbcUrl.also { println("R2DBC url: $it") })
-        collectionRepository = R2dbcCollectionRepository(connectionFactory)
-        assetRepository = R2dbcAssetRepository(connectionFactory, library)
-
         Flyway.configure()
             .dataSource(PostgresqlContainer.jdbcUrl, PostgresqlContainer.username, PostgresqlContainer.password)
             .locations("classpath:db/migration")
             .load()
             .migrate()
 
+        val connectionFactory = ConnectionFactories.get(PostgresqlContainer.r2dbcUrl.also { println("R2DBC url: $it") })
+        collectionRepository = R2dbcCollectionRepository(connectionFactory)
+        assetRepository = R2dbcAssetRepository(connectionFactory, library)
 
         runBlocking {
             collectionRepository.save(collection)

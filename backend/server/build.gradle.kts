@@ -45,7 +45,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.io.core)
 
-    implementation(libs.flyway.core)
+    implementation(libs.bundles.flyway)
     runtimeOnly(libs.postgresql.jdbc)
 
     compileOnly(libs.r2dbc.spi)
