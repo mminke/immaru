@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     application
-    id("com.google.cloud.tools.jib") version "3.4.4"
+    alias(libs.plugins.jib)
 }
 
 group = "com.earthrevealed.immaru"

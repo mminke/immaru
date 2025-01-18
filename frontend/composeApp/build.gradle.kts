@@ -1,8 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -13,14 +10,12 @@ plugins {
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
 
     jvm {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget = JvmTarget.JVM_21
         }
@@ -79,11 +74,11 @@ kotlin {
             implementation(libs.coil3.network.ktor)
             implementation(libs.kotlinx.io.core)
             implementation(compose.materialIconsExtended)
-            implementation("io.github.vinceglb:filekit-compose:0.8.7")
-            implementation("dev.zwander:kmpfile:0.6.1")
-            implementation("dev.zwander:kmpfile-filekit:0.6.1")
+            implementation(libs.filekit.compose)
+            implementation( libs.kmpfile)
+            implementation( libs.kmpfile.filekit)
             implementation(libs.koin.compose.viewmodel.nav)
-            implementation("androidx.datastore:datastore-preferences:1.1.1")
+            implementation(libs.datastore.preferences)
         }
         androidMain.dependencies {
             implementation(compose.preview)
@@ -100,9 +95,9 @@ kotlin {
             runtimeOnly(libs.kotlinx.coroutines.swing)
         }
 //        val desktopMain by getting
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
-        }
+//        wasmJsMain.dependencies {
+//            implementation(libs.ktor.client.js)
+//        }
     }
 }
 

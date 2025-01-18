@@ -1,7 +1,4 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -11,14 +8,12 @@ plugins {
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
 
     jvm {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget = JvmTarget.JVM_21
         }
@@ -67,18 +62,18 @@ kotlin {
             implementation(libs.junit.jupiter)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.flyway.core)
-            implementation("org.testcontainers:postgresql:1.20.4")
-            implementation("org.testcontainers:r2dbc:1.20.4")
+            implementation(libs.testcontainers.postgresql)
+            implementation(libs.testcontainers.r2dbc)
 
-            implementation("org.slf4j:slf4j-simple:2.0.16")
+            implementation(libs.slf4j.simple)
 
             runtimeOnly(libs.postgresql.jdbc)
             runtimeOnly(libs.postgresql.r2dbc)
         }
 
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
-        }
+//        wasmJsMain.dependencies {
+//            implementation(libs.ktor.client.js)
+//        }
     }
 }
 
