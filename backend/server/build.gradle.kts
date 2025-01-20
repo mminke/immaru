@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.earthrevealed.immaru"
-version = "1.0.0"
+version = "1.0.0-alpha"
 
 application {
     mainClass.set("com.earthrevealed.immaru.ApplicationKt")
@@ -17,6 +17,7 @@ application {
 jib {
     to {
         image = "mminke/immaru-server"
+        tags = setOf(System.getenv("GIT_COMMIT_SHORT_SHA"))
 //        tags = setOf("$version", "$version.${extra["buildNumber"]}")
         auth {
             username = System.getenv("DOCKER_HUB_USERNAME")
