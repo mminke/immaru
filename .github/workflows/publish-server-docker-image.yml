@@ -46,5 +46,5 @@ jobs:
       env:
         DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        GIT_COMMIT_SHORT_SHA: ${{ github.sha.substr(0, 7) }}
+        GIT_COMMIT_SHA: ${{ github.sha }}
       run: ./gradlew jib
