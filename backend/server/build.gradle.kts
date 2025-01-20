@@ -18,6 +18,10 @@ jib {
     to {
         image = "mminke/immaru-server"
 //        tags = setOf("$version", "$version.${extra["buildNumber"]}")
+        auth {
+            username = System.getenv("DOCKER_HUB_USERNAME")
+            password = System.getenv("DOCKER_HUB_PASSWORD")
+        }
     }
     container {
         volumes = listOf("/config", "/data")
