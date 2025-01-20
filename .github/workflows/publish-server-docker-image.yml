@@ -18,6 +18,7 @@ on:
       - 'gradle.properties'
       - 'gradlew'
       - 'settings.gradle.kts'
+      - '.github/**'
 
 jobs:
   build-and-publish-server:
