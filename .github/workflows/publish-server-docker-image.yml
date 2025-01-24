@@ -50,6 +50,7 @@ jobs:
       run: ./gradlew jib
 
   trigger-deployment-update:
+    needs: build-and-publish-server
     runs-on: ubuntu-latest
 
     steps:
