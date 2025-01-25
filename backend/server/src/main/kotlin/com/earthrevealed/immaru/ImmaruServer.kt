@@ -1,6 +1,6 @@
 package com.earthrevealed.immaru
 
-import com.earthrevealed.immaru.routes.api
+import com.earthrevealed.immaru.routes.api.api
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Options
