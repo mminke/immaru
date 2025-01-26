@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru.routes
+package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.Configuration
 import com.earthrevealed.immaru.assets.Asset
@@ -168,6 +168,7 @@ fun Route.assetApi() {
                     return@put
                 }
 
+                //TODO: Replace with something like expectContentType(..)
                 val contentType = call.request.contentType()
                 if (!contentType.match(ContentType.Application.OctetStream)) {
                     call.respond(HttpStatusCode.BadRequest, "Unsupported media type")
