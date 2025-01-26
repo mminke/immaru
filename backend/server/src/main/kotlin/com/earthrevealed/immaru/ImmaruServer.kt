@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru
 
 import com.earthrevealed.immaru.routes.api.api
+import com.earthrevealed.immaru.routes.info
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Options
@@ -95,6 +96,7 @@ fun configureDatabaseSchema() {
 
 fun Application.configureRouting() {
     routing {
+        info()
         api()
     }
 }
