@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -18,6 +19,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -39,16 +41,27 @@ fun ConfigurationScreen(
                     Text("Configuration")
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.saveConfiguration()
-                        onNavigateBack()
-                    }) {
+                    IconButton(onClick = { onNavigateBack() }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Go back"
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            viewModel.saveChanges(onSuccess = { onNavigateBack() })
+                        },
+                        enabled = viewModel.state.value == State.ISDIRTY
+                    ) {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = "Save changes"
+                        )
+
+                    }
+                }
             )
         },
         content = { innerPadding ->
@@ -59,13 +72,17 @@ fun ConfigurationScreen(
                     .padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TextField(
-                    label = { Text("Server url") },
-                    value = serverUrl.value,
-                    onValueChange = {
-                        viewModel.updateUrl(it)
-                    }
-                )
+                if (viewModel.state.value == State.PROCESSING) {
+                    CenteredProgressIndicator()
+                } else {
+                    TextField(
+                        label = { Text("Server url") },
+                        value = serverUrl.value,
+                        onValueChange = {
+                            viewModel.updateUrl(it)
+                        }
+                    )
+                }
             }
         },
     )

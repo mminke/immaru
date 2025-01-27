@@ -10,18 +10,30 @@ class ConfigurationViewModel(
     private val initialConfiguration: Configuration
 ) : ViewModel() {
     val serverUrl = mutableStateOf(initialConfiguration.serverUrl?:"")
+    val state = mutableStateOf(State.READY)
 
     fun updateUrl(newUrl: String) {
         serverUrl.value = newUrl
+        state.value = State.ISDIRTY
     }
 
-    fun saveConfiguration() {
+    fun saveChanges(onSuccess: () -> Unit) {
         viewModelScope.launch {
+            state.value = State.PROCESSING
+
             configurationRepository.update(
                 initialConfiguration.copy(
                     serverUrl = serverUrl.value
                 )
             )
+            onSuccess()
         }
     }
+}
+
+enum class State {
+    READY,
+    ISDIRTY,
+    PROCESSING,
+    ERROR
 }
