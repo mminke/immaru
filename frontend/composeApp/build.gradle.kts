@@ -93,6 +93,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.cio)
             runtimeOnly(libs.kotlinx.coroutines.swing)
+            runtimeOnly(libs.logback.classic)
         }
 //        val desktopMain by getting
 //        wasmJsMain.dependencies {

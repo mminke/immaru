@@ -69,7 +69,7 @@ dependencies {
     implementation(projects.core)
 
     implementation(libs.microutils.kotlin.logging.jvm)
-    implementation(libs.logback.classic)
+    runtimeOnly(libs.logback.classic)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
