@@ -9,13 +9,14 @@ import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
+import com.earthrevealed.immaru.common.io.toFlow
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.contentType
 import io.ktor.server.request.receive
-import io.ktor.server.request.receiveStream
+import io.ktor.server.request.receiveChannel
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondOutputStream
+import io.ktor.server.response.respondBytesWriter
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingHandler
 import io.ktor.server.routing.delete
@@ -23,10 +24,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.utils.io.KtorDsl
+import io.ktor.utils.io.writeByteArray
 import io.r2dbc.spi.ConnectionFactories
-import kotlinx.io.asSink
-import kotlinx.io.asSource
-import kotlinx.io.buffered
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
@@ -138,12 +137,15 @@ fun Route.assetApi() {
                     return@get
                 }
 
-                assetRepository.getContentFor(asset).use { source ->
-                    call.respondOutputStream(ContentType.parse(asset.mediaType.toString())) {
-                        source.transferTo(this.asSink())
-                    }
-
-                }
+                logger.info { "Returning the contents of asset [asset.id=${asset.id}" }
+                call.respondBytesWriter(
+                    contentType = ContentType.parse(asset.mediaType.toString()),
+                    producer = {
+                        assetRepository.getContentFor(asset).collect {
+                            this.writeByteArray(it)
+                        }
+                    },
+                )
             }
 
             put("/content") {
@@ -175,9 +177,8 @@ fun Route.assetApi() {
                     return@put
                 }
 
-                call.receiveStream().asSource().buffered().use { source ->
-                    assetRepository.saveContentFor(asset, source)
-                }
+                val content = call.receiveChannel().toFlow()
+                assetRepository.saveContentFor(asset, content)
 
                 call.respond(HttpStatusCode.OK, "File uploaded successfully")
             }

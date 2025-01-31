@@ -30,6 +30,7 @@ import com.earthrevealed.immaru.configuration.ConfigurationRepository
 import com.earthrevealed.immaru.configuration.ConfigurationScreen
 import com.earthrevealed.immaru.configuration.ConfigurationViewModel
 import com.earthrevealed.immaru.configuration.datastore.DataStoreConfigurationRepository
+import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import com.earthrevealed.immaru.lightbox.LightboxScreen
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
@@ -37,8 +38,6 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -120,7 +119,7 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
                     currentHttpClient = it
                 }
             }
-        }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, null)
+        }.stateIn(CoroutineScope(DispatcherProvider.io()), SharingStarted.Eagerly, null)
 }
 
 @Composable

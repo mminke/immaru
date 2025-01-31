@@ -27,9 +27,11 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.datetime.toJavaInstant
-import kotlinx.io.Source
+import mu.KotlinLogging
 import java.time.Instant
 import kotlin.uuid.toJavaUuid
+
+private val logger = KotlinLogging.logger { }
 
 class R2dbcAssetRepository(
     private val connectionFactory: ConnectionFactory,
@@ -127,15 +129,14 @@ class R2dbcAssetRepository(
         }
     }
 
-    override suspend fun getContentFor(asset: FileAsset): Source {
-        return library.readContentForAsset(asset)
+    override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
+        return library.readContentForAssetAsFlow(asset)
     }
 
-    override suspend fun saveContentFor(asset: FileAsset, contentSource: Source) {
+    override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset" }
 
-        val writeResult =
-            library.writeContentForAsset(asset, contentSource)
+        val writeResult = library.writeContentForAsset(asset, content)
 
         asset.registerContentDetails(writeResult.mediaType, writeResult.contentHash)
 

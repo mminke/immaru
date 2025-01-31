@@ -8,20 +8,14 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
+import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
-import com.earthrevealed.immaru.coroutines.awaitFor
 import dev.zwander.kotlin.file.filekit.toKmpFile
 import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFile
-import io.github.vinceglb.filekit.core.PlatformInputStream
-import io.ktor.utils.io.pool.ByteArrayPool
-import io.ktor.utils.io.pool.useInstance
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.io.Buffer
-import kotlinx.io.RawSource
-import kotlinx.io.buffered
-import kotlin.math.min
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
@@ -79,7 +73,7 @@ class LightboxViewModel(
                         assetRepository.save(newAsset)
 
                         // Transfer the file
-                        val contentSource = file.openInputStream()
+                        val contentSource = file.openInputStream()?.toFlow()
                             ?: throw IllegalStateException("Cannot open inputstream for file")
                         assetRepository.saveContentFor(newAsset, contentSource)
                     }
@@ -95,56 +89,19 @@ class LightboxViewModel(
         newAsset: FileAsset
     ) {
         if (file.supportsStreams()) {
-            println("Supports streaming")
-            val platformInputStream = file.getStream()
-            val contentSource = PlatformInputStreamSource(platformInputStream)
+            println("Uploading file: Use streaming")
 
-            assetRepository.saveContentFor(newAsset, contentSource.buffered())
+            val contentSource = file.toKmpFile().openInputStream()?.toFlow()
+                ?: throw IllegalStateException("Cannot open inputstream for file")
+
+            assetRepository.saveContentFor(newAsset, contentSource)
         } else {
-            println("Fallback to reading entire file into memory")
-            val buffer = Buffer().apply {
-                val content = file.readBytes()
-                write(content, 0, content.size)
+            println("Uploading file: Fallback to reading entire file into memory")
+
+            val buffer = flow {
+                emit(file.readBytes())
             }
             assetRepository.saveContentFor(newAsset, buffer)
         }
-    }
-}
-
-class PlatformInputStreamSource(
-    private val platformInputStream: PlatformInputStream
-) : RawSource {
-    override fun close() {
-        platformInputStream.close()
-    }
-
-    override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
-        require(byteCount <= Int.MAX_VALUE)
-
-        val numberOfBytesCopied = awaitFor {
-            ByteArrayPool.useInstance { buffer ->
-                var copied = 0
-                val bufferSize = buffer.size
-
-                withContext(DispatcherProvider.io()) {
-                    while (copied < byteCount) {
-                        val rc =
-                            platformInputStream.readInto(buffer, min(byteCount.toInt(), bufferSize))
-
-                        if (rc == -1) {
-                            if (copied == 0) copied = -1
-                            break
-                        }
-                        if (rc > 0) {
-                            sink.write(buffer.copyOf(rc))
-                            copied += rc
-                        }
-                    }
-
-                    copied
-                }
-            }
-        }
-        return numberOfBytesCopied.toLong()
     }
 }
