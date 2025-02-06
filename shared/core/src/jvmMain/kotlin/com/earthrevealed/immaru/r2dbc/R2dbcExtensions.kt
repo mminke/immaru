@@ -42,8 +42,8 @@ fun <T> Statement.bindNullable(name: String, value: T?, clazz: Class<T>): Statem
     }
 }
 
-fun Row.getUuid(fieldName: String) = get(fieldName, UUID::class.java).toKotlinUuid()
-fun Row.getString(fieldName: String) = get(fieldName, String::class.java)
+fun Row.getUuid(fieldName: String) = get(fieldName, UUID::class.java)?.toKotlinUuid()
+fun Row.getString(fieldName: String): String? = get(fieldName, String::class.java)
 fun Row.getTimestamp(fieldName: String) =
     get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())?.let {
         Instant.fromEpochMilliseconds(it.toInstant().toEpochMilli())

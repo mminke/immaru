@@ -194,8 +194,8 @@ class R2dbcAssetRepository(
         val mediaType = getString("media_type")?.let { MediaType.parse(it) }
 
         return FileAsset(
-            id = AssetId(getUuid("id")),
-            collectionId = CollectionId(getUuid("collection_id")),
+            id = AssetId(getUuid("id")!!),
+            collectionId = CollectionId(getUuid("collection_id")!!),
             name = getString("name")!!,
             originalFilename = getString("original_filename")!!,
             mediaType = mediaType,

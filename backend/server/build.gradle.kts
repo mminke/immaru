@@ -83,7 +83,6 @@ dependencies {
     compileOnly(libs.r2dbc.spi)
     runtimeOnly(libs.postgresql.r2dbc)
 
-
-    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }

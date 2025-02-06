@@ -10,6 +10,9 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -57,28 +60,28 @@ kotlin {
         }
 
         commonMain.dependencies {
+            implementation(projects.core)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.materialIconsExtended)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(compose.components.resources)
-            implementation(projects.core)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.lifecycle.runtime.compose)
             implementation(libs.navigation.compose)
+            implementation(libs.koin.compose.viewmodel.nav)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.coil3)
             implementation(libs.coil3.compose)
             implementation(libs.coil3.network.ktor)
             implementation(libs.kotlinx.io.core)
-            implementation(compose.materialIconsExtended)
             implementation(libs.filekit.compose)
-            implementation( libs.kmpfile)
-            implementation( libs.kmpfile.filekit)
-            implementation(libs.koin.compose.viewmodel.nav)
+            implementation(libs.kmpfile)
+            implementation(libs.kmpfile.filekit)
             implementation(libs.datastore.preferences)
         }
         androidMain.dependencies {

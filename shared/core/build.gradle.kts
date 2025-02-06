@@ -7,6 +7,9 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -97,8 +100,8 @@ tasks {
     val jvmProcessResources by getting
     val fixMissingResources by creating(Copy::class) {
         dependsOn(jvmProcessResources)
-        from("$buildDir/processedResources/jvm/main")
-        into("$buildDir/classes/kotlin/jvm/main")
+        from("${layout.buildDirectory}/processedResources/jvm/main")
+        into("${layout.buildDirectory}/classes/kotlin/jvm/main")
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
     val jvmJar by getting(Jar::class) {
