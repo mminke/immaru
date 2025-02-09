@@ -71,8 +71,6 @@ fun LightboxScreen(
     onAssetsSelected: (List<Asset>) -> Unit,
     viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
 ) {
-    val showInformation = remember { mutableStateOf(false) }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,7 +88,7 @@ fun LightboxScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showInformation.value = !showInformation.value }) {
+                    IconButton(onClick = { viewModel.toggleShowInformation() }) {
                         Icon(
                             Icons.Filled.Info,
                             contentDescription = "Show Information"
@@ -113,7 +111,7 @@ fun LightboxScreen(
                     } else {
                         LightboxSupportingPane(
                             viewModel.assets.value,
-                            showInformation.value,
+                            viewModel.showInformation.value,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { /* TODO: Select asset(s) */ },
                         )
