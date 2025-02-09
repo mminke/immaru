@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DriveFolderUpload
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -26,6 +28,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
+import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +62,6 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LightboxScreen(
@@ -63,6 +71,8 @@ fun LightboxScreen(
     onAssetsSelected: (List<Asset>) -> Unit,
     viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
 ) {
+    val showInformation = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -70,13 +80,23 @@ fun LightboxScreen(
                     Text("Immaru")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateBack() }) {
+                    IconButton(onClick = {
+                        onNavigateBack()
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back to overview"
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showInformation.value = !showInformation.value }) {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = "Show Information"
+                        )
+                    }
+                }
             )
         },
         content = { innerPadding ->
@@ -91,18 +111,12 @@ fun LightboxScreen(
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
                     } else {
-                        LazyVerticalGrid(
-                            columns = GridCells.Adaptive(minSize = 128.dp)
-                        ) {
-                            items(viewModel.assets.value) { asset ->
-                                AssetThumbnail(
-                                    asset,
-                                    onClick = { asset -> onViewAsset(asset) },
-                                    onDoubleClick = { asset -> println("double clicked ${asset}") },
-                                    onLongClick = { asset -> println("long clicked ${asset}") },
-                                )
-                            }
-                        }
+                        LightboxSupportingPane(
+                            viewModel.assets.value,
+                            showInformation.value,
+                            onAssetClicked = onViewAsset,
+                            onAssetDoubleClicked = { /* TODO: Select asset(s) */ },
+                        )
                     }
                 }
             }
@@ -120,6 +134,71 @@ fun LightboxScreen(
             )
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+fun LightboxSupportingPane(
+    assets: List<Asset>,
+    showInformation: Boolean,
+    onAssetClicked: (Asset) -> Unit,
+    onAssetDoubleClicked: (Asset) -> Unit,
+) {
+    val navigator = rememberSupportingPaneScaffoldNavigator(
+        scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()).let {
+            if (!showInformation) {
+                it.copy(maxHorizontalPartitions = 1)
+            } else {
+                it
+            }
+        }
+    )
+
+    if (!showInformation) {
+        navigator.navigateTo(ThreePaneScaffoldRole.Primary)
+    } else {
+        navigator.navigateTo(ThreePaneScaffoldRole.Secondary)
+    }
+
+    SupportingPaneScaffold(
+        directive = navigator.scaffoldDirective,
+        value = navigator.scaffoldValue,
+        mainPane = {
+            AnimatedPane(modifier = Modifier.safeContentPadding()) {
+                Lightbox(
+                    assets,
+                    onAssetClicked = onAssetClicked,
+                    onAssetDoubleClicked = onAssetDoubleClicked
+                )
+            }
+        },
+        supportingPane = {
+            AnimatedPane {
+                Text("Information")
+            }
+        },
+    )
+}
+
+@Composable
+fun Lightbox(
+    assets: List<Asset>,
+    onAssetClicked: (Asset) -> Unit,
+    onAssetDoubleClicked: (Asset) -> Unit
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 128.dp)
+    ) {
+        items(assets) { asset ->
+            AssetThumbnail(
+                asset,
+                onClick = { asset -> onAssetClicked(asset) },
+                onDoubleClick = { asset -> onAssetDoubleClicked(asset) },
+                onLongClick = { asset -> println("long clicked ${asset}") },
+            )
+        }
+    }
+
 }
 
 @Composable
