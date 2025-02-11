@@ -6,15 +6,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -44,15 +49,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
-import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
+import com.earthrevealed.immaru.common.Table
 import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.FileKit
@@ -113,7 +119,7 @@ fun LightboxScreen(
                     } else {
                         LightboxSupportingPane(
                             viewModel.assets,
-                            viewModel.selectedAssetIds.collectAsState().value,
+                            viewModel.selectedAssets.collectAsState().value,
                             viewModel.showInformation.value,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
@@ -141,7 +147,7 @@ fun LightboxScreen(
 @Composable
 fun LightboxSupportingPane(
     assets: List<Asset>,
-    selectedAssetIds: List<AssetId>,
+    selectedAssets: List<Asset>,
     showInformation: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
@@ -169,7 +175,7 @@ fun LightboxSupportingPane(
             AnimatedPane(modifier = Modifier.safeContentPadding()) {
                 Lightbox(
                     assets,
-                    selectedAssetIds,
+                    selectedAssets,
                     onAssetClicked = onAssetClicked,
                     onAssetDoubleClicked = onAssetDoubleClicked
                 )
@@ -177,16 +183,100 @@ fun LightboxSupportingPane(
         },
         supportingPane = {
             AnimatedPane {
-                Text("Information")
+                AssetInformation(selectedAssets.lastOrNull())
             }
         },
     )
 }
 
 @Composable
+fun AssetInformationTable(asset: Asset?) {
+    if (asset == null) {
+        Text("Nothing selected")
+    } else {
+        val properties = mutableListOf(
+            "Name" to asset.name,
+        ).apply {
+            if (asset is FileAsset) {
+                add("Original filename" to asset.originalFilename)
+                add("Media type" to asset.mediaType.toString())
+            }
+        }
+
+        Column(modifier = Modifier.padding(5.dp)) {
+            Text("Information")
+
+            Table(
+                properties.size,
+                2,
+                modifier = Modifier.border(1.dp, Color.LightGray).fillMaxWidth()
+            ) { row, column ->
+                if (column == 0) {
+                    Text(
+                        properties[row].first,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                    )
+                } else {
+                    Text(
+                        properties[row].second,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun AssetInformation(asset: Asset?) {
+    if (asset == null) {
+        Text("Nothing selected")
+    } else {
+        val properties = mutableListOf(
+            "Name" to asset.name,
+        ).apply {
+            if (asset is FileAsset) {
+                add("Original filename" to asset.originalFilename)
+                add("Media type" to asset.mediaType.toString())
+            }
+        }
+
+        Column(modifier = Modifier.padding(5.dp)) {
+            Text("Information")
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, Color.LightGray)
+                    .padding(5.dp)
+            ) {
+                items(properties) { item ->
+                    Row {
+                        Text(
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier
+                                .padding(vertical = 2.dp)
+                                .fillMaxWidth(0.3f),
+                            text = item.first,
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            item.second, modifier = Modifier
+                                .padding(vertical = 2.dp)
+                                .fillMaxWidth(1f)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun Lightbox(
     assets: List<Asset>,
-    selectedAssetIds: List<AssetId>,
+    selectedAssets: List<Asset>,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit
 ) {
@@ -196,7 +286,7 @@ fun Lightbox(
         items(assets) { asset ->
             AssetThumbnail(
                 asset,
-                selected = selectedAssetIds.contains(asset.id),
+                selected = selectedAssets.contains(asset),
                 onClick = { asset -> onAssetClicked(asset) },
                 onDoubleClick = { asset -> onAssetDoubleClicked(asset) },
                 onLongClick = { asset -> println("long clicked ${asset}") },
@@ -280,7 +370,7 @@ fun AssetThumbnail(
             .aspectRatio(1f)
             .border(
                 width = 2.dp,
-                color = if(selected) Color.Blue else Color.White
+                color = if (selected) Color.Blue else Color.White
             )
             .combinedClickable(
                 onClick = { onClick(asset) },

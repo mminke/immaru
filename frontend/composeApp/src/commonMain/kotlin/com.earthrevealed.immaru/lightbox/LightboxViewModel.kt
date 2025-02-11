@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.earthrevealed.immaru.assets.Asset
-import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
@@ -31,8 +30,8 @@ class LightboxViewModel(
     val isLoading = mutableStateOf(true)
     val showInformation = mutableStateOf(false)
 
-    private val _selectedAssetIds = MutableStateFlow<List<AssetId>>(emptyList())
-    val selectedAssetIds = _selectedAssetIds.asStateFlow()
+    private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
+    val selectedAssets = _selectedAssets.asStateFlow()
 
     init {
         refreshAssets()
@@ -53,11 +52,11 @@ class LightboxViewModel(
     }
 
     fun toggleAssetSelected(asset: Asset) {
-        _selectedAssetIds.update {
-            if(it.contains(asset.id)) {
-                it - asset.id
+        _selectedAssets.update {
+            if(it.contains(asset)) {
+                it - asset
             } else {
-                it + asset.id
+                it + asset
             }
         }
     }

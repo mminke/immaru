@@ -46,6 +46,14 @@ sealed class Asset {
     protected fun touch() {
         this.auditFields.registerModification()
     }
+
+    override fun equals(other: Any?): Boolean {
+        return if(other is Asset) {
+            this.id == other.id
+        } else {
+            false
+        }
+    }
 }
 
 @Serializable
