@@ -74,7 +74,6 @@ fun Asset(
     Box(
         contentAlignment = Alignment.BottomStart,
         modifier = Modifier
-            .background(Color.Red)
             .aspectRatio(1f)
     ) {
         if (asset is FileAsset) {

@@ -2,6 +2,7 @@ package com.earthrevealed.immaru.lightbox
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
@@ -110,10 +112,11 @@ fun LightboxScreen(
                         ErrorMessage(viewModel.errorMessage.value)
                     } else {
                         LightboxSupportingPane(
-                            viewModel.assets.value,
+                            viewModel.assets,
+                            viewModel.selectedAssetIds.collectAsState().value,
                             viewModel.showInformation.value,
                             onAssetClicked = onViewAsset,
-                            onAssetDoubleClicked = { /* TODO: Select asset(s) */ },
+                            onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
                         )
                     }
                 }
@@ -138,6 +141,7 @@ fun LightboxScreen(
 @Composable
 fun LightboxSupportingPane(
     assets: List<Asset>,
+    selectedAssetIds: List<AssetId>,
     showInformation: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
@@ -165,6 +169,7 @@ fun LightboxSupportingPane(
             AnimatedPane(modifier = Modifier.safeContentPadding()) {
                 Lightbox(
                     assets,
+                    selectedAssetIds,
                     onAssetClicked = onAssetClicked,
                     onAssetDoubleClicked = onAssetDoubleClicked
                 )
@@ -181,6 +186,7 @@ fun LightboxSupportingPane(
 @Composable
 fun Lightbox(
     assets: List<Asset>,
+    selectedAssetIds: List<AssetId>,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit
 ) {
@@ -190,6 +196,7 @@ fun Lightbox(
         items(assets) { asset ->
             AssetThumbnail(
                 asset,
+                selected = selectedAssetIds.contains(asset.id),
                 onClick = { asset -> onAssetClicked(asset) },
                 onDoubleClick = { asset -> onAssetDoubleClicked(asset) },
                 onLongClick = { asset -> println("long clicked ${asset}") },
@@ -261,6 +268,7 @@ fun UploadFloatingActionButtons(
 @Composable
 fun AssetThumbnail(
     asset: Asset,
+    selected: Boolean,
     onClick: (Asset) -> Unit,
     onDoubleClick: (Asset) -> Unit,
     onLongClick: (Asset) -> Unit,
@@ -269,8 +277,11 @@ fun AssetThumbnail(
     Box(
         contentAlignment = Alignment.BottomStart,
         modifier = Modifier
-            .background(Color.Red)
             .aspectRatio(1f)
+            .border(
+                width = 2.dp,
+                color = if(selected) Color.Blue else Color.White
+            )
             .combinedClickable(
                 onClick = { onClick(asset) },
                 onDoubleClick = { onDoubleClick(asset) },

@@ -1,9 +1,11 @@
 package com.earthrevealed.immaru.lightbox
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
@@ -13,7 +15,10 @@ import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import dev.zwander.kotlin.file.filekit.toKmpFile
 import io.github.vinceglb.filekit.core.PlatformDirectory
 import io.github.vinceglb.filekit.core.PlatformFile
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -21,10 +26,13 @@ class LightboxViewModel(
     private val assetRepository: AssetRepository,
     private val currentCollection: Collection
 ) : ViewModel() {
-    val assets = mutableStateOf<List<Asset>>(emptyList())
+    val assets = mutableStateListOf<Asset>()
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
     val showInformation = mutableStateOf(false)
+
+    private val _selectedAssetIds = MutableStateFlow<List<AssetId>>(emptyList())
+    val selectedAssetIds = _selectedAssetIds.asStateFlow()
 
     init {
         refreshAssets()
@@ -33,12 +41,24 @@ class LightboxViewModel(
     private fun refreshAssets() {
         viewModelScope.launch {
             try {
-                assets.value = assetRepository.findAllFor(currentCollection.id)
+                val retrievedAssets = assetRepository.findAllFor(currentCollection.id)
+                assets.clear()
+                assets.addAll(retrievedAssets)
             } catch (exception: AssetRetrievalException) {
                 exception.printStackTrace()
                 errorMessage.value = "Cannot retrieve assets!"
             }
             isLoading.value = false
+        }
+    }
+
+    fun toggleAssetSelected(asset: Asset) {
+        _selectedAssetIds.update {
+            if(it.contains(asset.id)) {
+                it - asset.id
+            } else {
+                it + asset.id
+            }
         }
     }
 
