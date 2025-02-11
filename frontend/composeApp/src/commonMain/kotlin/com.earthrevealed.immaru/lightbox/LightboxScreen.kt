@@ -172,7 +172,7 @@ fun LightboxSupportingPane(
         directive = navigator.scaffoldDirective,
         value = navigator.scaffoldValue,
         mainPane = {
-            AnimatedPane(modifier = Modifier.safeContentPadding()) {
+            AnimatedPane {
                 Lightbox(
                     assets,
                     selectedAssets,
