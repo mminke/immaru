@@ -1,15 +1,11 @@
 package com.earthrevealed.immaru.collections
 
+import com.earthrevealed.immaru.common.GenericId
+import com.earthrevealed.immaru.common.GenericIdSerializer
 import com.earthrevealed.immaru.common.ImmaruBuilder
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlin.uuid.Uuid
 
 @Serializable
@@ -24,29 +20,13 @@ data class Collection(
 }
 
 @Serializable(with = CollectionIdSerializer::class)
-data class CollectionId(
-    val value: Uuid = Uuid.random()
-) {
+class CollectionId(value: Uuid = Uuid.random()): GenericId(value) {
     companion object {
-        fun fromString(value: String) = CollectionId(
-            Uuid.parse(value)
-        )
+        fun fromString(value: String) = CollectionId(Uuid.parse(value))
     }
 }
 
-object CollectionIdSerializer : KSerializer<CollectionId> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("CollectionId", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: CollectionId) {
-        encoder.encodeString(value.value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): CollectionId {
-        val value = decoder.decodeString()
-        return CollectionId.fromString(value)
-    }
-}
+object CollectionIdSerializer : GenericIdSerializer<CollectionId>({ value -> CollectionId.fromString(value)})
 
 fun collection(initialization: CollectionBuilder.() -> Unit) =
     CollectionBuilder().apply(initialization).build()

@@ -2,14 +2,10 @@ package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
-import kotlinx.serialization.KSerializer
+import com.earthrevealed.immaru.common.GenericId
+import com.earthrevealed.immaru.common.GenericIdSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlin.uuid.Uuid
 
 @Serializable
@@ -128,30 +124,10 @@ class FileAsset : Asset {
 }
 
 @Serializable(with = AssetIdSerializer::class)
-data class AssetId(
-    val value: Uuid = Uuid.random()
-) {
-    override fun toString(): String {
-        return value.toString()
-    }
-
+class AssetId(value: Uuid = Uuid.random()): GenericId(value) {
     companion object {
-        fun fromString(value: String) = AssetId(
-            Uuid.parse(value)
-        )
+         fun fromString(value: String) = AssetId(Uuid.parse(value))
     }
 }
 
-object AssetIdSerializer : KSerializer<AssetId> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("AssetId", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: AssetId) {
-        encoder.encodeString(value.value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): AssetId {
-        val value = decoder.decodeString()
-        return AssetId.fromString(value)
-    }
-}
+object AssetIdSerializer : GenericIdSerializer<AssetId>({ value -> AssetId.fromString(value)})
