@@ -75,17 +75,11 @@ class FileAssetTest {
         )
 
         val json = Json { ignoreUnknownKeys = true }
-        println()
-        println("asset.name: ${fileAsset.name}")
-        println(json.encodeToString(Asset.serializer(), fileAsset))
 
         fileAsset.changeName("some name")
         fileAsset.registerContentDetails(IMAGE_JPEG, ByteArray(0))
 
         val jsonText = json.encodeToString(Asset.serializer(), fileAsset)
-        println()
-        println()
-        println(jsonText)
 
         val asset = Json.decodeFromString<Asset>(jsonText)
         assertEquals(fileAsset.id, asset.id)
