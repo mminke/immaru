@@ -9,13 +9,25 @@ import kotlinx.serialization.encoding.Encoder
 import kotlin.uuid.Uuid
 
 
-abstract class GenericId(val value: Uuid = Uuid.random()) {
+abstract class GenericId(val value: Uuid) {
     override fun toString(): String {
         return value.toString()
     }
+
+    override fun equals(other: Any?): Boolean {
+        return if(other is GenericId) {
+            this.value == other.value
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 }
 
-open class GenericIdSerializer<T : GenericId>(val creator: (String) -> T) : KSerializer<T> {
+abstract class GenericIdSerializer<T : GenericId>(val creator: (String) -> T) : KSerializer<T> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("GenericId", PrimitiveKind.STRING)
 
