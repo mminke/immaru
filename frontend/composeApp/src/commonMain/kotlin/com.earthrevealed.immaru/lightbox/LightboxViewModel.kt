@@ -28,7 +28,6 @@ class LightboxViewModel(
     val assets = mutableStateListOf<Asset>()
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
-    val showInformation = mutableStateOf(false)
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
     val selectedAssets = _selectedAssets.asStateFlow()
@@ -60,11 +59,6 @@ class LightboxViewModel(
             }
         }
     }
-
-    fun toggleShowInformation() {
-        showInformation.value = !showInformation.value
-    }
-
 
     fun createAssetFor(file: PlatformFile) {
         val newAsset = FileAsset(
