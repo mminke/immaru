@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -80,7 +81,7 @@ fun BrowseAllAssetsView(
                         onClick = { toggleShowInformation() })
                     {
                         Icon(
-                            Icons.Filled.Info,
+                            if(showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
                             contentDescription = "Show Information"
                         )
                     }
