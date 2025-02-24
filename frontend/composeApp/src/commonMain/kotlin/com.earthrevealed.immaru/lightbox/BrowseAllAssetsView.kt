@@ -52,6 +52,7 @@ fun BrowseAllAssetsView(
     viewModel: LightboxViewModel
 ) {
     val showInformation = mutableStateOf(false)
+    val selectedAssets = viewModel.selectedAssets.collectAsState()
 
     fun toggleShowInformation() {
         showInformation.value = !showInformation.value
@@ -74,7 +75,10 @@ fun BrowseAllAssetsView(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { toggleShowInformation() }) {
+                    IconButton(
+                        enabled = selectedAssets.value.isNotEmpty(),
+                        onClick = { toggleShowInformation() })
+                    {
                         Icon(
                             Icons.Filled.Info,
                             contentDescription = "Show Information"
@@ -97,8 +101,8 @@ fun BrowseAllAssetsView(
                     } else {
                         LightboxInformationPaneScaffold(
                             viewModel.assets,
-                            viewModel.selectedAssets.collectAsState().value,
-                            showInformation.value,
+                            selectedAssets.value,
+                            if (selectedAssets.value.isEmpty()) false else showInformation.value,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
                         )
