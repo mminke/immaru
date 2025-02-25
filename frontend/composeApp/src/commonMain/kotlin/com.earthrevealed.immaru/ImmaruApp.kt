@@ -31,6 +31,7 @@ import com.earthrevealed.immaru.configuration.ConfigurationScreen
 import com.earthrevealed.immaru.configuration.ConfigurationViewModel
 import com.earthrevealed.immaru.configuration.datastore.DataStoreConfigurationRepository
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
+import com.earthrevealed.immaru.lightbox.BrowseByDateViewViewModel
 import com.earthrevealed.immaru.lightbox.LightboxScreen
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
@@ -95,6 +96,7 @@ val appModule = module {
     }
     viewModelOf(::LightboxViewModel)
     viewModelOf(::AssetViewModel)
+    viewModelOf(::BrowseByDateViewViewModel)
 }
 
 class ImmaruHttpClientProvider(private val configurationRepository: ConfigurationRepository) :
