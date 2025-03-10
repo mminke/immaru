@@ -16,8 +16,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -68,19 +69,14 @@ fun BrowseByDateView(
                     .consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
-                val breadcrumbs = viewModel.breadcrumbs.value
-                Row {
-                    breadcrumbs.take(breadcrumbs.size - 1).forEach { breadcrumb ->
-                        Button(onClick = { viewModel.selectItem(breadcrumb?.let { Item(value = it) }) }) {
-                            Text(breadcrumb?.caption?:"<")
-                        }
-                    }
-                    breadcrumbs.takeLast(1).forEach { breadcrumb ->
-                        Button(onClick = {}, enabled = false) {
-                            Text(breadcrumb?.caption?:"<")
-                        }
-                    }
-                }
+                FilterBar(
+                    viewModel.dateFilter.value?.let { listOf(it) } ?: listOf(),
+                    onFilterRemoved = { filter -> viewModel.selectItem(null) }
+                )
+                Breadcrumbs(
+                    viewModel.breadcrumbs.value,
+                    onSelected = { breadCrumb -> viewModel.selectItem(breadCrumb?.let { Item(value = it) }) }
+                )
 
                 ShowDateSelector(items.value, onItemSelected = { item ->
                     viewModel.selectItem(item)
@@ -88,6 +84,69 @@ fun BrowseByDateView(
             }
         },
     )
+}
+
+@Composable
+fun FilterBar(
+    filters: List<Filter>,
+    onFilterRemoved: (filter: Filter?) -> Unit
+) {
+    Row {
+        filters.forEach { filter ->
+            FilterChip(
+                selected = true,
+                enabled = true,
+                label = {
+                    Text(filter.caption)
+                },
+                trailingIcon = {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = "Remove filter"
+                    )
+                },
+                onClick = { onFilterRemoved(filter) }
+            )
+        }
+    }
+}
+
+interface Filter {
+    val caption: String
+}
+
+class DateFilter(
+    val year: Year,
+    val month: Month? = null,
+    val day: Day? = null
+) : Filter {
+    override val caption: String
+        get() = listOf(year, month, day).filterNotNull().joinToString("-") { it.caption }
+}
+
+
+@Composable
+fun Breadcrumbs(breadcrumbs: List<Category?>, onSelected: (item: Category?) -> Unit) {
+    Row {
+        breadcrumbs.take(breadcrumbs.size - 1).forEach { breadcrumb ->
+            FilterChip(
+                selected = true,
+                enabled = true,
+                label = {
+                    Text(breadcrumb?.caption ?: "<")
+                },
+                onClick = { onSelected(breadcrumb) },
+            )
+        }
+        breadcrumbs.takeLast(1).forEach { breadcrumb ->
+            FilterChip(
+                selected = true,
+                enabled = false,
+                label = { Text(breadcrumb?.caption ?: "<") },
+                onClick = { onSelected(breadcrumb) },
+            )
+        }
+    }
 }
 
 @Composable
@@ -156,27 +215,36 @@ class BrowseByDateViewViewModel() : ViewModel() {
     private val _breadcrumbs = MutableStateFlow<List<Category?>>(listOf(null))
     val breadcrumbs = _breadcrumbs.asStateFlow()
 
+    private val _dateFilter = MutableStateFlow<DateFilter?>(null)
+    val dateFilter = _dateFilter.asStateFlow()
+
+
     init {
         _items.value = exampleData.map { Item(value = it) }
     }
 
     fun selectItem(item: Item<Category>?) {
         if (item == null) {
+            _dateFilter.value = null
             _breadcrumbs.value = listOf(null)
             _items.value = exampleData.map { Item(value = it) }
         } else {
             when (item.value) {
                 is Year -> {
+                    _dateFilter.value = DateFilter(item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(1) + item.value
                     _items.value = item.value.months.map { Item(value = it) }
                 }
 
                 is Month -> {
+                    _dateFilter.value = DateFilter(_dateFilter.value!!.year, item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(2) + item.value
                     _items.value = item.value.days.map { Item(value = it) }
                 }
 
                 is Day -> {
+                    _dateFilter.value =
+                        DateFilter(_dateFilter.value!!.year, _dateFilter.value!!.month, item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(3) + item.value
                     _items.value = emptyList()
                 }
