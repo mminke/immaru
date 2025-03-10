@@ -7,6 +7,7 @@ import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
 import com.earthrevealed.immaru.assets.SaveAssetException
+import com.earthrevealed.immaru.assets.Year
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
@@ -141,6 +142,10 @@ class R2dbcAssetRepository(
         asset.registerContentDetails(writeResult.mediaType, writeResult.contentHash)
 
         save(asset)
+    }
+
+    override suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year> {
+        TODO("Not yet implemented")
     }
 
     private suspend fun Connection.saveToAssetTable(asset: FileAsset) {

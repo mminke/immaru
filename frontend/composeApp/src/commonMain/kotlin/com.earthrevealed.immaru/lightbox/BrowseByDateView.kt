@@ -30,18 +30,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import com.earthrevealed.immaru.assets.Category
+import com.earthrevealed.immaru.assets.Filter
 import com.earthrevealed.immaru.collections.Collection
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
+import com.earthrevealed.immaru.common.ErrorMessage
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowseByDateView(
     collection: Collection,
     onNavigateBack: () -> Unit,
-    viewModel: BrowseByDateViewViewModel = koinViewModel<BrowseByDateViewViewModel>()
+    viewModel: BrowseByDateViewViewModel = koinViewModel { parametersOf(collection) },
 ) {
     val items = viewModel.items.collectAsState()
 
@@ -69,18 +71,33 @@ fun BrowseByDateView(
                     .consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
-                FilterBar(
-                    viewModel.dateFilter.value?.let { listOf(it) } ?: listOf(),
-                    onFilterRemoved = { filter -> viewModel.selectItem(null) }
-                )
-                Breadcrumbs(
-                    viewModel.breadcrumbs.value,
-                    onSelected = { breadCrumb -> viewModel.selectItem(breadCrumb?.let { Item(value = it) }) }
-                )
+                if(viewModel.availableDateSelectors.isLoading.value) {
+                    CenteredProgressIndicator()
+                } else {
+                    if (viewModel.availableDateSelectors.errorMessage.value.isNotBlank()) {
+                        ErrorMessage(viewModel.availableDateSelectors.errorMessage.value)
+                    } else {
+                        FilterBar(
+                            viewModel.dateFilter.value?.let { listOf(it) } ?: listOf(),
+                            onFilterRemoved = { filter -> viewModel.selectItem(null) }
+                        )
+                        Breadcrumbs(
+                            viewModel.breadcrumbs.value,
+                            onSelected = { breadCrumb ->
+                                viewModel.selectItem(breadCrumb?.let {
+                                    Item(
+                                        value = it
+                                    )
+                                })
+                            }
+                        )
 
-                ShowDateSelector(items.value, onItemSelected = { item ->
-                    viewModel.selectItem(item)
-                })
+                        ShowDateSelector(items.value, onItemSelected = { item ->
+                            viewModel.selectItem(item)
+                        })
+                    }
+                }
+
             }
         },
     )
@@ -110,20 +127,6 @@ fun FilterBar(
         }
     }
 }
-
-interface Filter {
-    val caption: String
-}
-
-class DateFilter(
-    val year: Year,
-    val month: Month? = null,
-    val day: Day? = null
-) : Filter {
-    override val caption: String
-        get() = listOf(year, month, day).filterNotNull().joinToString("-") { it.caption }
-}
-
 
 @Composable
 fun Breadcrumbs(breadcrumbs: List<Category?>, onSelected: (item: Category?) -> Unit) {
@@ -208,170 +211,6 @@ fun GridItem(
     }
 }
 
-class BrowseByDateViewViewModel() : ViewModel() {
-    private val _items = MutableStateFlow<List<Item<Category>>>(emptyList())
-    val items = _items.asStateFlow()
-
-    private val _breadcrumbs = MutableStateFlow<List<Category?>>(listOf(null))
-    val breadcrumbs = _breadcrumbs.asStateFlow()
-
-    private val _dateFilter = MutableStateFlow<DateFilter?>(null)
-    val dateFilter = _dateFilter.asStateFlow()
-
-
-    init {
-        _items.value = exampleData.map { Item(value = it) }
-    }
-
-    fun selectItem(item: Item<Category>?) {
-        if (item == null) {
-            _dateFilter.value = null
-            _breadcrumbs.value = listOf(null)
-            _items.value = exampleData.map { Item(value = it) }
-        } else {
-            when (item.value) {
-                is Year -> {
-                    _dateFilter.value = DateFilter(item.value)
-                    _breadcrumbs.value = _breadcrumbs.value.take(1) + item.value
-                    _items.value = item.value.months.map { Item(value = it) }
-                }
-
-                is Month -> {
-                    _dateFilter.value = DateFilter(_dateFilter.value!!.year, item.value)
-                    _breadcrumbs.value = _breadcrumbs.value.take(2) + item.value
-                    _items.value = item.value.days.map { Item(value = it) }
-                }
-
-                is Day -> {
-                    _dateFilter.value =
-                        DateFilter(_dateFilter.value!!.year, _dateFilter.value!!.month, item.value)
-                    _breadcrumbs.value = _breadcrumbs.value.take(3) + item.value
-                    _items.value = emptyList()
-                }
-            }
-        }
-    }
-}
-
-
 data class Item<T>(
     val value: T
 )
-
-private val exampleData = listOf(
-    Year(
-        "2021",
-        234,
-        listOf(
-            Month(
-                "01",
-                24,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "07",
-                23,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "08",
-                56,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            )
-        )
-    ),
-    Year(
-        "2022",
-        1234,
-        listOf(
-            Month(
-                "01",
-                34,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "07",
-                243,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "08",
-                2345,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "09",
-                1234,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "10",
-                234,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "12",
-                12,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            )
-        )
-    ),
-)
-
-interface Category {
-    val caption: String
-    val numberOfItems: Int
-}
-
-data class Year(
-    override val caption: String,
-    override val numberOfItems: Int,
-    val months: List<Month>
-) : Category
-
-data class Month(
-    override val caption: String,
-    override val numberOfItems: Int,
-    val days: List<Day>
-) : Category
-
-data class Day(
-    override val caption: String,
-    override val numberOfItems: Int,
-) : Category

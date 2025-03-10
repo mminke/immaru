@@ -10,6 +10,8 @@ interface AssetRepository {
     suspend fun delete(id: AssetId)
     suspend fun getContentFor(asset: FileAsset): Flow<ByteArray>
     suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>)
+
+    suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year>
 }
 
 class AssetRetrievalException : RuntimeException {

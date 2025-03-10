@@ -4,8 +4,11 @@ import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.Day
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.Month
 import com.earthrevealed.immaru.assets.SaveAssetException
+import com.earthrevealed.immaru.assets.Year
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
@@ -18,6 +21,7 @@ import io.ktor.http.content.ChannelWriterContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.writeFully
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 
 class KtorAssetRepository(
@@ -119,4 +123,107 @@ class KtorAssetRepository(
     override suspend fun delete(id: AssetId) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year> {
+        return exampleData
+    }
 }
+
+
+
+private val exampleData = listOf(
+    Year(
+        "2021",
+        234,
+        listOf(
+            Month(
+                "01",
+                24,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "07",
+                23,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "08",
+                56,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            )
+        )
+    ),
+    Year(
+        "2022",
+        1234,
+        listOf(
+            Month(
+                "01",
+                34,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "07",
+                243,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "08",
+                2345,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "09",
+                1234,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "10",
+                234,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "12",
+                12,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            )
+        )
+    ),
+)
+
