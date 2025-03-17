@@ -3,9 +3,11 @@ package com.earthrevealed.immaru.assets.repositories.r2dbc
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.Day
 import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.assets.Month
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.Year
 import com.earthrevealed.immaru.assets.library.Library
@@ -145,7 +147,7 @@ class R2dbcAssetRepository(
     }
 
     override suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year> {
-        TODO("Not yet implemented")
+        return exampleData
     }
 
     private suspend fun Connection.saveToAssetTable(asset: FileAsset) {
@@ -216,4 +218,104 @@ private fun Row.toAuditFields(): AuditFields {
         lastModifiedOn = getTimestamp("last_modified_at")!!
     )
 }
+
+
+
+
+
+private val exampleData = listOf(
+    Year(
+        "2021",
+        234,
+        listOf(
+            Month(
+                "01",
+                24,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "07",
+                23,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "08",
+                56,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            )
+        )
+    ),
+    Year(
+        "2022",
+        1234,
+        listOf(
+            Month(
+                "01",
+                34,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "07",
+                243,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "08",
+                2345,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "09",
+                1234,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "10",
+                234,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            ),
+            Month(
+                "12",
+                12,
+                days = listOf(
+                    Day("15", 12),
+                    Day("16", 3),
+                    Day("17", 4)
+                )
+            )
+        )
+    ),
+)
 

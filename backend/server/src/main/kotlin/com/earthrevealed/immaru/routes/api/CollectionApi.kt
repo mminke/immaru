@@ -53,6 +53,29 @@ fun Route.collectionApi() {
             }
 
             assetApi()
+
+            selectorsApi()
+        }
+    }
+}
+
+fun Route.selectorsApi() {
+    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
+    val collectionRepository = R2dbcCollectionRepository(connectionFactory)
+    val library = Library(Configuration.immaru.library.path)
+    val assetRepository = R2dbcAssetRepository(connectionFactory, library)
+
+    route("available-date-selectors") {
+        get {
+            val collectionId = CollectionId.fromString(call.parameters["collection-id"]!!)
+            if (collectionRepository.get(collectionId) == null) { //TODO: replace with collectionRepository.exists(collectionId)
+                call.respond(HttpStatusCode.NotFound)
+                return@get
+            }
+
+            call.respond(
+                assetRepository.findAvailableDateSelectors(collectionId)
+            )
         }
     }
 }

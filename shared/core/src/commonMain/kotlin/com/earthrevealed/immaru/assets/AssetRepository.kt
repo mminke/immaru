@@ -2,6 +2,7 @@ package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.collections.CollectionId
 import kotlinx.coroutines.flow.Flow
+import kotlin.reflect.KClass
 
 interface AssetRepository {
     suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset?
@@ -12,6 +13,10 @@ interface AssetRepository {
     suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>)
 
     suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year>
+}
+
+class RetrievalException : RuntimeException {
+    constructor(clazz: KClass<out Any>, throwable: Throwable) : super("Cannot retrieve ${clazz.simpleName}.", throwable)
 }
 
 class AssetRetrievalException : RuntimeException {
