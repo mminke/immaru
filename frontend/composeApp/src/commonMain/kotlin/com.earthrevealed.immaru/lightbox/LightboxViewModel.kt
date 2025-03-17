@@ -82,22 +82,26 @@ class LightboxViewModel(
         kmpDirectory.listFiles()?.forEach { file ->
             if (file.isFile()) {
                 println("Processing file: ${file.getName()}")
+                if(file.getLength() <= 0) {
+                    println("File ignored [length=${file.getLength()}]")
+                    //TODO: Give feedback to user about this
+                } else {
+                    val newAsset = FileAsset(
+                        currentCollection.id,
+                        file.getName(),
+                    )
+                    viewModelScope.launch {
+                        withContext(DispatcherProvider.io()) {
+                            assetRepository.save(newAsset)
 
-                val newAsset = FileAsset(
-                    currentCollection.id,
-                    file.getName(),
-                )
-                viewModelScope.launch {
-                    withContext(DispatcherProvider.io()) {
-                        assetRepository.save(newAsset)
+                            // Transfer the file
+                            val contentSource = file.openInputStream()?.toFlow()
+                                ?: throw IllegalStateException("Cannot open inputstream for file")
+                            assetRepository.saveContentFor(newAsset, contentSource)
+                        }
 
-                        // Transfer the file
-                        val contentSource = file.openInputStream()?.toFlow()
-                            ?: throw IllegalStateException("Cannot open inputstream for file")
-                        assetRepository.saveContentFor(newAsset, contentSource)
+                        refreshAssets()
                     }
-
-                    refreshAssets()
                 }
             }
         }
