@@ -12,7 +12,7 @@ interface AssetRepository {
     suspend fun getContentFor(asset: FileAsset): Flow<ByteArray>
     suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>)
 
-    suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year>
+    suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear>
 }
 
 class RetrievalException : RuntimeException {

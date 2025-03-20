@@ -71,11 +71,11 @@ fun BrowseByDateView(
                     .consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
-                if(viewModel.availableDateSelectors.isLoading.value) {
+                if(viewModel.selectableDates.isLoading.value) {
                     CenteredProgressIndicator()
                 } else {
-                    if (viewModel.availableDateSelectors.errorMessage.value.isNotBlank()) {
-                        ErrorMessage(viewModel.availableDateSelectors.errorMessage.value)
+                    if (viewModel.selectableDates.errorMessage.value.isNotBlank()) {
+                        ErrorMessage(viewModel.selectableDates.errorMessage.value)
                     } else {
                         FilterBar(
                             viewModel.dateFilter.value?.let { listOf(it) } ?: listOf(),

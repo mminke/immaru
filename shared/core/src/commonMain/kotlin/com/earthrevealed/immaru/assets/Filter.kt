@@ -6,10 +6,10 @@ interface Filter {
 }
 
 class DateFilter(
-    val year: Year,
-    val month: Month? = null,
-    val day: Day? = null
+    val selectableYear: SelectableYear,
+    val selectableMonth: SelectableMonth? = null,
+    val selectableDay: SelectableDay? = null
 ) : Filter {
     override val caption: String
-        get() = listOfNotNull(year, month, day).joinToString("-") { it.caption }
+        get() = listOfNotNull(selectableYear, selectableMonth, selectableDay).joinToString("-") { it.caption }
 }

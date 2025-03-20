@@ -74,7 +74,7 @@ fun Route.selectorsApi() {
             }
 
             call.respond(
-                assetRepository.findAvailableDateSelectors(collectionId)
+                assetRepository.findSelectableDates(collectionId)
             )
         }
     }

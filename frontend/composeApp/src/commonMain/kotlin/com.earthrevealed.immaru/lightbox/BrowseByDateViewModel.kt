@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.Category
 import com.earthrevealed.immaru.assets.DateFilter
-import com.earthrevealed.immaru.assets.Day
-import com.earthrevealed.immaru.assets.Month
-import com.earthrevealed.immaru.assets.Year
+import com.earthrevealed.immaru.assets.SelectableDay
+import com.earthrevealed.immaru.assets.SelectableMonth
+import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.collections.Collection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,8 +38,8 @@ class BrowseByDateViewViewModel(
     private val assetRepository: AssetRepository,
     private val currentCollection: Collection
 ) : ViewModel() {
-    val availableDateSelectors = LoadableListContent {
-        assetRepository.findAvailableDateSelectors(currentCollection.id).map { Item(value = it) }
+    val selectableDates = LoadableListContent {
+        assetRepository.findSelectableDates(currentCollection.id).map { Item(value = it) }
     }
 
     private val _items = MutableStateFlow<List<Item<Category>>>(emptyList())
@@ -57,8 +57,8 @@ class BrowseByDateViewViewModel(
 
     private fun refreshContent() {
         viewModelScope.launch {
-            availableDateSelectors.load()
-            _items.value = availableDateSelectors.items.value
+            selectableDates.load()
+            _items.value = selectableDates.items.value
         }
     }
 
@@ -66,24 +66,24 @@ class BrowseByDateViewViewModel(
         if (item == null) {
             _dateFilter.value = null
             _breadcrumbs.value = listOf(null)
-            _items.value = availableDateSelectors.items.value
+            _items.value = selectableDates.items.value
         } else {
             when (item.value) {
-                is Year -> {
+                is SelectableYear -> {
                     _dateFilter.value = DateFilter(item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(1) + item.value
-                    _items.value = item.value.months.map { Item(value = it) }
+                    _items.value = item.value.selectableMonths.map { Item(value = it) }
                 }
 
-                is Month -> {
-                    _dateFilter.value = DateFilter(_dateFilter.value!!.year, item.value)
+                is SelectableMonth -> {
+                    _dateFilter.value = DateFilter(_dateFilter.value!!.selectableYear, item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(2) + item.value
-                    _items.value = item.value.days.map { Item(value = it) }
+                    _items.value = item.value.selectableDays.map { Item(value = it) }
                 }
 
-                is Day -> {
+                is SelectableDay -> {
                     _dateFilter.value =
-                        DateFilter(_dateFilter.value!!.year, _dateFilter.value!!.month, item.value)
+                        DateFilter(_dateFilter.value!!.selectableYear, _dateFilter.value!!.selectableMonth, item.value)
                     _breadcrumbs.value = _breadcrumbs.value.take(3) + item.value
                     _items.value = emptyList()
                 }

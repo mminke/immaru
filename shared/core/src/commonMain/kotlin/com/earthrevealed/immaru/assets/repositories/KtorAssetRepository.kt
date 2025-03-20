@@ -7,7 +7,7 @@ import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.RetrievalException
 import com.earthrevealed.immaru.assets.SaveAssetException
-import com.earthrevealed.immaru.assets.Year
+import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
@@ -122,7 +122,7 @@ class KtorAssetRepository(
         TODO("Not yet implemented")
     }
 
-    override suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year> {
+    override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {
         return try {
             httpClientProvider.httpClient.value
                 ?.get("api/collections") {
@@ -130,10 +130,10 @@ class KtorAssetRepository(
                         appendPathSegments(collectionId.value.toString())
                         appendPathSegments("available-date-selectors")
                     }
-                }?.body<List<Year>>()
+                }?.body<List<SelectableYear>>()
                 ?: emptyList()
         } catch (throwable: Throwable) {
-            throw RetrievalException(Year::class, throwable)
+            throw RetrievalException(SelectableYear::class, throwable)
         }
     }
 }

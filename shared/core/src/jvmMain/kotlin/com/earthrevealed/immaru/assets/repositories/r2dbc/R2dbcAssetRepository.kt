@@ -3,18 +3,19 @@ package com.earthrevealed.immaru.assets.repositories.r2dbc
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
-import com.earthrevealed.immaru.assets.Day
+import com.earthrevealed.immaru.assets.SelectableDay
 import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
-import com.earthrevealed.immaru.assets.Month
+import com.earthrevealed.immaru.assets.SelectableMonth
 import com.earthrevealed.immaru.assets.SaveAssetException
-import com.earthrevealed.immaru.assets.Year
+import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.r2dbc.bindNullable
 import com.earthrevealed.immaru.r2dbc.getByteArray
+import com.earthrevealed.immaru.r2dbc.getInt
 import com.earthrevealed.immaru.r2dbc.getString
 import com.earthrevealed.immaru.r2dbc.getTimestamp
 import com.earthrevealed.immaru.r2dbc.getUuid
@@ -146,8 +147,24 @@ class R2dbcAssetRepository(
         save(asset)
     }
 
-    override suspend fun findAvailableDateSelectors(collectionId: CollectionId): List<Year> {
-        return exampleData
+    override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {
+        val query = """
+            select 
+                to_char(original_created_at, 'YYYY-MM-DD') as date, 
+                count(1) as numberOfAssets from assets
+            where collection_id = $1
+            group by date
+            order by date desc
+        """.trimIndent()
+
+        return connectionFactory.useConnection {
+            createStatement(query)
+                .bind("$1", collectionId.value.toJavaUuid())
+                .execute()
+                .awaitSingle()
+                .mapToSelectableDates()
+                .mapToYearMonthDayHierarchicalList()
+        }
     }
 
     private suspend fun Connection.saveToAssetTable(asset: FileAsset) {
@@ -210,6 +227,44 @@ class R2dbcAssetRepository(
             auditFields = toAuditFields()
         )
     }
+
+    private fun Result.mapToSelectableDates(): Flow<SelectableDate> {
+        return map { row, _ ->
+            row.toSelectableDate()
+        }.asFlow()
+    }
+
+    private fun Row.toSelectableDate(): SelectableDate {
+        return SelectableDate(
+            getString("date")!!,
+            getInt("numberOfAssets")!!,
+        )
+    }
+
+    private suspend fun Flow<SelectableDate>.mapToYearMonthDayHierarchicalList(): List<SelectableYear> {
+        return this.toList()
+            .groupBy { parseYearMonthDay(it.date).first }
+            .map {
+                SelectableYear(
+                    caption = it.key,
+                    selectableMonths = it.value
+                        .groupBy { parseYearMonthDay(it.date).second }
+                        .map {
+                            SelectableMonth(
+                                caption = it.key,
+                                selectableDays = it.value.map {
+                                    SelectableDay(parseYearMonthDay(it.date).third, it.numberOfItems)
+                                }
+                            )
+                        }
+                )
+            }
+    }
+
+    private fun parseYearMonthDay(date: String): Triple<String, String, String> {
+        val parts = date.split("-")
+        return Triple(parts[0], parts[1], parts[2])
+    }
 }
 
 private fun Row.toAuditFields(): AuditFields {
@@ -219,103 +274,7 @@ private fun Row.toAuditFields(): AuditFields {
     )
 }
 
-
-
-
-
-private val exampleData = listOf(
-    Year(
-        "2021",
-        234,
-        listOf(
-            Month(
-                "01",
-                24,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "07",
-                23,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "08",
-                56,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            )
-        )
-    ),
-    Year(
-        "2022",
-        1234,
-        listOf(
-            Month(
-                "01",
-                34,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "07",
-                243,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "08",
-                2345,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "09",
-                1234,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "10",
-                234,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            ),
-            Month(
-                "12",
-                12,
-                days = listOf(
-                    Day("15", 12),
-                    Day("16", 3),
-                    Day("17", 4)
-                )
-            )
-        )
-    ),
+private data class SelectableDate(
+    val date: String,
+    val numberOfItems: Int,
 )
-
