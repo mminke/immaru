@@ -12,4 +12,10 @@ class DateFilter(
 ) : Filter {
     override val caption: String
         get() = listOfNotNull(selectableYear, selectableMonth, selectableDay).joinToString("-") { it.caption }
+
+    fun removeLastDateFilterPart(): DateFilter? {
+        if(selectableDay != null) return DateFilter(selectableYear, selectableMonth)
+        if(selectableMonth != null) return DateFilter(selectableYear)
+        return null
+    }
 }
