@@ -19,31 +19,42 @@ fun FilterBar(
 ) {
     Row {
         filters.forEach { filter ->
-            FilterChip(
-                selected = true,
-                enabled = true,
-                label = {
-                    Text(filter.caption)
-                },
-                trailingIcon = {
-                    Row {
-                        SimpleIconButton(onClick = { onFilterEvent(RemoveDatePartEvent(filter as DateFilter)) }) {
-                            Icon(
-                                Icons.Filled.ArrowLeft,
-                                contentDescription = "Date part"
-                            )
-                        }
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = "Remove filter"
-                        )
-                    }
-                },
-                onClick = { onFilterEvent(RemoveFilterEvent(filter)) },
-            )
+           when(filter) {
+               is DateFilter -> DateFilterChip(filter, onFilterEvent)
+           }
         }
     }
 }
+
+@Composable
+fun DateFilterChip(filter: DateFilter, onFilterEvent: (event: FilterEvent) -> Unit) {
+    FilterChip(
+        selected = true,
+        enabled = true,
+        label = {
+            Text(filter.caption)
+        },
+        trailingIcon = {
+            Row {
+                if(filter.selectableMonth != null || filter.selectableDay != null) {
+                    SimpleIconButton(onClick = { onFilterEvent(RemoveDatePartEvent(filter as DateFilter)) }) {
+                        Icon(
+                            Icons.Filled.ArrowLeft,
+                            contentDescription = "Date part"
+                        )
+                    }
+                }
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = "Remove filter"
+                )
+            }
+        },
+        onClick = { onFilterEvent(RemoveFilterEvent(filter)) },
+    )
+}
+
+
 
 abstract class FilterEvent(
     val filter: Filter
