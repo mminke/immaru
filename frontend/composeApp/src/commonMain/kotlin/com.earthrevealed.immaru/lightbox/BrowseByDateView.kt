@@ -75,17 +75,9 @@ fun BrowseByDateView(
                         ErrorMessage(viewModel.selectableDates.errorMessage.value)
                     } else {
                         FilterBar(
-                            viewModel.dateFilter.value?.let { listOf(it) } ?: listOf(),
+                            viewModel.activeFilters.value,
                             onFilterEvent = { event ->
-                                when (event) {
-                                    is RemoveFilterEvent -> {
-                                        viewModel.removeFilter(event.filter)
-                                    }
-
-                                    is RemoveDatePartEvent -> {
-                                        viewModel.handleFilterChanged((event.filter as DateFilter).removeLastDateFilterPart())
-                                    }
-                                }
+                                viewModel.handleFilterEvent(event)
                             },
                         )
 
