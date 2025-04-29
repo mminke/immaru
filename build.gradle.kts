@@ -20,7 +20,7 @@ buildscript {
     }
     configurations.all {
         resolutionStrategy {
-            force("org.apache.commons:commons-compress:1.26.0")
+            force("org.apache.commons:commons-compress:1.27.1")
             force("commons-codec:commons-codec:1.18.0")
         }
     }
