@@ -15,7 +15,6 @@ import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.io.TikaInputStream
 import org.apache.tika.metadata.Metadata
-import java.security.MessageDigest
 
 private val logger = KotlinLogging.logger { }
 
@@ -45,8 +44,7 @@ class Library(private val libraryRoot: Path) {
 
     @OptIn(ExperimentalStdlibApi::class)
     fun writeContentForAsset(asset: FileAsset, content: Flow<ByteArray>): WriteResult {
-        val algorithm = "SHA-256"
-        val messageDigest = MessageDigest.getInstance(algorithm)
+        val messageDigestPlugin = MessageDigestPlugin()
 
         val absoluteFileLocation = absoluteFileLocationFor(asset)
 
@@ -61,7 +59,7 @@ class Library(private val libraryRoot: Path) {
                 runBlocking {
                     content
                         .onEach {
-                            messageDigest.update(it)
+                            messageDigestPlugin.processBytes(it)
                         }
                         .onEach {
                             //TODO: Determine media type while processing the flow
@@ -74,7 +72,7 @@ class Library(private val libraryRoot: Path) {
                 }
             }
 
-        val hashValue = messageDigest.digest()
+        val hashValue = messageDigestPlugin.result()
 
         val detectedMediaType =
             SystemFileSystem.source(Path(absoluteFileLocation.toString()))
@@ -96,7 +94,7 @@ class Library(private val libraryRoot: Path) {
         )
     }
 
-    data class WriteResult(
+    class WriteResult(
         val mediaType: MediaType,
         val contentHash: ByteArray
     )
