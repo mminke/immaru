@@ -4,6 +4,7 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.library.Library
+import com.earthrevealed.immaru.assets.library.useResourceAsFlow
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
@@ -47,12 +48,17 @@ class R2dbcAssetRepositoryIT {
         PostgresqlContainer.start()
 
         Flyway.configure()
-            .dataSource(PostgresqlContainer.jdbcUrl, PostgresqlContainer.username, PostgresqlContainer.password)
+            .dataSource(
+                PostgresqlContainer.jdbcUrl,
+                PostgresqlContainer.username,
+                PostgresqlContainer.password
+            )
             .locations("classpath:db/migration")
             .load()
             .migrate()
 
-        val connectionFactory = ConnectionFactories.get(PostgresqlContainer.r2dbcUrl.also { println("R2DBC url: $it") })
+        val connectionFactory =
+            ConnectionFactories.get(PostgresqlContainer.r2dbcUrl.also { println("R2DBC url: $it") })
         collectionRepository = R2dbcCollectionRepository(connectionFactory)
         assetRepository = R2dbcAssetRepository(connectionFactory, library)
 
@@ -135,6 +141,27 @@ class R2dbcAssetRepositoryIT {
                 result.auditFields.lastModifiedOn.truncateNanos(),
                 result.auditFields.createdOn.truncateNanos()
             )
+        }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun `test processing contents of a jpg file`() {
+        useResourceAsFlow("large.jpg") { jpgContent ->
+            val fileAsset = FileAsset(
+                collectionId = collection.id,
+                originalFilename = "large.jpg",
+            )
+
+            runBlocking {
+                assetRepository.save(fileAsset)
+                assetRepository.saveContentFor(fileAsset, jpgContent)
+
+                val result = assetRepository.findById(collection.id, fileAsset.id)!! as FileAsset
+
+                assertEquals(IMAGE_JPEG, result.mediaType)
+                assertEquals("9b7bccef9ace03efedd0ed648f9fe9fbbfb5517dfab784ab61877155042b3214",result.contentHash!!.toHexString())
+            }
         }
     }
 }

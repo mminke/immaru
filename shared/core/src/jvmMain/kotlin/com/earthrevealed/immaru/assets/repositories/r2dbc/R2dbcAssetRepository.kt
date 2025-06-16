@@ -3,14 +3,16 @@ package com.earthrevealed.immaru.assets.repositories.r2dbc
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
-import com.earthrevealed.immaru.assets.SelectableDay
 import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
-import com.earthrevealed.immaru.assets.SelectableMonth
 import com.earthrevealed.immaru.assets.SaveAssetException
+import com.earthrevealed.immaru.assets.SelectableDay
+import com.earthrevealed.immaru.assets.SelectableMonth
 import com.earthrevealed.immaru.assets.SelectableYear
+import com.earthrevealed.immaru.assets.library.DetectMediaTypePlugin
 import com.earthrevealed.immaru.assets.library.Library
+import com.earthrevealed.immaru.assets.library.MessageDigestPlugin
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.r2dbc.bindNullable
@@ -27,6 +29,7 @@ import io.r2dbc.spi.Result
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
@@ -137,12 +140,40 @@ class R2dbcAssetRepository(
         return library.readContentForAssetAsFlow(asset)
     }
 
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         require(asset.mediaTypeIsNotDefined) { "Cannot overwrite content for an asset" }
 
-        val writeResult = library.writeContentForAsset(asset, content)
+        val messageDigestPlugin = MessageDigestPlugin()
+        val detectMediaTypePlugin = DetectMediaTypePlugin()
 
-        asset.registerContentDetails(writeResult.mediaType, writeResult.contentHash)
+        val plugins = listOf(messageDigestPlugin, detectMediaTypePlugin)
+
+        try {
+            plugins.forEach { plugin ->
+                plugin.prepare()
+            }
+
+            library.writeContentForAsset(asset, content.onEach {
+                plugins.forEach { plugin ->
+                    plugin.processBytes(it)
+                }
+            })
+        } catch (exception: Throwable) {
+            logger.error(exception) { "Boom" }
+        } finally {
+            plugins.forEach { plugin ->
+                try {
+                    plugin.finish()
+                } catch (exception: RuntimeException) {
+                    logger.error { "Could not close plugin: ${plugin::class.simpleName}" }
+                }
+            }
+        }
+
+        logger.debug { "Finished import asset [id=${asset.id}, sha256=${messageDigestPlugin.result().toHexString()}, mediaType=${detectMediaTypePlugin.result()}]" }
+
+        asset.registerContentDetails(detectMediaTypePlugin.result(), messageDigestPlugin.result())
 
         save(asset)
     }

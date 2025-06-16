@@ -57,6 +57,7 @@ data class MediaType(
         val IMAGE_PNG = MediaType(TYPE.IMAGE, "png")
         val IMAGE_TIFF = MediaType(TYPE.IMAGE, "tiff")
         val IMAGE_GIF = MediaType(TYPE.IMAGE, "gif")
+        val TEXT_PLAIN = MediaType(TYPE.TEXT, "plain")
     }
 
     enum class TYPE(val value: String) {
