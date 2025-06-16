@@ -90,17 +90,23 @@ fun Route.assetApi() {
                 val assetId = AssetId.fromString(call.parameters["asset-id"]!!)
                 val asset = assetRepository.findById(collectionId, assetId)
                 if (asset == null) {
-                    logger.warn { "No asset found while trying to process content for asset." }
+                    logger.warn { "No asset found while trying to process content for asset. [id=${assetId}]" }
                     call.respond(HttpStatusCode.NotFound)
                     return@get
                 }
                 if (asset !is FileAsset) {
-                    logger.warn { "Asset is not a file asset." }
+                    logger.warn { "Asset is not a file asset [asset.id=${asset.id}]" }
                     call.respond(HttpStatusCode.BadRequest, "Not a file asset.")
                     return@get
                 }
+                if (asset.mediaType == null) {
+                    logger.warn { "Asset content is not processed yet. [asset.id=${asset.id}]" }
+                    call.response.header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    call.respond(HttpStatusCode.NoContent, "Content not processed yet.")
+                    return@get
+                }
 
-                logger.info { "Returning the contents of asset [asset.id=${asset.id}" }
+                logger.info { "Returning the contents of asset [asset.id=${asset.id}]" }
                 call.respondBytesWriter(
                     contentType = ContentType.parse(asset.mediaType.toString()),
                     producer = {
