@@ -59,7 +59,7 @@ fun AssetThumbnail(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight(),
-                onError = { println("ERROR: Something went wrong loading the image: ${it.result.throwable}") }
+                onError = { println("ERROR: Something went wrong loading the image: ${it.result.throwable} [asset.id=${asset.id}]") }
             )
         } else {
             TODO("Not a file asset, define an image placeholder")
