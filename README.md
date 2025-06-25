@@ -19,20 +19,20 @@ The main targets are Android, JVM and iOS. Preferably the project also wants to 
 
 ## Running the project locally
 
-1. Start the backend
-1.1. Copy the example configuration file /config/example.immaru.properties to /config/immaru.properties
-1.2. Start Postgres using the provided docker-compose.yml file in the project root
+1. Start the backend 
+   1. Copy the example configuration file /config/example.immaru.properties to /config/immaru.properties
+   2. Start Postgres using the provided docker-compose.yml file in the project root
 
-    $ docker compose up
+       $ docker compose up
 
-1.3. Start the backed application /backend/server/src/main/kotlin/com.earthrevealed.immaru.ImmaruServer.kt - main
+   3. Start the backed application /backend/server/src/main/kotlin/com.earthrevealed.immaru.ImmaruServer.kt - main
 
 2. Start the frontend
-2.1. Start the jvm frontend /frontend/composeApp/src/jvmMain/kotlin/main.kt - main
-2.2. Start the android frontend
-2.2.1. Add a new Android device if not already present
-2.2.2. Run the android frontend frontend/composeApp/src/androidMain/kotlin/com.earthrevealed.com/MainActivity
-2.3. Start the iOS frontend
+   1. Start the jvm frontend /frontend/composeApp/src/jvmMain/kotlin/main.kt - main
+   2. Start the android frontend
+      1. Add a new Android device if not already present
+      2. Run the android frontend frontend/composeApp/src/androidMain/kotlin/com.earthrevealed.com/MainActivity
+   3. Start the iOS frontend
     Currently this is not tested yet because development does not have a Apple device for building/testing this.
 
 ## IntelliJ configuration
