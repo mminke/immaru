@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru.assets.library
+package com.earthrevealed.immaru.assets.plugins
 
 import com.earthrevealed.immaru.assets.AssetProcessingPlugin
 import java.security.MessageDigest

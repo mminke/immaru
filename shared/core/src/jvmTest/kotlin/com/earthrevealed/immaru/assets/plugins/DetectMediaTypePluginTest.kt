@@ -1,13 +1,10 @@
-package com.earthrevealed.immaru.assets.library
+package com.earthrevealed.immaru.assets.plugins
 
 import com.earthrevealed.immaru.assets.MediaType
-import com.earthrevealed.immaru.common.io.toFlow
+import com.earthrevealed.immaru.assets.test.utils.useResourceAsFlow
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
-import kotlinx.io.asSource
-import kotlinx.io.buffered
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
@@ -102,13 +99,5 @@ class DetectMediaTypePluginTest {
 
             assertEquals(MediaType.IMAGE_PNG, detectMediaTypePlugin.result())
         }
-    }
-}
-
-fun useResourceAsFlow(name: String, useFlowBlock: (flow: Flow<ByteArray>) -> Unit) {
-    Test::class.java.classLoader?.getResourceAsStream(name)!!.use { inputStream ->
-        val inputFlow = inputStream.asSource().buffered().toFlow()
-
-        useFlowBlock(inputFlow)
     }
 }

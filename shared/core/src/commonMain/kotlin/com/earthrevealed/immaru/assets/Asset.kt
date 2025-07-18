@@ -4,6 +4,7 @@ import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.common.GenericId
 import com.earthrevealed.immaru.common.GenericIdSerializer
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.uuid.Uuid
@@ -57,6 +58,8 @@ sealed class Asset {
 class FileAsset : Asset {
     val originalFilename: String
 
+    var originalCreatedAt: Instant? = null
+
     var mediaType: MediaType? = null
         private set(value) {
             check(field == null) { "Media type can only be set once" }
@@ -87,6 +90,7 @@ class FileAsset : Asset {
         name: String,
         mediaType: MediaType?,
         originalFilename: String,
+        originalCreatedAt: Instant?,
         contentHash: ByteArray?,
         auditFields: AuditFields,
     ) : super(
@@ -95,8 +99,9 @@ class FileAsset : Asset {
         name = name,
         auditFields = auditFields
     ) {
-        this.originalFilename = originalFilename
         this.mediaType = mediaType
+        this.originalFilename = originalFilename
+        this.originalCreatedAt = originalCreatedAt
         this.contentHash = contentHash
     }
 

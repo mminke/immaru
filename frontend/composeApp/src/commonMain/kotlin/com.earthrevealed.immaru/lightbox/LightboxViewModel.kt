@@ -64,9 +64,14 @@ class LightboxViewModel(
         val newAsset = FileAsset(
             currentCollection.id,
             file.name,
-        )
+        ).also {
+            TODO("Fix this!!!")
+//            it.originalCreatedAt = file.toKmpFile().creationDate
+        }
+
         viewModelScope.launch {
             withContext(DispatcherProvider.io()) {
+                //TODO: Implement an async job which is used to show the upload progress to the user.
                 assetRepository.save(newAsset)
 
                 transferFile(file, newAsset)
@@ -86,11 +91,19 @@ class LightboxViewModel(
                     println("File ignored [length=${file.getLength()}]")
                     //TODO: Give feedback to user about this
                 } else {
+
+
+
                     val newAsset = FileAsset(
                         currentCollection.id,
                         file.getName(),
-                    )
+                    ).also {
+                        TODO("Fix this!!!")
+//                        it.originalCreatedAt = file.creationDate
+                    }
+
                     viewModelScope.launch {
+                        //TODO: Implement an async job which is used to show the upload progress to the user.
                         withContext(DispatcherProvider.io()) {
                             assetRepository.save(newAsset)
 
