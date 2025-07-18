@@ -32,7 +32,7 @@ apache-tika = "3.2.1"
 junitJupiter = "5.13.4"
 
 filekit = "0.8.8"
-kmpfile = "0.7.0"
+kmpfile = "0.7.0-MM"
 
 datastore-preferences = "1.1.7"
 
@@ -92,6 +92,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway-core"
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-core" }
 
 apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
+apache-tika-parsers-standard-package = { module = "org.apache.tika:tika-parsers-standard-package", version.ref = "apache-tika" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekit" }
 kmpfile = { module = "dev.zwander:kmpfile", version.ref = "kmpfile" }
 kmpfile-filekit = { module = "dev.zwander:kmpfile-filekit", version.ref = "kmpfile" }

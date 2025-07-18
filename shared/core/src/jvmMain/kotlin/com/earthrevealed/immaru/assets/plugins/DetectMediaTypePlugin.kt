@@ -1,15 +1,18 @@
-package com.earthrevealed.immaru.assets.library
+package com.earthrevealed.immaru.assets.plugins
 
 import com.earthrevealed.immaru.assets.AssetProcessingPlugin
 import com.earthrevealed.immaru.assets.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.metadata.Metadata
 import java.io.IOException
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import kotlin.concurrent.thread
+
+private val logger = KotlinLogging.logger { }
 
 class DetectMediaTypePlugin : AssetProcessingPlugin {
     private val pipedOutputStream = PipedOutputStream()
@@ -27,7 +30,7 @@ class DetectMediaTypePlugin : AssetProcessingPlugin {
 
     override suspend fun processBytes(bytes: ByteArray) {
         try {
-            if(mediaType == null) {
+            if (mediaType == null) {
                 withContext(Dispatchers.IO) {
                     pipedOutputStream.write(bytes)
                 }

@@ -4,7 +4,7 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.library.Library
-import com.earthrevealed.immaru.assets.library.useResourceAsFlow
+import com.earthrevealed.immaru.assets.test.utils.useResourceAsFlow
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository

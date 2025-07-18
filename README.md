@@ -32,6 +32,7 @@ The main targets are Android, JVM and iOS. Preferably the project also wants to 
    2. Start the android frontend
       1. Add a new Android device if not already present
       2. Run the android frontend frontend/composeApp/src/androidMain/kotlin/com.earthrevealed.com/MainActivity
+      3. Configure the server url: `http://10.0.2.2:8080`
    3. Start the iOS frontend
     Currently this is not tested yet because development does not have a Apple device for building/testing this.
 

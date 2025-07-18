@@ -10,9 +10,10 @@ import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.SelectableDay
 import com.earthrevealed.immaru.assets.SelectableMonth
 import com.earthrevealed.immaru.assets.SelectableYear
-import com.earthrevealed.immaru.assets.library.DetectMediaTypePlugin
+import com.earthrevealed.immaru.assets.plugins.DetectMediaTypePlugin
 import com.earthrevealed.immaru.assets.library.Library
-import com.earthrevealed.immaru.assets.library.MessageDigestPlugin
+import com.earthrevealed.immaru.assets.plugins.MessageDigestPlugin
+import com.earthrevealed.immaru.assets.postprocessors.TikaMetadataParserAssetPostProcessor
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.r2dbc.bindNullable
@@ -33,7 +34,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.io.files.Path
 import mu.KotlinLogging
+import java.nio.file.Paths
 import java.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.uuid.toJavaUuid
@@ -171,12 +174,21 @@ class R2dbcAssetRepository(
             }
         }
 
-        logger.debug { "Finished import asset [id=${asset.id}, sha256=${messageDigestPlugin.result().toHexString()}, mediaType=${detectMediaTypePlugin.result()}]" }
+        val metadataPostProcessor = TikaMetadataParserAssetPostProcessor()
 
-        asset.registerContentDetails(detectMediaTypePlugin.result(), messageDigestPlugin.result())
+        metadataPostProcessor.postProcess(asset, library.absoluteFileLocationFor(asset).toNioPath())
+
+        asset.registerContentDetails(
+            mediaType = detectMediaTypePlugin.result(),
+            hash = messageDigestPlugin.result(),
+        )
+
+        logger.debug { "Finished import asset [id=${asset.id}, sha256=${asset.contentHash?.toHexString()}, mediaType=${asset.mediaType}]" }
 
         save(asset)
     }
+
+    private fun Path.toNioPath() = Paths.get(this.toString())
 
     override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {
         val query = """
@@ -206,8 +218,8 @@ class R2dbcAssetRepository(
                     id, 
                     collection_id, 
                     name,
-                    original_created_at, 
                     original_filename,
+                    original_created_at,
                     created_at, 
                     last_modified_at
                 )
@@ -216,6 +228,7 @@ class R2dbcAssetRepository(
                 DO UPDATE SET 
                     name = EXCLUDED.name,
                     media_type = $8,
+                    original_created_at = EXCLUDED.original_created_at,
                     content_hash = $9,
                     last_modified_at = EXCLUDED.last_modified_at
             """.trimIndent()
@@ -223,10 +236,11 @@ class R2dbcAssetRepository(
             .bind("$1", asset.id.value.toJavaUuid())
             .bind("$2", asset.collectionId.value.toJavaUuid())
             .bind("$3", asset.name)
-            .bind("$4", Instant.now()) // TODO: Remove here and add to some kind of metadata area
-            .bind("$5", asset.originalFilename)
+            .bind("$4", asset.originalFilename)
+            .bindNullable("$5", asset.originalCreatedAt?.toJavaInstant(), Instant::class.java)
             .bind("$6", asset.auditFields.createdOn.toJavaInstant())
             .bind("$7", asset.auditFields.lastModifiedOn.toJavaInstant())
+
             .bindNullable("$8", asset.mediaType?.toString(), String::class.java)
             .bindNullable("$9", asset.contentHash, ByteArray::class.java)
             .execute()
@@ -253,6 +267,7 @@ class R2dbcAssetRepository(
             collectionId = CollectionId(getUuid("collection_id")!!),
             name = getString("name")!!,
             originalFilename = getString("original_filename")!!,
+            originalCreatedAt = getTimestamp("original_created_at"),
             mediaType = mediaType,
             contentHash = getByteArray("content_hash"),
             auditFields = toAuditFields()

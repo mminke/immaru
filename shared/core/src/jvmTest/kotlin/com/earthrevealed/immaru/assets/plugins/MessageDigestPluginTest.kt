@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru.assets.library
+package com.earthrevealed.immaru.assets.plugins
 
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals

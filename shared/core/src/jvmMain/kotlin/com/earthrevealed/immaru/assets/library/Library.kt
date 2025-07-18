@@ -57,7 +57,7 @@ class Library(private val libraryRoot: Path) {
         logger.info { "Finished writing content for ${asset.originalFilename}" }
     }
 
-    private fun absoluteFileLocationFor(asset: FileAsset): Path =
+    fun absoluteFileLocationFor(asset: FileAsset): Path =
         Path(libraryRoot, asset.internalFilelocation().toString())
 
     private fun absoluteDestinationFolderFor(asset: FileAsset): Path =
