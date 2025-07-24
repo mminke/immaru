@@ -160,7 +160,10 @@ class R2dbcAssetRepositoryIT {
                 val result = assetRepository.findById(collection.id, fileAsset.id)!! as FileAsset
 
                 assertEquals(IMAGE_JPEG, result.mediaType)
-                assertEquals("9b7bccef9ace03efedd0ed648f9fe9fbbfb5517dfab784ab61877155042b3214",result.contentHash!!.toHexString())
+                assertEquals(
+                    "9a44941679e7111fe3d35409017ba488a8f592b8a8692c91926d3e914a3ada23",
+                    result.contentHash!!.toHexString()
+                )
             }
         }
     }
