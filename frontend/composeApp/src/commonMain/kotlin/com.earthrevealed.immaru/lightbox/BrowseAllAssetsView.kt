@@ -27,6 +27,7 @@ import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -145,10 +146,12 @@ fun LightboxInformationPaneScaffold(
         }
     )
 
-    if (!showInformation) {
-        navigator.navigateTo(ThreePaneScaffoldRole.Primary)
-    } else {
-        navigator.navigateTo(ThreePaneScaffoldRole.Secondary)
+    LaunchedEffect(showInformation) {
+        if (!showInformation) {
+            navigator.navigateTo(ThreePaneScaffoldRole.Primary)
+        } else {
+            navigator.navigateTo(ThreePaneScaffoldRole.Secondary)
+        }
     }
 
     SupportingPaneScaffold(
