@@ -8,3 +8,4 @@ target/
 .kotlin
 .gradle
 /local.properties
+/frontend/composeApp/config/immaru.preferences_pb
