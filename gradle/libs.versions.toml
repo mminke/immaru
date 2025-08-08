@@ -30,15 +30,15 @@ postgresql_r2dbc_version = "1.0.0.RELEASE"
 postgresql_jdbc_version = "42.7.7"
 flyway-core = "11.10.5"
 apache-tika = "3.2.1"
-junitJupiter = "5.11.4"
+junitJupiter = "5.13.4"
 
 filekit = "0.8.8"
 kmpfile = "0.7.0"
 
-datastore-preferences = "1.1.2"
+datastore-preferences = "1.1.7"
 
-testcontainers-postgresql = "1.20.4"
-testcontainers-r2dbc = "1.20.4"
+testcontainers-postgresql = "1.21.3"
+testcontainers-r2dbc = "1.21.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
