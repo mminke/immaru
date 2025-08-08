@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.uuid.toJavaUuid
 
 class R2dbcCollectionRepository(

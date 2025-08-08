@@ -33,9 +33,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.datetime.toJavaInstant
 import mu.KotlinLogging
 import java.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.uuid.toJavaUuid
 
 private val logger = KotlinLogging.logger { }

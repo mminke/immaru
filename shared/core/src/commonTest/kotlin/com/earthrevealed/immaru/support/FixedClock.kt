@@ -1,7 +1,7 @@
 package com.earthrevealed.immaru.support
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 object FixedClock : Clock {
     val DEFAULT_INSTANT = Instant.parse("2000-01-01T01:00:00.000000000Z")

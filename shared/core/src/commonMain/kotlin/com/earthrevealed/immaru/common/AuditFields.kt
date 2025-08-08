@@ -1,7 +1,7 @@
 package com.earthrevealed.immaru.common
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 class AuditFields(val createdOn: Instant = ClockProvider.clock.now()) {

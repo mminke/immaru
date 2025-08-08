@@ -4,7 +4,6 @@ import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.support.FixedClock
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit.Companion.HOUR
 import kotlinx.datetime.plus
 import kotlinx.serialization.json.Json
@@ -14,6 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.time.Clock
 
 class FileAssetTest {
 

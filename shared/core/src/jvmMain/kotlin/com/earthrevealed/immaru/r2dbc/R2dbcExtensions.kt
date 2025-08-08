@@ -6,10 +6,10 @@ import io.r2dbc.spi.Row
 import io.r2dbc.spi.Statement
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.datetime.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.time.Instant
 import kotlin.uuid.toKotlinUuid
 
 suspend fun <T> ConnectionFactory.useConnection(executeUsing: suspend Connection.() -> T): T {

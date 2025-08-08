@@ -1,5 +1,5 @@
 package com.earthrevealed.immaru.support
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 fun Instant.truncateNanos() = Instant.fromEpochMilliseconds(this.toEpochMilliseconds())
