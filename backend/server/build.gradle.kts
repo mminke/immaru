@@ -1,7 +1,3 @@
-import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
@@ -19,26 +15,12 @@ application {
         listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
 }
 
-tasks.register("build-info.properties") {
-    doLast {
-        val boas = ByteArrayOutputStream()
-        exec {
-            commandLine("git","rev-parse", "HEAD")
-            standardOutput = boas
-        }.toString()
-        val commitHash = boas.toString().trim()
-
-        file("${layout.buildDirectory.get()}/resources/main/build-info.properties").writeText("""
-            project.name=${project.name}
-            project.version=${project.version}
-            build.time=${SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())}
-            git.commit.hash=${commitHash}
-        """.trimIndent())
-    }
+tasks.register<BuildInfoTask>("generate-build-info") {
+    buildInfoOutput.set(file("${layout.buildDirectory.get()}/resources/main/build-info.properties"))
 }
 
 tasks.processResources {
-    finalizedBy("build-info.properties")
+    dependsOn("generate-build-info")
 }
 
 jib {
