@@ -1,7 +1,6 @@
 package com.earthrevealed.immaru.assets.postprocessors
 
 import com.earthrevealed.immaru.assets.FileAsset
-import kotlinx.datetime.toKotlinInstant
 import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.apache.tika.metadata.IPTC
@@ -9,6 +8,7 @@ import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TIFF
 import org.apache.tika.metadata.TikaCoreProperties
 import java.nio.file.Path
+import kotlin.time.toKotlinInstant
 
 private val logger = KotlinLogging.logger { }
 
