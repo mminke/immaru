@@ -87,8 +87,6 @@ kotlin {
             implementation(libs.coil3.network.ktor)
             implementation(libs.kotlinx.io.core)
             implementation(libs.filekit.compose)
-            implementation(libs.kmpfile)
-            implementation(libs.kmpfile.filekit)
             implementation(libs.datastore.preferences)
         }
         androidMain.dependencies {

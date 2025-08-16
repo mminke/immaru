@@ -22,6 +22,7 @@ lifecycle-view-model = "2.9.2"
 navigation-compose = "2.9.0-beta05"
 compose-material3-adaptive = "1.1.2"
 coil3 = "3.3.0"
+filekit = "0.10.0"
 koin = "4.1.0"
 
 r2dbc = "1.0.0.RELEASE"
@@ -30,9 +31,6 @@ postgresql_jdbc_version = "42.7.7"
 flyway-core = "11.11.1"
 apache-tika = "3.2.2"
 junitJupiter = "5.13.4"
-
-filekit = "0.8.8"
-kmpfile = "0.7.0"
 
 datastore-preferences = "1.1.7"
 
@@ -68,6 +66,7 @@ lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecyc
 lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-view-model" }
 
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+filekit-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
 microutils-kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
@@ -92,9 +91,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway-core"
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-core" }
 
 apache-tika-core = { module = "org.apache.tika:tika-core", version.ref = "apache-tika" }
-filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekit" }
-kmpfile = { module = "dev.zwander:kmpfile", version.ref = "kmpfile" }
-kmpfile-filekit = { module = "dev.zwander:kmpfile-filekit", version.ref = "kmpfile" }
+apache-tika-parsers-standard-package = { module = "org.apache.tika:tika-parsers-standard-package", version.ref = "apache-tika" }
 
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers-postgresql" }

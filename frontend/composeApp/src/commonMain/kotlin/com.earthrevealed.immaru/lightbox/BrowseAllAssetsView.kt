@@ -37,14 +37,11 @@ import androidx.compose.ui.unit.dp
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
-import io.github.vinceglb.filekit.compose.rememberDirectoryPickerLauncher
-import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.PickerMode
-import io.github.vinceglb.filekit.core.PickerType
-import io.github.vinceglb.filekit.core.PlatformDirectory
-import io.github.vinceglb.filekit.core.PlatformFiles
-
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,15 +174,15 @@ fun LightboxInformationPaneScaffold(
 
 @Composable
 fun UploadFloatingActionButtons(
-    onFilesPicked: (PlatformFiles) -> Unit,
-    onDirectoryPicked: (PlatformDirectory) -> Unit
+    onFilesPicked: (List<PlatformFile>) -> Unit,
+    onDirectoryPicked: (PlatformFile) -> Unit
 ) {
     val showSmallButtons = remember { mutableStateOf(false) }
 
     val filePicker = rememberFilePickerLauncher(
         title = "Select file(s)",
-        type = PickerType.ImageAndVideo,
-        mode = PickerMode.Multiple()
+        type = FileKitType.ImageAndVideo,
+        mode = FileKitMode.Multiple()
     ) { files ->
         if (files != null) onFilesPicked(files)
         showSmallButtons.value = false
@@ -197,35 +194,27 @@ fun UploadFloatingActionButtons(
         showSmallButtons.value = false
     }
 
-    if (FileKit.isDirectoryPickerSupported()) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (showSmallButtons.value) {
-                SmallFloatingActionButton(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    onClick = { filePicker.launch() }
-                ) {
-                    Icon(Icons.Filled.UploadFile, "Add a file.")
-                }
-                SmallFloatingActionButton(
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    onClick = { directoryPicker.launch() }
-                ) {
-                    Icon(Icons.Filled.DriveFolderUpload, "Add a folder.")
-                }
-            }
-            FloatingActionButton(
-                onClick = {
-                    showSmallButtons.value = !showSmallButtons.value
-                }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (showSmallButtons.value) {
+            SmallFloatingActionButton(
+                modifier = Modifier.padding(bottom = 4.dp),
+                onClick = { filePicker.launch() }
             ) {
-                Icon(Icons.Filled.Add, "Add assets.")
+                Icon(Icons.Filled.UploadFile, "Add a file.")
+            }
+            SmallFloatingActionButton(
+                modifier = Modifier.padding(bottom = 12.dp),
+                onClick = { directoryPicker.launch() }
+            ) {
+                Icon(Icons.Filled.DriveFolderUpload, "Add a folder.")
             }
         }
-    } else {
         FloatingActionButton(
-            onClick = { filePicker.launch() }
+            onClick = {
+                showSmallButtons.value = !showSmallButtons.value
+            }
         ) {
             Icon(Icons.Filled.Add, "Add assets.")
         }

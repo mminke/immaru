@@ -11,15 +11,18 @@ import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
-import dev.zwander.kotlin.file.filekit.toKmpFile
-import io.github.vinceglb.filekit.core.PlatformDirectory
-import io.github.vinceglb.filekit.core.PlatformFile
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.isRegularFile
+import io.github.vinceglb.filekit.list
+import io.github.vinceglb.filekit.name
+import io.github.vinceglb.filekit.size
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.buffered
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
@@ -76,32 +79,16 @@ class LightboxViewModel(
         }
     }
 
-    fun createAssetsFor(directory: PlatformDirectory) {
-        val kmpDirectory = directory.toKmpFile()
+    fun createAssetsFor(directory: PlatformFile) {
 
-        kmpDirectory.listFiles()?.forEach { file ->
-            if (file.isFile()) {
-                println("Processing file: ${file.getName()}")
-                if(file.getLength() <= 0) {
-                    println("File ignored [length=${file.getLength()}]")
+        directory.list().forEach { file ->
+            if (file.isRegularFile()) {
+                println("Processing file: ${file.name}")
+                if(file.size() <= 0) {
+                    println("File ignored [length=${file.size()}]")
                     //TODO: Give feedback to user about this
                 } else {
-                    val newAsset = FileAsset(
-                        currentCollection.id,
-                        file.getName(),
-                    )
-                    viewModelScope.launch {
-                        withContext(DispatcherProvider.io()) {
-                            assetRepository.save(newAsset)
-
-                            // Transfer the file
-                            val contentSource = file.openInputStream()?.toFlow()
-                                ?: throw IllegalStateException("Cannot open inputstream for file")
-                            assetRepository.saveContentFor(newAsset, contentSource)
-                        }
-
-                        refreshAssets()
-                    }
+                    createAssetFor(file)
                 }
             }
         }
@@ -111,20 +98,7 @@ class LightboxViewModel(
         file: PlatformFile,
         newAsset: FileAsset
     ) {
-        if (file.supportsStreams()) {
-            println("Uploading file: Use streaming")
-
-            val contentSource = file.toKmpFile().openInputStream()?.toFlow()
-                ?: throw IllegalStateException("Cannot open inputstream for file")
-
+            val contentSource = file.source().buffered().toFlow()
             assetRepository.saveContentFor(newAsset, contentSource)
-        } else {
-            println("Uploading file: Fallback to reading entire file into memory")
-
-            val buffer = flow {
-                emit(file.readBytes())
-            }
-            assetRepository.saveContentFor(newAsset, buffer)
-        }
     }
 }
