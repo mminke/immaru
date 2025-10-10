@@ -27,8 +27,8 @@ koin = "4.1.0"
 
 r2dbc = "1.0.0.RELEASE"
 postgresql_r2dbc_version = "1.0.0.RELEASE"
-postgresql_jdbc_version = "42.7.7"
-flyway-core = "11.11.1"
+postgresql_jdbc_version = "42.7.8"
+flyway-core = "11.14.0"
 apache-tika = "3.2.2"
 junitJupiter = "5.13.4"
 
