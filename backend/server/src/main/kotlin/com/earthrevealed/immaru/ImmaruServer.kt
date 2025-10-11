@@ -14,6 +14,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.resources.Resources
 import io.ktor.server.routing.routing
 import org.flywaydb.core.Flyway
 
@@ -38,6 +39,7 @@ fun Application.module() {
         anyHost()
         this.allowHeader("Content-Type")
     }
+    install(Resources)
     configureDI()
     configureDatabaseSchema()
     configureContentNegotiation()
