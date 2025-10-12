@@ -20,25 +20,6 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
-@Resource("collections")
-class Collections {
-
-    @Resource("{id1}")
-    class ById(val parent: Collections = Collections(), val id1: CollectionId) {
-
-        @Resource("assets")
-        class Assets(val collection: Collections.ById) {
-
-            @Resource("{id2}")
-            class ById(val parent: Assets, val id2: AssetId) {
-
-                @Resource("content")
-                class Content(val asset: Assets.ById)
-            }
-        }
-    }
-}
-
 fun Route.collectionApi() {
     val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
     val collectionRepository = R2dbcCollectionRepository(connectionFactory)
