@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.Configuration
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
@@ -20,39 +21,50 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger { }
 
 @Resource("collections")
-class CollectionsResource {
-    @Resource("{id}")
-    class ById(val parent: CollectionsResource = CollectionsResource(), val id: CollectionId)
+class Collections {
+
+    @Resource("{id1}")
+    class ById(val parent: Collections = Collections(), val id1: CollectionId) {
+
+        @Resource("assets")
+        class Assets(val collection: Collections.ById) {
+
+            @Resource("{id2}")
+            class ById(val parent: Assets, val id2: AssetId) {
+
+                @Resource("content")
+                class Content(val asset: Assets.ById)
+            }
+        }
+    }
 }
 
 fun Route.collectionApi() {
     val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
     val collectionRepository = R2dbcCollectionRepository(connectionFactory)
 
-
-    get<CollectionsResource> {
+    get<Collections> {
         call.respond(
             collectionRepository.all()
         )
     }
-    put<CollectionsResource> {
+    put<Collections> {
         val collection = call.receive<Collection>()
         collectionRepository.save(collection)
         call.response.status(HttpStatusCode.NoContent)
     }
-    get<CollectionsResource.ById> { request ->
-        collectionRepository.get(request.id)?.apply {
+    get<Collections.ById> { request ->
+        collectionRepository.get(request.id1)?.apply {
             call.respond(this)
         }
     }
-    delete<CollectionsResource.ById> { request ->
-        collectionRepository.delete(request.id)
+    delete<Collections.ById> { request ->
+        collectionRepository.delete(request.id1)
         call.response.status(HttpStatusCode.NoContent)
     }
 
-    resource<CollectionsResource> {
+    resource<Collections> {
         route("/{collection-id}") {
-            assetApi()
 
             selectorsApi()
         }

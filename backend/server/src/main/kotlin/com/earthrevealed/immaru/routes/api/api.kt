@@ -6,6 +6,7 @@ import io.ktor.utils.io.*
 fun Routing.api() {
     route("api") {
         collectionApi()
+        assetApi()
 
         infoApi()
     }
