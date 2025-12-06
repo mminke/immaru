@@ -6,3 +6,4 @@ updates:
       - legacy/**
     schedule:
       interval: "weekly"
+    open-pull-requests: true
