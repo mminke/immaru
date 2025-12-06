@@ -1,8 +1,8 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/" # Location of package manifests
-    ignore:
+    directory: "/"
+    exclude-paths:
       - legacy/**
     schedule:
       interval: "weekly"
