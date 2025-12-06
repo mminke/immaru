@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -44,17 +45,8 @@ fun LightboxScreen(
 ) {
     val currentDestination = rememberSaveable { mutableStateOf(BROWSE) }
 
-    val adaptiveInfo = currentWindowAdaptiveInfo()
-    val customNavSuiteType = with(adaptiveInfo) {
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-            NavigationSuiteType.NavigationDrawer
-        } else {
-            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
-        }
-    }
-
     NavigationSuiteScaffold(
-        layoutType = customNavSuiteType,
+        layoutType = determineNavigationSuite(currentWindowAdaptiveInfo()),
         navigationSuiteItems = {
             LightboxDestinations.entries.forEach {
                 item(
@@ -73,3 +65,14 @@ fun LightboxScreen(
         }
     }
 }
+
+private fun determineNavigationSuite(adaptiveInfo: WindowAdaptiveInfo) = with(adaptiveInfo) {
+    if (showPermanantNavigationDrawer()) {
+        NavigationSuiteType.NavigationDrawer
+    } else {
+        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+    }
+}
+
+private fun WindowAdaptiveInfo.showPermanantNavigationDrawer(): Boolean =
+    windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
