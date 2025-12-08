@@ -16,12 +16,12 @@ plugins {
 // see: https://github.com/GoogleContainerTools/jib/issues/4235
 buildscript {
     dependencies {
-        classpath("commons-codec:commons-codec:1.18.0")
+        classpath("commons-codec:commons-codec:1.20.0")
     }
     configurations.all {
         resolutionStrategy {
-            force("org.apache.commons:commons-compress:1.27.1")
-            force("commons-codec:commons-codec:1.18.0")
+            force("org.apache.commons:commons-compress:1.28.0")
+            force("commons-codec:commons-codec:1.20.0")
         }
     }
 }
