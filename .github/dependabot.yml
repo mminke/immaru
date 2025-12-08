@@ -4,6 +4,7 @@ updates:
     directory: "/"
     groups:
       all:
+        open-pull-requests: true
         update-types:
           - "minor"
           - "patch"
@@ -13,7 +14,6 @@ updates:
       - legacy/**
     schedule:
       interval: "weekly"
-    open-pull-requests: true
 
   - package-ecosystem: "github-actions"
     directory: "/"
