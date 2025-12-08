@@ -2,8 +2,24 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
+    groups:
+      all:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
     exclude-paths:
       - legacy/**
     schedule:
       interval: "weekly"
     open-pull-requests: true
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      all:
+        patterns:
+          - "*"
