@@ -1,7 +1,7 @@
 [versions]
 agp = "8.13.1"
-kotlin = "2.2.21"
-jib = "3.5.1"
+kotlin = "2.3.0"
+jib = "3.5.2"
 android-compileSdk = "36"
 android-minSdk = "29"
 android-targetSdk = "35"
@@ -9,13 +9,13 @@ androidx-activityCompose = "1.12.1"
 
 kotlin-logging = "3.0.5"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
-kotlinx-serialization-plugin = "2.2.21"
+kotlinx-serialization-plugin = "2.3.0"
 kotlinx-serialization = "1.9.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-io = "0.8.2"
 ktor-plugin = "3.3.3"
 ktor = "3.3.3"
-logback = "1.5.21"
+logback = "1.5.23"
 slf4j = "2.0.17"
 compose-multiplatform = "1.9.3"
 lifecycle-view-model = "2.9.6"
@@ -26,16 +26,16 @@ filekit = "0.12.0"
 koin = "4.1.1"
 
 r2dbc = "1.0.0.RELEASE"
-postgresql_r2dbc_version = "1.0.0.RELEASE"
+postgresql_r2dbc_version = "1.1.1.RELEASE"
 postgresql_jdbc_version = "42.7.8"
-flyway-core = "11.18.0"
+flyway-core = "11.20.0"
 apache-tika = "3.2.3"
 junitJupiter = "6.0.1"
 
 datastore-preferences = "1.2.0"
 
-testcontainers-postgresql = "1.21.3"
-testcontainers-r2dbc = "1.21.3"
+testcontainers-postgresql = "1.21.4"
+testcontainers-r2dbc = "1.21.4"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
