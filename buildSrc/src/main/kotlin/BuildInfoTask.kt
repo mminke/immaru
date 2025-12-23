@@ -18,6 +18,7 @@ abstract class BuildInfoTask @Inject constructor(private var execOperations: Exe
     fun action() {
         val commitHash = gitCommitHash()
         val currentBranch = gitCurrentBranch()
+        val currentRef = gitCommitReference()
 
         val outputFile = buildInfoOutput.asFile.get()
         outputFile.writeText(
@@ -26,7 +27,8 @@ abstract class BuildInfoTask @Inject constructor(private var execOperations: Exe
                 project.version=${project.version}
                 build.time=${SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())}
                 git.commit.hash=${commitHash}
-                git.branch=${currentBranch}
+                git.branch=${currentBranch ?: ""}
+                git.ref=${currentRef ?: ""}
             """.trimIndent()
         )
 
@@ -34,20 +36,29 @@ abstract class BuildInfoTask @Inject constructor(private var execOperations: Exe
     }
 
     private fun gitCommitHash(): String {
-        val boas = ByteArrayOutputStream()
-        execOperations.exec {
-            commandLine("git", "rev-parse", "HEAD")
-            standardOutput = boas
-        }.toString()
-        return boas.toString().trim()
+        return executeCommand("git", "rev-parse", "--short", "HEAD")!!
     }
 
-    private fun gitCurrentBranch(): String {
+    private fun gitCurrentBranch(): String? {
+        return executeCommand("git", "symbolic-ref", "--short", "HEAD")
+    }
+
+    private fun gitCommitReference(): String? {
+        return executeCommand("git", "name-rev", "--name-only", "HEAD")
+    }
+
+    private fun executeCommand(vararg args: String): String? {
         val boas = ByteArrayOutputStream()
-        execOperations.exec {
-            commandLine("git", "symbolic-ref", "--short", "HEAD")
+        val execResult = execOperations.exec {
+            commandLine(*args)
             standardOutput = boas
-        }.toString()
-        return boas.toString().trim()
+            isIgnoreExitValue = true
+        }
+        val output = boas.toString().trim()
+        return if (execResult.exitValue == 0 && output.isNotEmpty()) {
+            output
+        } else {
+            null
+        }
     }
 }
