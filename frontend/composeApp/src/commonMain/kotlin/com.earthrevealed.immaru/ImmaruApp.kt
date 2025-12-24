@@ -37,6 +37,7 @@ import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -110,6 +111,10 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
 
             configuration.serverUrl?.let { serverUrl ->
                 HttpClient {
+                    install(Logging) {
+                        level = io.ktor.client.plugins.logging.LogLevel.NONE
+                    }
+
                     install(ContentNegotiation) {
                         json()
                     }

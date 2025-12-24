@@ -12,11 +12,13 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.resources.Resources
 import io.ktor.server.routing.routing
 import org.flywaydb.core.Flyway
+import org.slf4j.event.Level
 
 fun main() {
 
@@ -30,6 +32,7 @@ fun main() {
 }
 
 fun Application.module() {
+    install(CallLogging)
     install(CORS) {
         this.allowMethod(Get)
         this.allowMethod(Options)

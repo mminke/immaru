@@ -1,18 +1,13 @@
 package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.Configuration
-import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.collections.Collection
-import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
-import io.ktor.http.HttpStatusCode
-import io.ktor.resources.Resource
-import io.ktor.server.request.receive
-import io.ktor.server.resources.delete
-import io.ktor.server.resources.get
+import io.ktor.http.*
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.put
-import io.ktor.server.resources.resource
-import io.ktor.server.response.respond
+import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.r2dbc.spi.ConnectionFactories

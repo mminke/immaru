@@ -14,6 +14,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.content.ChannelWriterContent
@@ -57,7 +58,7 @@ class KtorAssetRepository(
 
     override suspend fun save(asset: Asset) {
         try {
-            httpClientProvider.httpClient.value
+            val httpResponse = httpClientProvider.httpClient.value
                 ?.put("api/collections") {
                     url {
                         appendPathSegments(asset.collectionId.value.toString())
@@ -66,6 +67,11 @@ class KtorAssetRepository(
                     contentType(ContentType.Application.Json)
                     setBody(asset)
                 }
+
+            if (httpResponse?.status?.isSuccess() != true) {
+                println("URL Used: ${httpResponse?.request?.url}")
+                throw SaveAssetException("Something went wrong saving the asset [status=${httpResponse?.status}]")
+            }
         } catch (throwable: Throwable) {
             throw SaveAssetException(throwable)
         }
