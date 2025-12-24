@@ -9,7 +9,7 @@ name: Build and publish immaru-server
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
     paths:
       - 'backend/**'
       - 'shared/**'
