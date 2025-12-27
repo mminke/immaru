@@ -35,6 +35,12 @@ The main targets are Android, JVM and iOS. Preferably the project also wants to 
    3. Start the iOS frontend
     Currently this is not tested yet because development does not have a Apple device for building/testing this.
 
+3. Configure a server in the Android App
+   1. The local development server is available using the following server url from within the android simulator:
+ 
+      http://10.0.2.2:8080
+   
+
 ## IntelliJ configuration
 
 While running a build from within IntelliJ/Android Studio it is possible a linkage error occurs.

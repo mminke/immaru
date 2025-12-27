@@ -109,7 +109,11 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
         .map { configuration ->
             currentHttpClient?.close()
 
-            configuration.serverUrl?.let { serverUrl ->
+            val activeServerUrl = configuration.useActiveConfiguration
+                ?.let { name -> configuration.serverConfigurations.find { it.name == name } }
+                ?.url
+
+            activeServerUrl?.let { serverUrl ->
                 HttpClient {
                     install(Logging) {
                         level = io.ktor.client.plugins.logging.LogLevel.NONE

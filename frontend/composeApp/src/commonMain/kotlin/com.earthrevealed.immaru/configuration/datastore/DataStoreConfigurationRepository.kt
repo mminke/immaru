@@ -8,22 +8,24 @@ import com.earthrevealed.immaru.configuration.Configuration
 import com.earthrevealed.immaru.configuration.ConfigurationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class DataStoreConfigurationRepository(
     private val dataStore: DataStore<Preferences>
 ): ConfigurationRepository {
-    override suspend fun update(configuration: Configuration) {
+    override suspend fun save(configuration: Configuration) {
         dataStore.edit { preferences ->
-            preferences[SERVER_URL_PREFERENCE_KEY] = configuration.serverUrl?:""
+            preferences[CONFIGURATION_PREFERENCE_KEY] = Json.encodeToString(configuration)
         }
     }
 
     override val configuration: Flow<Configuration>
         get() = dataStore.data.map { preferences ->
-            Configuration(
-                preferences[SERVER_URL_PREFERENCE_KEY]
-            )
+            preferences[CONFIGURATION_PREFERENCE_KEY]?.let {
+                Json.decodeFromString<Configuration>(it)
+            } ?: Configuration()
         }
 
-    private val SERVER_URL_PREFERENCE_KEY = stringPreferencesKey("immaru.server.url")
+    private val CONFIGURATION_PREFERENCE_KEY = stringPreferencesKey("immaru.configuration")
 }
