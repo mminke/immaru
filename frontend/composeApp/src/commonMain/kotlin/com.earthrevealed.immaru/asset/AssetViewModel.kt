@@ -13,11 +13,7 @@ class AssetViewModel(
 
     fun contentUrlForAsset(asset: FileAsset): Flow<String?> {
         return configuration
-            .map { config ->
-                config.useActiveConfiguration?.let { activeName ->
-                    config.serverConfigurations.find { it.name == activeName }?.url
-                }
-            }
+            .map { it.activeServerConfiguration?.url }
             .map { baseUrl ->
                 baseUrl?.let {
                     "${it}/api/collections/${asset.collectionId.value}/assets/${asset.id.value}/content"

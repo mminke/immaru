@@ -91,6 +91,13 @@ kotlin {
             implementation(libs.filekit.compose)
             implementation(libs.datastore.preferences)
         }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+            }
+        }
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)

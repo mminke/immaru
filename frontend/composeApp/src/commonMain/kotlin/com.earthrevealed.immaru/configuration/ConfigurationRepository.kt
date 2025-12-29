@@ -10,13 +10,24 @@ interface ConfigurationRepository {
 }
 
 @Serializable
+data class Configuration(
+    val serverConfigurations: List<ServerConfiguration> = emptyList(),
+    val activeServerConfigurationName: String? = null
+) {
+    val activeServerConfiguration = serverConfigurations.firstOrNull { it.name == activeServerConfigurationName }
+}
+
+@Serializable
 data class ServerConfiguration(
     val name: String,
     val url: String
-)
-
-@Serializable
-data class Configuration(
-    val serverConfigurations: List<ServerConfiguration> = emptyList(),
-    val useActiveConfiguration: String? = null
-)
+) {
+    init {
+        require(name.matches(Regex("[a-zA-Z0-9 _-]+"))) {
+            "Name can only contain letters, number, spaces, underscores and hyphens."
+        }
+        require(url.matches(Regex("^https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"))) {
+            "URL is not valid."
+        }
+    }
+}

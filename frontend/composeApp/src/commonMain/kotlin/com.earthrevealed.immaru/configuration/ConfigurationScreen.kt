@@ -56,21 +56,31 @@ fun ConfigurationScreen(
 
     if (showAddDialog.value) {
         ConfigurationDialog(
+            viewModel = viewModel,
             onConfirm = { _, name, url ->
-                viewModel.addConfiguration(name, url)
-                showAddDialog.value = false
+                if (viewModel.addConfiguration(name, url)) {
+                    showAddDialog.value = false
+                }
             },
-            onDismiss = { showAddDialog.value = false }
+            onDismiss = {
+                viewModel.clearValidationErrors()
+                showAddDialog.value = false
+            }
         )
     }
     editingConfiguration.value?.let { config ->
         ConfigurationDialog(
+            viewModel = viewModel,
             configuration = config,
             onConfirm = { originalName, name, url ->
-                viewModel.updateConfiguration(originalName!!, name, url)
-                editingConfiguration.value = null
+                if (viewModel.updateConfiguration(originalName!!, name, url)) {
+                    editingConfiguration.value = null
+                }
             },
-            onDismiss = { editingConfiguration.value = null }
+            onDismiss = {
+                viewModel.clearValidationErrors()
+                editingConfiguration.value = null
+            }
         )
     }
 
@@ -123,13 +133,13 @@ fun ConfigurationScreen(
                 if (viewModel.state.value == State.PROCESSING) {
                     CenteredProgressIndicator()
                 } else {
-                    viewModel.configurations.value.forEach { serverConfig ->
+                    viewModel.serverConfigurations.value.forEach { serverConfig ->
                         ListItem(
                             headlineContent = { Text(serverConfig.name) },
                             supportingContent = { Text(serverConfig.url) },
                             leadingContent = {
                                 Checkbox(
-                                    checked = viewModel.activeConfiguration.value == serverConfig.name,
+                                    checked = viewModel.activeServerConfigurationName.value == serverConfig.name,
                                     onCheckedChange = { _ -> viewModel.setActiveConfiguration(serverConfig.name) }
                                 )
                             },
@@ -157,6 +167,7 @@ fun ConfigurationScreen(
 
 @Composable
 fun ConfigurationDialog(
+    viewModel: ConfigurationViewModel,
     configuration: ServerConfiguration? = null,
     onConfirm: (originalName: String?, name: String, url: String) -> Unit,
     onDismiss: () -> Unit
@@ -173,13 +184,17 @@ fun ConfigurationDialog(
                     value = name.value,
                     onValueChange = { name.value = it },
                     label = { Text("Name") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    isError = viewModel.nameError.value != null,
+                    supportingText = { viewModel.nameError.value?.let { Text(it) } }
                 )
                 TextField(
                     value = url.value,
                     onValueChange = { url.value = it },
                     label = { Text("URL") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = viewModel.urlError.value != null,
+                    supportingText = { viewModel.urlError.value?.let { Text(it) } }
                 )
             }
         },

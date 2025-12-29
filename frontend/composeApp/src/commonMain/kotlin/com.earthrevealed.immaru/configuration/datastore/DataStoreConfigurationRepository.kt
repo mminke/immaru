@@ -13,17 +13,19 @@ import kotlinx.serialization.json.Json
 
 class DataStoreConfigurationRepository(
     private val dataStore: DataStore<Preferences>
-): ConfigurationRepository {
+) : ConfigurationRepository {
+    private val json = Json { ignoreUnknownKeys = true }
+
     override suspend fun save(configuration: Configuration) {
         dataStore.edit { preferences ->
-            preferences[CONFIGURATION_PREFERENCE_KEY] = Json.encodeToString(configuration)
+            preferences[CONFIGURATION_PREFERENCE_KEY] = json.encodeToString(configuration)
         }
     }
 
     override val configuration: Flow<Configuration>
         get() = dataStore.data.map { preferences ->
             preferences[CONFIGURATION_PREFERENCE_KEY]?.let {
-                Json.decodeFromString<Configuration>(it)
+                json.decodeFromString<Configuration>(it)
             } ?: Configuration()
         }
 

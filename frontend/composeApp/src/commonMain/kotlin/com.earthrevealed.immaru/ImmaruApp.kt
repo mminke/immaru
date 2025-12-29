@@ -109,9 +109,7 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
         .map { configuration ->
             currentHttpClient?.close()
 
-            val activeServerUrl = configuration.useActiveConfiguration
-                ?.let { name -> configuration.serverConfigurations.find { it.name == name } }
-                ?.url
+            val activeServerUrl = configuration.activeServerConfiguration?.url
 
             activeServerUrl?.let { serverUrl ->
                 HttpClient {

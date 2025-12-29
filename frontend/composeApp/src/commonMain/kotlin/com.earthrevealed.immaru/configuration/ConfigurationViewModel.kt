@@ -9,46 +9,74 @@ class ConfigurationViewModel(
     private val configurationRepository: ConfigurationRepository,
     initialConfiguration: Configuration
 ) : ViewModel() {
-    val configurations = mutableStateOf(initialConfiguration.serverConfigurations)
-    val activeConfiguration = mutableStateOf(initialConfiguration.useActiveConfiguration)
+    val serverConfigurations = mutableStateOf(initialConfiguration.serverConfigurations)
+    val activeServerConfigurationName = mutableStateOf(initialConfiguration.activeServerConfigurationName)
 
     val state = mutableStateOf(State.READY)
+    val nameError = mutableStateOf<String?>(null)
+    val urlError = mutableStateOf<String?>(null)
 
     fun setConfiguration(configuration: Configuration) {
-        configurations.value = configuration.serverConfigurations
-        activeConfiguration.value = configuration.useActiveConfiguration
+        serverConfigurations.value = configuration.serverConfigurations
+        activeServerConfigurationName.value = configuration.activeServerConfigurationName
         state.value = State.READY
     }
 
-    fun addConfiguration(name: String, url: String) {
-        configurations.value = configurations.value + ServerConfiguration(name, url)
-        state.value = State.IS_DIRTY
+    fun addConfiguration(name: String, url: String): Boolean {
+        return try {
+            serverConfigurations.value = serverConfigurations.value + ServerConfiguration(name, url)
+            state.value = State.IS_DIRTY
+            clearValidationErrors()
+            true
+        } catch (e: IllegalArgumentException) {
+            handleValidationError(e)
+            false
+        }
     }
 
-    fun updateConfiguration(originalName: String, name: String, url: String) {
-        val originalConfiguration = configurations.value.find { it.name == originalName }
-        if (originalConfiguration != null) {
-            val updatedConfiguration = originalConfiguration.copy(name = name, url = url)
-            configurations.value = configurations.value.map {
+    fun updateConfiguration(originalName: String, name: String, url: String): Boolean {
+        return try {
+            val updatedConfiguration = ServerConfiguration(name, url)
+            serverConfigurations.value = serverConfigurations.value.map {
                 if (it.name == originalName) updatedConfiguration else it
             }
-            if (activeConfiguration.value == originalName) {
-                activeConfiguration.value = name
+            if (activeServerConfigurationName.value == originalName) {
+                activeServerConfigurationName.value = name
             }
             state.value = State.IS_DIRTY
+            clearValidationErrors()
+            true
+        } catch (e: IllegalArgumentException) {
+            handleValidationError(e)
+            false
+        }
+    }
+
+    fun clearValidationErrors() {
+        nameError.value = null
+        urlError.value = null
+    }
+
+    private fun handleValidationError(e: IllegalArgumentException) {
+        if (e.message?.contains("Name", ignoreCase = true) == true) {
+            nameError.value = e.message
+            urlError.value = null
+        } else {
+            urlError.value = e.message
+            nameError.value = null
         }
     }
 
     fun removeConfiguration(name: String) {
-        configurations.value = configurations.value.filterNot { it.name == name }
-        if (activeConfiguration.value == name) {
-            activeConfiguration.value = null
+        serverConfigurations.value = serverConfigurations.value.filterNot { it.name == name }
+        if (activeServerConfigurationName.value == name) {
+            activeServerConfigurationName.value = null
         }
         state.value = State.IS_DIRTY
     }
 
     fun setActiveConfiguration(name: String) {
-        activeConfiguration.value = name
+        activeServerConfigurationName.value = name
         state.value = State.IS_DIRTY
     }
 
@@ -58,8 +86,8 @@ class ConfigurationViewModel(
 
             configurationRepository.save(
                 Configuration(
-                    serverConfigurations = configurations.value,
-                    useActiveConfiguration = activeConfiguration.value
+                    serverConfigurations = serverConfigurations.value,
+                    activeServerConfigurationName = activeServerConfigurationName.value
                 )
             )
             onSuccess()
