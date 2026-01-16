@@ -4,10 +4,15 @@ updates:
     open-pull-requests-limit: 10
     directory: "/"
     groups:
-      all:
+      all|minor-patch:
         update-types:
           - "minor"
           - "patch"
+        patterns:
+          - "*"
+      all|major:
+        update-types:
+          - "major"
         patterns:
           - "*"
     exclude-paths:
