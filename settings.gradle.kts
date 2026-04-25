@@ -31,9 +31,13 @@ dependencyResolutionManagement {
 
 include(":core")
 include(":composeApp")
+include(":androidApp")
+//include(":jvmApp")
 include(":server")
 
 
 project(":core").projectDir = file("shared/core")
 project(":composeApp").projectDir = file("frontend/composeApp")
+project(":androidApp").projectDir = file("frontend/androidApp")
+//project(":jvmApp").projectDir = file("frontend/jvmApp")
 project(":server").projectDir = file("backend/server")

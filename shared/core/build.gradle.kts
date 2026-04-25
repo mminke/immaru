@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.serialization)
 }
 
@@ -11,7 +11,11 @@ kotlin {
         freeCompilerArgs.add("-Xexpect-actual-classes")
         optIn.add("kotlin.time.ExperimentalTime")
     }
-    androidTarget {
+
+    androidLibrary {
+        namespace = "com.earthrevealed.immaru.core"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
@@ -26,20 +30,6 @@ kotlin {
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        browser {
-//            commonWebpackConfig {
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-//                    static = (static ?: mutableListOf()).apply {
-//                        // Serve sources to debug inside browser
-//                        add(project.projectDir.path)
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     sourceSets {
         all {
@@ -74,29 +64,9 @@ kotlin {
             runtimeOnly(libs.postgresql.jdbc)
             runtimeOnly(libs.postgresql.r2dbc)
         }
-
-//        wasmJsMain.dependencies {
-//            implementation(libs.ktor.client.js)
-//        }
     }
 }
 
-android {
-    namespace = "com.earthrevealed.immaru.core"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
-    }
-}
-
-// This buildscript is a temporary workaround to make Android Studio run the immaru-server jvm
-// with the proper flyway scripts. Android studio does not include the resources folder of dependencies
-// so the resources are copied directly to the classes folder by this script.
-// see: https://youtrack.jetbrains.com/issue/KTIJ-16582/Consumer-Kotlin-JVM-library-cannot-access-a-Kotlin-Multiplatform-JVM-target-resources-in-multi-module-Gradle-project\
 tasks {
     val jvmProcessResources by getting
     val fixMissingResources by creating(Copy::class) {

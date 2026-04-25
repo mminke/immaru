@@ -1,6 +1,7 @@
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.earthrevealed.immaru.ImmaruApp
+import com.earthrevealed.immaru.configuration.datastore.createJvmDataStore
 import io.github.vinceglb.filekit.FileKit
 import org.koin.dsl.module
 
