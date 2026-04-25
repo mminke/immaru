@@ -79,7 +79,7 @@ fun BrowseAllAssetsView(
                         onClick = { toggleShowInformation() })
                     {
                         Icon(
-                            if(showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
+                            if (showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
                             contentDescription = "Show Information"
                         )
                     }
@@ -180,16 +180,13 @@ fun UploadFloatingActionButtons(
     val showSmallButtons = remember { mutableStateOf(false) }
 
     val filePicker = rememberFilePickerLauncher(
-        title = "Select file(s)",
         type = FileKitType.ImageAndVideo,
-        mode = FileKitMode.Multiple()
+        mode = FileKitMode.Multiple(),
     ) { files ->
         if (files != null) onFilesPicked(files)
         showSmallButtons.value = false
     }
-    val directoryPicker = rememberDirectoryPickerLauncher(
-        title = "Select folder"
-    ) { directory ->
+    val directoryPicker = rememberDirectoryPickerLauncher { directory ->
         if (directory != null) onDirectoryPicked(directory)
         showSmallButtons.value = false
     }
