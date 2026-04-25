@@ -1,7 +1,7 @@
 [versions]
 agp = "9.0.1"
-kotlin = "2.3.0"
-jib = "3.5.2"
+kotlin = "2.3.21"
+jib = "3.5.3"
 android-compileSdk = "36"
 android-minSdk = "29"
 android-targetSdk = "35"
