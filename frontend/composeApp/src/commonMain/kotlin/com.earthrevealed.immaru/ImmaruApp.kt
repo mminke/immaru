@@ -54,6 +54,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 
 
@@ -133,10 +134,11 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
 
 @Composable
 fun ImmaruApp(platformSpecificModule: Module) {
-    KoinApplication(application = {
-        platformSpecificModule.apply { modules(this) }
-        modules(appModule)
-    }) {
+    KoinApplication(
+        configuration = koinConfiguration {
+            modules(platformSpecificModule, appModule)
+        }
+    ) {
         MainNavigation()
     }
 }
