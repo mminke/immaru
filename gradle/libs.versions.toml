@@ -5,6 +5,8 @@ jib = "3.5.3"
 android-compileSdk = "36"
 android-minSdk = "29"
 android-targetSdk = "35"
+android-ndk = "29.0.14206865"
+
 androidx-activityCompose = "1.13.0"
 
 kotlin-logging = "3.0.5"

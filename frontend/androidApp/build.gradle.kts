@@ -18,6 +18,7 @@ dependencies {
 android {
     namespace = "com.earthrevealed.immaru"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    ndkVersion = libs.versions.android.ndk.get()
 
     defaultConfig {
         applicationId = "com.earthrevealed.immaru"
