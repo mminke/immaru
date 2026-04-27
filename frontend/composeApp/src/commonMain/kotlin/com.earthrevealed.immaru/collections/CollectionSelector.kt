@@ -13,10 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun CollectionSelector(
     collections: List<Collection>,
     onSelect: (Collection) -> Unit = {},
@@ -38,4 +37,19 @@ fun CollectionSelector(
             HorizontalDivider()
         }
     }
+}
+
+@Composable
+@Preview(showSystemUi = true)
+private fun CollectionSelectorPreview() {
+    CollectionSelector(
+        collections = listOf(
+            collection {
+                this.name = "Preview collection 1"
+            },
+            collection {
+                this.name = "Preview collection 2"
+            },
+        )
+    )
 }

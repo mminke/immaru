@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -142,7 +142,6 @@ fun ImmaruApp(platformSpecificModule: Module) {
 }
 
 @Composable
-@Preview
 fun MainNavigation(
     globalViewModel: GlobalViewModel = koinViewModel(),
     navController: NavHostController = rememberNavController(),
@@ -217,4 +216,11 @@ fun MainNavigation(
             }
         }
     }
+}
+
+
+@Composable
+@Preview(showSystemUi = true)
+private fun MainNavigationPreview() {
+    MainNavigation()
 }

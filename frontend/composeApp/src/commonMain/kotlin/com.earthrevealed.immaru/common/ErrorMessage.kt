@@ -7,10 +7,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun ErrorMessage(message: String) {
     Row {
         Icon(Icons.Filled.Warning, "Error")
@@ -18,4 +17,10 @@ fun ErrorMessage(message: String) {
             message, color = Color.Red
         )
     }
+}
+
+@Composable
+@Preview(showSystemUi = true)
+private fun ErrorMessagePreview() {
+    ErrorMessage("This is an error message")
 }

@@ -13,7 +13,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.koin.android)
     implementation(libs.datastore.preferences)
-    debugImplementation(compose.uiTooling)
 }
 
 android {

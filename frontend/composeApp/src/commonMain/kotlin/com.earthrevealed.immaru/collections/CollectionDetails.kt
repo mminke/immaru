@@ -10,10 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun CollectionDetails(
     collection: Collection,
     onChange: (collection: Collection) -> Unit
@@ -31,4 +30,12 @@ fun CollectionDetails(
         )
         Text(collection.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).toString())
     }
+}
+
+@Composable
+@Preview(showSystemUi = true)
+private fun CollectionDetailsPreview() {
+    CollectionDetails(collection {
+        this.name = "Preview collection"
+    }) {}
 }

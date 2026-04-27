@@ -100,13 +100,15 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers-postgresql" }
 testcontainers-r2dbc = { module = "org.testcontainers:r2dbc", version.ref = "testcontainers-r2dbc" }
 
+jetbrains-compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose-multiplatform" }
+ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose-multiplatform" }
+
 [bundles]
 
 flyway = ["flyway-core", "flyway-database-postgresql"]
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }

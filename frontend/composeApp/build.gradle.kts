@@ -67,6 +67,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.jetbrains.compose.ui.tooling.preview)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -122,6 +123,10 @@ kotlin {
 //            implementation(libs.ktor.client.js)
 //        }
     }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.ui.tooling)
 }
 
 compose.desktop {
