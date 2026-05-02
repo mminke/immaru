@@ -20,7 +20,7 @@ fun Route.selectorsApi() {
     route("available-date-selectors") {
         get {
             val collectionId = CollectionId.fromString(call.parameters["collection-id"]!!)
-            if (collectionRepository.get(collectionId) == null) { //TODO: replace with collectionRepository.exists(collectionId)
+            if (!collectionRepository.exists(collectionId)) {
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }

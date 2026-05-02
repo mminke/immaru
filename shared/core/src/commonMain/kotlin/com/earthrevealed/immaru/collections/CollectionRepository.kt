@@ -4,6 +4,7 @@ interface CollectionRepository {
     suspend fun save(collection: Collection)
     suspend fun all(): List<Collection>
     suspend fun get(id: CollectionId): Collection?
+    suspend fun exists(id: CollectionId): Boolean
     suspend fun delete(id: CollectionId)
 }
 

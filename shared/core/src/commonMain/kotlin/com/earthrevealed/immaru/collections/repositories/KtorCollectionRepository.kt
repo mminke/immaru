@@ -51,6 +51,10 @@ class KtorCollectionRepository(
         TODO("Not yet implemented")
     }
 
+    override suspend fun exists(id: CollectionId): Boolean {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun delete(id: CollectionId) {
         try {
             httpClientProvider.httpClient.value?.delete("api/collections/") {

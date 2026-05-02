@@ -80,6 +80,18 @@ class R2dbcCollectionRepository(
         }
     }
 
+    override suspend fun exists(id: CollectionId): Boolean {
+        return connectionFactory.useConnection {
+            createStatement("SELECT 1 FROM $tableName WHERE id = $1")
+                .bind("$1", id.value.toJavaUuid())
+                .execute()
+                .awaitSingle()
+                .map { _, _ -> true }
+                .asFlow()
+                .firstOrNull() ?: false
+        }
+    }
+
     override suspend fun delete(id: CollectionId) {
         connectionFactory.useConnection {
             try {

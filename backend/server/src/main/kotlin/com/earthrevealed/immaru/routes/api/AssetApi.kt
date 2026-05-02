@@ -31,26 +31,27 @@ fun Route.assetApi() {
     val assetRepository = R2dbcAssetRepository(connectionFactory, library)
 
     get<Collections.ById.Assets> { request ->
-        if (collectionRepository.get(request.collection.id1) == null) { //TODO: replace with collectionRepository.exists(collectionId)
+        val collectionId = request.collection.id1
+        if (!collectionRepository.exists(collectionId)) {
             call.respond(HttpStatusCode.NotFound)
             return@get
         }
 
         call.respond(
-            assetRepository.findAllFor(request.collection.id1)
+            assetRepository.findAllFor(collectionId)
         )
     }
 
     put<Collections.ById.Assets> { request ->
-        val collection = collectionRepository.get(request.collection.id1)
-        if (collection == null) {
+        val collectionId = request.collection.id1
+        if (!collectionRepository.exists(collectionId)) {
             logger.warn { "No collection found while trying to create a new asset" }
             call.respond(HttpStatusCode.NotFound)
             return@put
         }
 
         val asset = call.receive<Asset>()
-        if (asset.collectionId != request.collection.id1) {
+        if (asset.collectionId != collectionId) {
             logger.warn { "Collection id in asset is not the same as the collection specified in url" }
             call.respond(HttpStatusCode.BadRequest)
             return@put
@@ -63,7 +64,7 @@ fun Route.assetApi() {
     get<Collections.ById.Assets.ById> { request ->
         val collectionId = request.parent.collection.id1
         val assetId = request.id2
-        if (collectionRepository.get(collectionId) == null) { //TODO: replace with collectionRepository.exists(collectionId)
+        if (!collectionRepository.exists(collectionId)) {
             call.respond(HttpStatusCode.NotFound)
             return@get
         }
@@ -80,8 +81,7 @@ fun Route.assetApi() {
 
     get<Collections.ById.Assets.ById.Content> { request ->
         val collectionId = request.asset.parent.collection.id1
-        val collection = collectionRepository.get(collectionId)
-        if (collection == null) {
+        if (!collectionRepository.exists(collectionId)) {
             logger.warn { "No collection found while trying to process content for asset." }
             call.respond(HttpStatusCode.NotFound)
             return@get
@@ -119,8 +119,7 @@ fun Route.assetApi() {
 
     put<Collections.ById.Assets.ById.Content> { request ->
         val collectionId = request.asset.parent.collection.id1
-        val collection = collectionRepository.get(collectionId)
-        if (collection == null) {
+        if (!collectionRepository.exists(collectionId)) {
             logger.warn { "No collection found while trying to process content for asset." }
             call.respond(HttpStatusCode.NotFound)
             return@put
