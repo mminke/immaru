@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru
+package com.earthrevealed.ktor.extensions.buildinfo
 
 import kotlinx.serialization.Serializable
 import java.util.Properties
@@ -9,12 +9,17 @@ data class BuildInfo(
     val build: Build = Build(),
     val git: Git = Git()
 ) {
-
     @Serializable
     data class Project(
         val name: String = buildInfo.getProperty("project.name").toString(),
-        val version: String = buildInfo.getProperty("project.version").toString()
-    )
+        val version: String = buildInfo.getProperty("project.version").toString(),
+        val root: Root = Root(),
+    ) {
+        @Serializable
+        data class Root(
+            val name: String = buildInfo.getProperty("project.root.name").toString()
+        )
+    }
 
     @Serializable
     data class Build(

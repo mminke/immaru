@@ -23,6 +23,7 @@ abstract class BuildInfoTask @Inject constructor(private var execOperations: Exe
         val outputFile = buildInfoOutput.asFile.get()
         outputFile.writeText(
             """
+                project.root.name=${project.rootProject.name}
                 project.name=${project.name}
                 project.version=${project.version}
                 build.time=${SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())}
@@ -36,7 +37,7 @@ abstract class BuildInfoTask @Inject constructor(private var execOperations: Exe
     }
 
     private fun gitCommitHash(): String {
-        return executeCommand("git", "rev-parse", "--short", "HEAD")!!
+        return executeCommand("git", "rev-parse", "HEAD")!!
     }
 
     private fun gitCurrentBranch(): String? {

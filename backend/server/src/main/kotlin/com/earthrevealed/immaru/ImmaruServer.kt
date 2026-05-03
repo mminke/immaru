@@ -1,7 +1,7 @@
 package com.earthrevealed.immaru
 
 import com.earthrevealed.immaru.routes.api.api
-import com.earthrevealed.immaru.routes.info
+import com.earthrevealed.ktor.extensions.buildinfo.buildInfo
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Options
@@ -18,7 +18,6 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.resources.Resources
 import io.ktor.server.routing.routing
 import org.flywaydb.core.Flyway
-import org.slf4j.event.Level
 
 fun main() {
 
@@ -59,29 +58,6 @@ fun Application.configureDI() {
 fun Application.configureContentNegotiation() {
     install(ContentNegotiation) {
         json()
-//        gson {
-//            registerTypeAdapter(
-//                OffsetDateTime::class.java, JsonDeserializer { json, _, _ ->
-//                    OffsetDateTime.parse(json.asString)
-//                }
-//            )
-//            registerTypeAdapter(
-//                OffsetDateTime::class.java, JsonSerializer<OffsetDateTime> { src, _, _ ->
-//                    JsonPrimitive(src.toString())
-//                }
-//            )
-//            registerTypeHierarchyAdapter(
-//                UUIDId::class.java, JsonDeserializer { json, typeOfT, _ ->
-//                    Class.forName(typeOfT.typeName).getConstructor(UUID::class.java)
-//                        .newInstance(UUID.fromString(json.asString))
-//                }
-//            )
-//            registerTypeHierarchyAdapter(
-//                UUIDId::class.java, JsonSerializer<UUIDId> { src, _, _ ->
-//                    JsonPrimitive(src.value.toString())
-//                }
-//            )
-//        }
     }
 }
 
@@ -101,7 +77,7 @@ fun configureDatabaseSchema() {
 
 fun Application.configureRouting() {
     routing {
-        info()
         api()
+        buildInfo()
     }
 }
