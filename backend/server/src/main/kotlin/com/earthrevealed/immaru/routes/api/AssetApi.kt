@@ -2,34 +2,31 @@ package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.Configuration
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
+import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.contentType
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveChannel
-import io.ktor.server.resources.get
+import io.ktor.http.*
+import io.ktor.http.ContentType.Application.OctetStream
+import io.ktor.server.request.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.put
-import io.ktor.server.response.header
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytesWriter
+import io.ktor.server.response.*
 import io.ktor.server.routing.Route
-import io.ktor.utils.io.writeByteArray
+import io.ktor.server.routing.RoutingContext
+import io.ktor.utils.io.*
 import io.r2dbc.spi.ConnectionFactories
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
-fun Route.assetApi() {
-    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
-    val collectionRepository = R2dbcCollectionRepository(connectionFactory)
-    val library = Library(Configuration.immaru.library.path)
-    val assetRepository = R2dbcAssetRepository(connectionFactory, library)
-
+fun Route.assetApi(
+    collectionRepository: CollectionRepository = createCollectionRepository(),
+    assetRepository: AssetRepository = createAssetRepository(),
+) {
     get<Collections.ById.Assets> { request ->
         val collectionId = request.collection.id1
         if (!collectionRepository.exists(collectionId)) {
@@ -118,6 +115,8 @@ fun Route.assetApi() {
     }
 
     put<Collections.ById.Assets.ById.Content> { request ->
+        expectContentType(OctetStream) { return@put }
+
         val collectionId = request.asset.parent.collection.id1
         if (!collectionRepository.exists(collectionId)) {
             logger.warn { "No collection found while trying to process content for asset." }
@@ -138,16 +137,29 @@ fun Route.assetApi() {
             return@put
         }
 
-        //TODO: Replace with something like expectContentType(..)
-        val contentType = call.request.contentType()
-        if (!contentType.match(ContentType.Application.OctetStream)) {
-            call.respond(HttpStatusCode.BadRequest, "Unsupported media type")
-            return@put
-        }
-
         val content = call.receiveChannel().toFlow()
         assetRepository.saveContentFor(asset, content)
 
         call.respond(HttpStatusCode.OK, "File uploaded successfully")
     }
+
+}
+
+suspend inline fun RoutingContext.expectContentType(expectedContentType: ContentType, orElseBody: () -> Unit) {
+    val contentType = call.request.contentType()
+    if (!contentType.match(expectedContentType)) {
+        call.respond(HttpStatusCode.UnsupportedMediaType, "Unsupported media type")
+        return orElseBody()
+    }
+}
+
+private fun createCollectionRepository(): CollectionRepository {
+    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
+    return R2dbcCollectionRepository(connectionFactory)
+}
+
+private fun createAssetRepository(): AssetRepository {
+    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
+    val library = Library(Configuration.immaru.library.path)
+    return R2dbcAssetRepository(connectionFactory, library)
 }
