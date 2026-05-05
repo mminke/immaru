@@ -9,6 +9,7 @@ import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
+import com.earthrevealed.ktor.extensions.common.expectContentType
 import io.ktor.http.*
 import io.ktor.http.ContentType.Application.OctetStream
 import io.ktor.server.request.*
@@ -16,7 +17,6 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingContext
 import io.ktor.utils.io.*
 import io.r2dbc.spi.ConnectionFactories
 import mu.KotlinLogging
@@ -143,14 +143,6 @@ fun Route.assetApi(
         call.respond(HttpStatusCode.OK, "File uploaded successfully")
     }
 
-}
-
-suspend inline fun RoutingContext.expectContentType(expectedContentType: ContentType, orElseBody: () -> Unit) {
-    val contentType = call.request.contentType()
-    if (!contentType.match(expectedContentType)) {
-        call.respond(HttpStatusCode.UnsupportedMediaType, "Unsupported media type")
-        return orElseBody()
-    }
 }
 
 private fun createCollectionRepository(): CollectionRepository {
