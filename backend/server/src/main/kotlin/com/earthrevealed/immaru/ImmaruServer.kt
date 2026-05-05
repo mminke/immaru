@@ -1,5 +1,6 @@
 package com.earthrevealed.immaru
 
+import com.earthrevealed.immaru.di.applicationModule
 import com.earthrevealed.immaru.routes.api.api
 import com.earthrevealed.ktor.extensions.buildinfo.buildInfo
 import io.ktor.http.HttpMethod.Companion.Delete
@@ -18,6 +19,7 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.resources.Resources
 import io.ktor.server.routing.routing
 import org.flywaydb.core.Flyway
+import org.koin.ktor.plugin.Koin
 
 fun main() {
 
@@ -49,10 +51,9 @@ fun Application.module() {
 }
 
 fun Application.configureDI() {
-//    install(Koin) {
-//        slf4jLogger()
-//        modules(applicationModule)
-//    }
+    install(Koin) {
+        modules(applicationModule)
+    }
 }
 
 fun Application.configureContentNegotiation() {

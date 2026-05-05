@@ -1,13 +1,9 @@
 package com.earthrevealed.immaru.routes.api
 
-import com.earthrevealed.immaru.Configuration
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
-import com.earthrevealed.immaru.assets.library.Library
-import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.CollectionRepository
-import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.ktor.extensions.common.expectContentType
 import io.ktor.http.*
@@ -18,14 +14,13 @@ import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.utils.io.*
-import io.r2dbc.spi.ConnectionFactories
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
 fun Route.assetApi(
-    collectionRepository: CollectionRepository = createCollectionRepository(),
-    assetRepository: AssetRepository = createAssetRepository(),
+    collectionRepository: CollectionRepository,
+    assetRepository: AssetRepository,
 ) {
     get<Collections.ById.Assets> { request ->
         val collectionId = request.collection.id1
@@ -143,15 +138,4 @@ fun Route.assetApi(
         call.respond(HttpStatusCode.OK, "File uploaded successfully")
     }
 
-}
-
-private fun createCollectionRepository(): CollectionRepository {
-    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
-    return R2dbcCollectionRepository(connectionFactory)
-}
-
-private fun createAssetRepository(): AssetRepository {
-    val connectionFactory = ConnectionFactories.get(Configuration.immaru.database.r2dbc.url)
-    val library = Library(Configuration.immaru.library.path)
-    return R2dbcAssetRepository(connectionFactory, library)
 }

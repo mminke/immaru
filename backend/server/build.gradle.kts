@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotionation)
     implementation(libs.ktor.server.resources)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.koin.ktor)
     implementation(libs.kotlinx.io.core)
 
     implementation(libs.bundles.flyway)
