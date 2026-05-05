@@ -4,15 +4,106 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Immaru - info</title>
-
+        <link rel="stylesheet" href="styles/index.css">
+        <script src="scripts/info.js" defer></script>
     </head>
 
     <body>
-        <h1>Immaru</h1>
-        <h2>Build info</h2>
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-header">
+                <div>
+                    <div class="eyebrow">Service info</div>
+                    <h1 id="app-title">Immaru</h1>
+                </div>
+                <div class="badge badge--env">Environment: dev</div>
+            </div>
 
-        <div id="data-container"></div>
+            <div class="hero-actions">
+                <a class="hero-action" data-service-url="/swagger">Swagger UI</a>
+                <a class="hero-action hero-action--placeholder" data-service-url="/docs">Documentation</a>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <section class="panel">
+                <h2>Overview</h2>
+                <div class="overview-grid">
+                    <article class="metric-card">
+                        <span class="metric-label">Root name</span>
+                        <div class="metric-value" id="root-name-value">Loading...</div>
+                    </article>
+                    <article class="metric-card">
+                        <span class="metric-label">Project name</span>
+                        <div class="metric-value" id="project-name-value">Loading...</div>
+                    </article>
+                    <article class="metric-card">
+                        <span class="metric-label">Project version</span>
+                        <div class="metric-value" id="project-version-value">Loading...</div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel" id="build-information">
+                <h2>Build information</h2>
+                <div class="build-info-grid" id="data-container">
+                    <div class="status-message">Loading build details…</div>
+                </div>
+            </section>
+
+        </div>
+
+        <section class="panel" id="service-access">
+            <h2>Service access</h2>
+            <div class="link-grid">
+
+                <a class="link-card" data-service-url="/openapi.json">
+                    <div class="link-card__title">
+                        <span>OpenAPI specification</span>
+                        <span class="status-pill status-pill--ready">Expected route</span>
+                    </div>
+                    <div class="link-card__description">Open the raw API contract once the OpenAPI document is published
+                        by the backend.
+                    </div>
+                </a>
+
+                <a class="link-card link-card--placeholder" data-service-url="/metrics">
+                    <div class="link-card__title">
+                        <span>Metrics</span>
+                        <span class="status-pill status-pill--placeholder">Placeholder</span>
+                    </div>
+                    <div class="link-card__description">Reserved for runtime dashboards and health metrics once
+                        exposed.
+                    </div>
+                </a>
+
+                <a class="link-card link-card--placeholder" data-service-url="/logging">
+                    <div class="link-card__title">
+                        <span>Logging</span>
+                        <span class="status-pill status-pill--placeholder">Placeholder</span>
+                    </div>
+                    <div class="link-card__description">Reserved for central log search or tracing links.</div>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <template id="build-info-row-template">
+        <div class="info-row">
+            <div class="info-label"></div>
+            <div class="info-value"></div>
+        </div>
+    </template>
+
+    <template id="build-info-row-mono-template">
+        <div class="info-row">
+            <div class="info-label"></div>
+            <div class="info-value info-value--mono"></div>
+        </div>
+    </template>
+
+    <template id="build-info-error-template">
+        <div class="status-message status-message--error"></div>
+    </template>
     </body>
-
-    <script src="scripts/info.js"></script>
 </html>
