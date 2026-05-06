@@ -1,11 +1,14 @@
 package com.earthrevealed.immaru.assets.repositories.r2dbc
 
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.SelectableDay
 import com.earthrevealed.immaru.assets.SelectableMonth
@@ -136,6 +139,84 @@ class R2dbcAssetRepository(
         }
     }
 
+    override suspend fun findPageFor(
+        collectionId: CollectionId,
+        limit: Int,
+        cursor: AssetCursor?,
+        direction: PageDirection,
+    ): AssetPage {
+        require(limit in 1..200) { "limit must be between 1 and 200" }
+
+        val query = when {
+            cursor == null -> """
+                                select $selectColumns
+                                from assets
+                                where collection_id = $1
+                                
+                                order by created_at desc, id desc
+                                limit $2        
+                            """.trimIndent()
+
+            direction == PageDirection.FORWARD -> """
+                                select $selectColumns
+                                from assets            
+                                where collection_id = $1        
+                                and (created_at, id) < ($2, $3)            
+                                order by created_at desc, id desc            
+                                limit $4        
+                            """.trimIndent()
+
+            else -> """            
+                                select $selectColumns            
+                                from assets            
+                                where collection_id = $1              
+                                and (created_at, id) > ($2, $3)            
+                                order by created_at asc, id asc            
+                                limit $4        
+                    """.trimIndent()
+        }
+
+        val fetched = connectionFactory.useConnection {
+            val stmt = createStatement(query)
+                .bind("$1", collectionId.value.toJavaUuid())
+
+            when {
+                cursor == null -> stmt
+                    .bind("$2", limit + 1) // fetch one extra to detect hasMore
+                else -> stmt
+                    .bind("$2", cursor.createdAt.toJavaInstant())
+                    .bind("$3", cursor.id.value.toJavaUuid())
+                    .bind("$4", limit + 1)
+            }
+                .execute()
+                .awaitSingle()
+                .mapToDomain()
+                .toList()
+        }
+
+        val hasMore = fetched.size > limit
+        val sliced = fetched.take(limit)
+        val items = if (direction == PageDirection.BACKWARD) sliced.reversed() else sliced
+
+        val first = items.firstOrNull()
+        val last = items.lastOrNull()
+
+        val prevCursor = first?.let {
+            // use auditFields.createdOn if that maps to assets.created_at in your model
+            AssetCursor(it.auditFields.createdOn, it.id)
+        }
+        val nextCursor = last?.let {
+            AssetCursor(it.auditFields.createdOn, it.id)
+        }
+
+        return AssetPage(
+            items = items,
+            nextCursor = if (items.isEmpty()) null else nextCursor,
+            prevCursor = if (items.isEmpty()) null else prevCursor,
+            hasMore = hasMore
+        )
+    }
+
     override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
         return library.readContentForAssetAsFlow(asset)
     }
@@ -171,7 +252,11 @@ class R2dbcAssetRepository(
             }
         }
 
-        logger.debug { "Finished import asset [id=${asset.id}, sha256=${messageDigestPlugin.result().toHexString()}, mediaType=${detectMediaTypePlugin.result()}]" }
+        logger.debug {
+            "Finished import asset [id=${asset.id}, sha256=${
+                messageDigestPlugin.result().toHexString()
+            }, mediaType=${detectMediaTypePlugin.result()}]"
+        }
 
         asset.registerContentDetails(detectMediaTypePlugin.result(), messageDigestPlugin.result())
 

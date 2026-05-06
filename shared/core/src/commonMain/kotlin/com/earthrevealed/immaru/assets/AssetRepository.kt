@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.assets
 import com.earthrevealed.immaru.collections.CollectionId
 import kotlinx.coroutines.flow.Flow
 import kotlin.reflect.KClass
+import kotlin.time.Instant
 
 interface AssetRepository {
     suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset?
@@ -13,7 +14,30 @@ interface AssetRepository {
     suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>)
 
     suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear>
+    suspend fun findPageFor(
+        collectionId: CollectionId,
+        limit: Int,
+        cursor: AssetCursor?,
+        direction: PageDirection
+    ): AssetPage
 }
+
+data class AssetCursor(
+    val createdAt: Instant,
+    val id: AssetId,
+)
+
+enum class PageDirection {
+    FORWARD,
+    BACKWARD,
+}
+
+data class AssetPage(
+    val items: List<Asset>,
+    val nextCursor: AssetCursor?,
+    val prevCursor: AssetCursor?,
+    val hasMore: Boolean,
+)
 
 class RetrievalException : RuntimeException {
     constructor(clazz: KClass<out Any>, throwable: Throwable) : super("Cannot retrieve ${clazz.simpleName}.", throwable)

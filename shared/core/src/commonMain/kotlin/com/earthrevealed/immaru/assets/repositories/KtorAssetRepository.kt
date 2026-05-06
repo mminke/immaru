@@ -1,10 +1,13 @@
 package com.earthrevealed.immaru.assets.repositories
 
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.RetrievalException
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.SelectableYear
@@ -142,6 +145,13 @@ class KtorAssetRepository(
             throw RetrievalException(SelectableYear::class, throwable)
         }
     }
+
+    override suspend fun findPageFor(
+        collectionId: CollectionId,
+        limit: Int,
+        cursor: AssetCursor?,
+        direction: PageDirection
+    ): AssetPage {
+        TODO("Not yet implemented")
+    }
 }
-
-

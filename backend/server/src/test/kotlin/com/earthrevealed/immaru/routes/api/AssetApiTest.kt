@@ -1,10 +1,13 @@
 package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
+import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
@@ -327,6 +330,15 @@ private class InMemoryAssetRepository(
 
     override suspend fun findSelectableDates(collectionId: CollectionId) =
         emptyList<com.earthrevealed.immaru.assets.SelectableYear>()
+
+    override suspend fun findPageFor(
+        collectionId: CollectionId,
+        limit: Int,
+        cursor: AssetCursor?,
+        direction: PageDirection
+    ): AssetPage {
+        TODO("Not yet implemented")
+    }
 
     fun storedContentFor(assetId: AssetId): ByteArray = content[assetId] ?: ByteArray(0)
 
