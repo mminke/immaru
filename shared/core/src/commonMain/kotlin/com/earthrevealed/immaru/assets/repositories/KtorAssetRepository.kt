@@ -14,6 +14,7 @@ import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get as getResource
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -152,6 +153,20 @@ class KtorAssetRepository(
         cursor: AssetCursor?,
         direction: PageDirection
     ): AssetPage {
-        TODO("Not yet implemented")
+        return try {
+            httpClientProvider.httpClient.value
+                ?.getResource(
+                    Collections.ById.Assets(
+                        Collections.ById(id1 = collectionId),
+                        limit = limit,
+                        direction = direction.name,
+                        cursorCreatedAt = cursor?.createdAt?.toString(),
+                        cursorId = cursor?.id?.toString()
+                    )
+                )?.body<AssetPage>()
+                ?: AssetPage(items = emptyList(), nextCursor = null, prevCursor = null, hasMore = false)
+        } catch (throwable: Throwable) {
+            throw AssetRetrievalException(throwable)
+        }
     }
 }

@@ -36,6 +36,7 @@ import com.earthrevealed.immaru.lightbox.LightboxScreen
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
@@ -121,6 +122,8 @@ class ImmaruHttpClientProvider(private val configurationRepository: Configuratio
                     install(ContentNegotiation) {
                         json()
                     }
+
+                    install(Resources)
 
                     defaultRequest {
                         url(serverUrl)
