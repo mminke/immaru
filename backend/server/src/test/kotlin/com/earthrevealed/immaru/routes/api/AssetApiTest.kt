@@ -33,6 +33,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
@@ -271,6 +272,105 @@ class AssetApiTest {
         assertEquals("image/jpeg", response.headers[HttpHeaders.ContentType]?.substringBefore(";"))
         assertContentEquals(content, response.body())
     }
+
+    @Test
+    fun `get paged assets returns not found when collection does not exist`() = testApplication {
+        val collectionId = CollectionId()
+        val collectionRepository = InMemoryCollectionRepository()
+        val assetRepository = InMemoryAssetRepository()
+
+        application {
+            install(Resources)
+            install(ContentNegotiation) { json() }
+            routing {
+                route("api") {
+                    assetApi(collectionRepository, assetRepository)
+                }
+            }
+        }
+
+        val response = client.get("/api/collections/$collectionId/assets?limit=20")
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+    }
+
+    @Test
+    fun `get paged assets returns first page ordered by created_at descending`() = testApplication {
+        val collectionId = CollectionId()
+        val oldest = FileAsset(collectionId, "oldest.jpg")
+        val middle = FileAsset(collectionId, "middle.jpg")
+        val newest = FileAsset(collectionId, "newest.jpg")
+
+        val collectionRepository = InMemoryCollectionRepository(setOf(collectionId))
+        val assetRepository = InMemoryAssetRepository(listOf(oldest, middle, newest))
+
+        application {
+            install(Resources)
+            install(ContentNegotiation) { json() }
+            routing {
+                route("api") {
+                    assetApi(collectionRepository, assetRepository)
+                }
+            }
+        }
+
+        val response = client.get("/api/collections/$collectionId/assets?limit=2")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+
+        val pageResponse = Json.decodeFromString<AssetPage>(response.body<String>())
+
+        val assetIds = pageResponse.items.map { it.id }.toSet()
+        assertEquals(2, assetIds.size)
+        assertEquals(true, assetIds.containsAll(listOf(newest.id, middle.id)))
+        assertEquals(true, pageResponse.hasMore)
+        assertNotNull(pageResponse.nextCursor)
+        assertEquals(middle.id, pageResponse.nextCursor!!.id)
+    }
+
+    @Test
+    fun `get paged assets returns subsequent page using next cursor`() = testApplication {
+        val collectionId = CollectionId()
+        val oldest = FileAsset(collectionId, "oldest.jpg")
+        val middle = FileAsset(collectionId, "middle.jpg")
+        val newest = FileAsset(collectionId, "newest.jpg")
+
+        val collectionRepository = InMemoryCollectionRepository(setOf(collectionId))
+        val assetRepository = InMemoryAssetRepository(listOf(oldest, middle, newest))
+
+        application {
+            install(Resources)
+            install(ContentNegotiation) { json() }
+            routing {
+                route("api") {
+                    assetApi(collectionRepository, assetRepository)
+                }
+            }
+        }
+
+        val firstPage = Json.decodeFromString<AssetPage>(
+            client.get("/api/collections/$collectionId/assets?limit=2").body<String>()
+        )
+        val nextCursor = firstPage.nextCursor!!
+
+        val secondPage = Json.decodeFromString<AssetPage>(
+            client.get(
+                "/api/collections/$collectionId/assets" +
+                        "?limit=2" +
+                        "&cursorCreatedAt=${nextCursor.createdAt}" +
+                        "&cursorId=${nextCursor.id}"
+            ).body<String>()
+        )
+
+        assertEquals(1, secondPage.items.size)
+        assertEquals(false, secondPage.hasMore)
+
+        val secondIds = secondPage.items.map { it.id }.toSet()
+
+        // second page should contain only the remaining oldest asset (order-agnostic)
+        assertEquals(1, secondIds.size)
+        assertEquals(true, secondIds.containsAll(listOf(oldest.id)))
+    }
 }
 
 private class InMemoryCollectionRepository(
@@ -296,6 +396,7 @@ private class InMemoryCollectionRepository(
     }
 }
 
+@OptIn(ExperimentalUuidApi::class)
 private class InMemoryAssetRepository(
     initialAssets: List<Asset> = emptyList(),
     initialContent: Map<AssetId, ByteArray> = emptyMap(),
@@ -303,13 +404,11 @@ private class InMemoryAssetRepository(
     private val assets = initialAssets.associateBy { it.id }.toMutableMap()
     private val content = initialContent.toMutableMap()
 
-    override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
-        return assets[assetId]?.takeIf { it.collectionId == collectionId }
-    }
+    override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? =
+        assets[assetId]?.takeIf { it.collectionId == collectionId }
 
-    override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
-        return assets.values.filter { it.collectionId == collectionId }
-    }
+    override suspend fun findAllFor(collectionId: CollectionId): List<Asset> =
+        assets.values.filter { it.collectionId == collectionId }
 
     override suspend fun save(asset: Asset) {
         assets[asset.id] = asset
@@ -320,9 +419,8 @@ private class InMemoryAssetRepository(
         content.remove(id)
     }
 
-    override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
-        return flowOf(content[asset.id] ?: ByteArray(0))
-    }
+    override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> =
+        flowOf(content[asset.id] ?: ByteArray(0))
 
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         this.content[asset.id] = flatten(content)
@@ -335,22 +433,52 @@ private class InMemoryAssetRepository(
         collectionId: CollectionId,
         limit: Int,
         cursor: AssetCursor?,
-        direction: PageDirection
+        direction: PageDirection,
     ): AssetPage {
-        TODO("Not yet implemented")
+        // mirror R2DBC ordering: created_at DESC, id DESC (UUID string for tie-breaking)
+        val descComparator = compareByDescending<Asset> { it.auditFields.createdOn }
+            .thenByDescending { it.id.value.toString() }
+
+        val allForCollection = assets.values.filter { it.collectionId == collectionId }
+
+        val fetched = when {
+            cursor == null ->
+                allForCollection.sortedWith(descComparator)
+
+            direction == PageDirection.FORWARD ->
+                allForCollection.sortedWith(descComparator).filter { a ->
+                    a.auditFields.createdOn < cursor.createdAt ||
+                            (a.auditFields.createdOn == cursor.createdAt &&
+                                    a.id.value.toString() < cursor.id.value.toString())
+                }
+
+            else -> // BACKWARD
+                allForCollection.sortedWith(descComparator.reversed()).filter { a ->
+                    a.auditFields.createdOn > cursor.createdAt ||
+                            (a.auditFields.createdOn == cursor.createdAt &&
+                                    a.id.value.toString() > cursor.id.value.toString())
+                }
+        }.take(limit + 1)
+
+        val hasMore = fetched.size > limit
+        val sliced = fetched.take(limit)
+        val items = if (direction == PageDirection.BACKWARD && cursor != null) sliced.reversed() else sliced
+
+        return AssetPage(
+            items = items,
+            nextCursor = items.lastOrNull()?.let { AssetCursor(it.auditFields.createdOn, it.id) },
+            prevCursor = items.firstOrNull()?.let { AssetCursor(it.auditFields.createdOn, it.id) },
+            hasMore = hasMore,
+        )
     }
 
     fun storedContentFor(assetId: AssetId): ByteArray = content[assetId] ?: ByteArray(0)
 
     private suspend fun flatten(content: Flow<ByteArray>): ByteArray {
         val chunks = content.toList()
-        val totalSize = chunks.sumOf { it.size }
-        val result = ByteArray(totalSize)
+        val result = ByteArray(chunks.sumOf { it.size })
         var offset = 0
-        chunks.forEach { chunk ->
-            chunk.copyInto(result, destinationOffset = offset)
-            offset += chunk.size
-        }
+        chunks.forEach { chunk -> chunk.copyInto(result, offset); offset += chunk.size }
         return result
     }
 }

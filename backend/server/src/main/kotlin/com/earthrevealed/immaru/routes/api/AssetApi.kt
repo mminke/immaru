@@ -1,8 +1,11 @@
 package com.earthrevealed.immaru.routes.api
 
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetCursor
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.ktor.extensions.common.expectContentType
@@ -15,6 +18,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.utils.io.*
 import mu.KotlinLogging
+import kotlin.time.Instant
 
 private val logger = KotlinLogging.logger { }
 
@@ -29,9 +33,54 @@ fun Route.assetApi(
             return@get
         }
 
-        call.respond(
-            assetRepository.findAllFor(collectionId)
-        )
+        val paginationRequested =
+            request.limit != null ||
+                    request.cursorCreatedAt != null ||
+                    request.cursorId != null ||
+                    request.direction.uppercase() != PageDirection.FORWARD.name
+
+        if (!paginationRequested) {
+            call.respond(assetRepository.findAllFor(collectionId))
+            return@get
+        }
+
+        val limit = request.limit
+        if (limit == null) {
+            call.respond(HttpStatusCode.BadRequest, "limit query parameter is required for pagination")
+            return@get
+        }
+
+        val direction = runCatching { PageDirection.valueOf(request.direction.uppercase()) }
+            .getOrElse {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported direction '${request.direction}'")
+                return@get
+            }
+
+        val cursor = when {
+            request.cursorCreatedAt == null && request.cursorId == null -> null
+            request.cursorCreatedAt != null && request.cursorId != null -> {
+                val createdAt = runCatching { Instant.parse(request.cursorCreatedAt) }
+                    .getOrElse {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid cursorCreatedAt")
+                        return@get
+                    }
+
+                val assetId = runCatching { AssetId.fromString(request.cursorId) }
+                    .getOrElse {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid cursorId")
+                        return@get
+                    }
+
+                AssetCursor(createdAt, assetId)
+            }
+
+            else -> {
+                call.respond(HttpStatusCode.BadRequest, "Both cursorCreatedAt and cursorId must be provided")
+                return@get
+            }
+        }
+
+        call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction))
     }
 
     put<Collections.ById.Assets> { request ->

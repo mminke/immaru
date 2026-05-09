@@ -11,7 +11,13 @@ class Collections {
     class ById(val parent: Collections = Collections(), val id1: CollectionId) {
 
         @Resource("assets")
-        class Assets(val collection: Collections.ById) {
+        class Assets(
+            val collection: Collections.ById,
+            val limit: Int? = null,
+            val direction: String = "FORWARD",
+            val cursorCreatedAt: String? = null,
+            val cursorId: String? = null,
+        ) {
 
             @Resource("{id2}")
             class ById(val parent: Assets, val id2: AssetId) {

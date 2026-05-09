@@ -2,6 +2,7 @@ package com.earthrevealed.immaru.assets
 
 import com.earthrevealed.immaru.collections.CollectionId
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 import kotlin.time.Instant
 
@@ -22,16 +23,19 @@ interface AssetRepository {
     ): AssetPage
 }
 
+@Serializable
 data class AssetCursor(
     val createdAt: Instant,
     val id: AssetId,
 )
 
+@Serializable
 enum class PageDirection {
     FORWARD,
     BACKWARD,
 }
 
+@Serializable
 data class AssetPage(
     val items: List<Asset>,
     val nextCursor: AssetCursor?,
