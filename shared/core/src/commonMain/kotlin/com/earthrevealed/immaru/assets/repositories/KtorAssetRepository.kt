@@ -11,16 +11,15 @@ import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.RetrievalException
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.SelectableYear
+import com.earthrevealed.immaru.assets.api.Collections
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.get as getResource
-import io.ktor.client.request.get
-import io.ktor.client.request.put
+import io.ktor.client.plugins.resources.get
+import io.ktor.client.plugins.resources.put
+import io.ktor.client.plugins.resources.delete
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.request
 import io.ktor.http.ContentType
-import io.ktor.http.appendPathSegments
 import io.ktor.http.content.ChannelWriterContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -33,13 +32,14 @@ class KtorAssetRepository(
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
         return try {
             httpClientProvider.httpClient.value
-                ?.get("api/collections") {
-                    url {
-                        appendPathSegments(collectionId.value.toString())
-                        appendPathSegments("assets")
-                        appendPathSegments(assetId.value.toString())
-                    }
-                }?.body<Asset>()
+                ?.get(
+                    Collections.ById.Assets.ById(
+                        parent = Collections.ById.Assets(
+                            collection = Collections.ById(id1 = collectionId)
+                        ),
+                        id2 = assetId
+                    )
+                )?.body<Asset>()
         } catch (throwable: Throwable) {
             throw AssetRetrievalException(throwable)
         }
@@ -48,12 +48,11 @@ class KtorAssetRepository(
     override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
         return try {
             httpClientProvider.httpClient.value
-                ?.get("api/collections") {
-                    url {
-                        appendPathSegments(collectionId.value.toString())
-                        appendPathSegments("assets")
-                    }
-                }?.body<List<Asset>>()
+                ?.get(
+                    Collections.ById.Assets(
+                        collection = Collections.ById(id1 = collectionId)
+                    )
+                )?.body<List<Asset>>()
                 ?: emptyList()
         } catch (throwable: Throwable) {
             throw AssetRetrievalException(throwable)
@@ -63,17 +62,16 @@ class KtorAssetRepository(
     override suspend fun save(asset: Asset) {
         try {
             val httpResponse = httpClientProvider.httpClient.value
-                ?.put("api/collections") {
-                    url {
-                        appendPathSegments(asset.collectionId.value.toString())
-                        appendPathSegments("assets")
-                    }
+                ?.put(
+                    Collections.ById.Assets(
+                        collection = Collections.ById(id1 = asset.collectionId)
+                    )
+                ) {
                     contentType(ContentType.Application.Json)
                     setBody(asset)
                 }
 
             if (httpResponse?.status?.isSuccess() != true) {
-                println("URL Used: ${httpResponse?.request?.url}")
                 throw SaveAssetException("Something went wrong saving the asset [status=${httpResponse?.status}]")
             }
         } catch (throwable: Throwable) {
@@ -84,13 +82,16 @@ class KtorAssetRepository(
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         try {
             val httpResponse = httpClientProvider.httpClient.value
-                ?.put("api/collections") {
-                    url {
-                        appendPathSegments(asset.collectionId.value.toString())
-                        appendPathSegments("assets")
-                        appendPathSegments(asset.id.value.toString())
-                        appendPathSegments("content")
-                    }
+                ?.put(
+                    Collections.ById.Assets.ById.Content(
+                        asset = Collections.ById.Assets.ById(
+                            parent = Collections.ById.Assets(
+                                collection = Collections.ById(id1 = asset.collectionId)
+                            ),
+                            id2 = asset.id
+                        )
+                    )
+                ) {
                     setBody(
                         ChannelWriterContent(
                             {
@@ -135,12 +136,11 @@ class KtorAssetRepository(
     override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {
         return try {
             httpClientProvider.httpClient.value
-                ?.get("api/collections") {
-                    url {
-                        appendPathSegments(collectionId.value.toString())
-                        appendPathSegments("available-date-selectors")
-                    }
-                }?.body<List<SelectableYear>>()
+                ?.get(
+                    Collections.ById.Selectors(
+                        collection = Collections.ById(id1 = collectionId)
+                    )
+                )?.body<List<SelectableYear>>()
                 ?: emptyList()
         } catch (throwable: Throwable) {
             throw RetrievalException(SelectableYear::class, throwable)
@@ -155,9 +155,9 @@ class KtorAssetRepository(
     ): AssetPage {
         return try {
             httpClientProvider.httpClient.value
-                ?.getResource(
+                ?.get(
                     Collections.ById.Assets(
-                        Collections.ById(id1 = collectionId),
+                        collection = Collections.ById(id1 = collectionId),
                         limit = limit,
                         direction = direction.name,
                         cursorCreatedAt = cursor?.createdAt?.toString(),

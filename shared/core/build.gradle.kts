@@ -38,6 +38,7 @@ kotlin {
 
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.resources)
             implementation(libs.ktor.client.resources)
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.io.core)

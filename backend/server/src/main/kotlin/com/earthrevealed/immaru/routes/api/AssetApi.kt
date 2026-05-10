@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
+import com.earthrevealed.immaru.assets.api.Collections
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.ktor.extensions.common.expectContentType
@@ -59,13 +60,13 @@ fun Route.assetApi(
         val cursor = when {
             request.cursorCreatedAt == null && request.cursorId == null -> null
             request.cursorCreatedAt != null && request.cursorId != null -> {
-                val createdAt = runCatching { Instant.parse(request.cursorCreatedAt) }
+                val createdAt = runCatching { Instant.parse(request.cursorCreatedAt!!) }
                     .getOrElse {
                         call.respond(HttpStatusCode.BadRequest, "Invalid cursorCreatedAt")
                         return@get
                     }
 
-                val assetId = runCatching { AssetId.fromString(request.cursorId) }
+                val assetId = runCatching { AssetId.fromString(request.cursorId!!) }
                     .getOrElse {
                         call.respond(HttpStatusCode.BadRequest, "Invalid cursorId")
                         return@get

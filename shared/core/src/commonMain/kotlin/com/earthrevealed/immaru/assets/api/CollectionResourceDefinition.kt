@@ -1,4 +1,4 @@
-package com.earthrevealed.immaru.assets.repositories
+package com.earthrevealed.immaru.assets.api
 
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.collections.CollectionId
@@ -26,5 +26,8 @@ class Collections {
                 class Content(val asset: Assets.ById)
             }
         }
+
+        @Resource("available-date-selectors")
+        class Selectors(val collection: ById)
     }
 }

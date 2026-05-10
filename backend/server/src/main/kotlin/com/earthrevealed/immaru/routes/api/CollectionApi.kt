@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.routes.api
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.api.Collections
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
