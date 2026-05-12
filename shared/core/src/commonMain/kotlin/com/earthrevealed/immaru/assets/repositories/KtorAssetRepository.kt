@@ -15,11 +15,12 @@ import com.earthrevealed.immaru.assets.api.Collections
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.put
-import io.ktor.client.plugins.resources.delete
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.appendPathSegments
 import io.ktor.http.content.ChannelWriterContent
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -29,10 +30,17 @@ import kotlinx.coroutines.flow.Flow
 class KtorAssetRepository(
     private val httpClientProvider: HttpClientProvider
 ) : AssetRepository {
+    private fun apiHtpClient() = httpClientProvider.httpClient.value?.config {
+        defaultRequest {
+            url {
+                appendPathSegments("api/")
+            }
+        }
+    }
+
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
         return try {
-            httpClientProvider.httpClient.value
-                ?.get(
+            apiHtpClient()?.get(
                     Collections.ById.Assets.ById(
                         parent = Collections.ById.Assets(
                             collection = Collections.ById(id1 = collectionId)
@@ -47,8 +55,7 @@ class KtorAssetRepository(
 
     override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
         return try {
-            httpClientProvider.httpClient.value
-                ?.get(
+            apiHtpClient()?.get(
                     Collections.ById.Assets(
                         collection = Collections.ById(id1 = collectionId)
                     )
@@ -61,7 +68,7 @@ class KtorAssetRepository(
 
     override suspend fun save(asset: Asset) {
         try {
-            val httpResponse = httpClientProvider.httpClient.value
+            val httpResponse = apiHtpClient()
                 ?.put(
                     Collections.ById.Assets(
                         collection = Collections.ById(id1 = asset.collectionId)
@@ -81,7 +88,7 @@ class KtorAssetRepository(
 
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         try {
-            val httpResponse = httpClientProvider.httpClient.value
+            val httpResponse = apiHtpClient()
                 ?.put(
                     Collections.ById.Assets.ById.Content(
                         asset = Collections.ById.Assets.ById(
@@ -113,9 +120,9 @@ class KtorAssetRepository(
     }
 
     override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
-        TODO("Not yet implemented")
+        TODO("Not yet implemented (content provided by direct url reference)")
 //        return try {
-//            httpClientProvider.httpClient.value!!
+//            httpClient()!!
 //                .get("api/collections") {
 //                    url {
 //                        appendPathSegments(asset.collectionId.value.toString())
@@ -135,7 +142,7 @@ class KtorAssetRepository(
 
     override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {
         return try {
-            httpClientProvider.httpClient.value
+            apiHtpClient()
                 ?.get(
                     Collections.ById.Selectors(
                         collection = Collections.ById(id1 = collectionId)
@@ -154,7 +161,7 @@ class KtorAssetRepository(
         direction: PageDirection
     ): AssetPage {
         return try {
-            httpClientProvider.httpClient.value
+            apiHtpClient()
                 ?.get(
                     Collections.ById.Assets(
                         collection = Collections.ById(id1 = collectionId),
