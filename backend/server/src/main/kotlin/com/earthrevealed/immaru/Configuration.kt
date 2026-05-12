@@ -40,7 +40,7 @@ private fun loadProperties(filename: String): Properties = Properties().also {
     val file = File(filename)
     logger.info { "Loading properties from file: ${file.absoluteFile}" }
     it.load(
-        FileInputStream(File(filename))
+        FileInputStream(file)
     )
     logger.debug { "Properties loaded:\n$it" }
 }

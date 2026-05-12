@@ -10,9 +10,12 @@ group = "com.earthrevealed.immaru"
 version = "1.0.0-alpha"
 
 application {
-    mainClass.set("com.earthrevealed.immaru.ApplicationKt")
+    mainClass.set("com.earthrevealed.immaru.ImmaruServerKt")
     applicationDefaultJvmArgs =
-        listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
+        listOf(
+            "-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}",
+            "-Duser.dir=${project.rootDir}"
+        )
 }
 
 tasks.register<BuildInfoTask>("generate-build-info") {
