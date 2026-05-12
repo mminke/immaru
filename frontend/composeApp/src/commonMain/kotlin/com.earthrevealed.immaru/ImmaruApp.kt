@@ -69,6 +69,21 @@ enum class Screen {
     Asset,
 }
 
+private object Routes {
+    const val Configuration = "configuration"
+    const val Collections = "collections"
+    const val NewCollection = "new_collection"
+    const val CollectionDetails = "collection_details"
+    const val Asset = "asset"
+
+    object Lightbox {
+        const val ARG_COLLECTION_ID = "collectionId"
+        const val pattern = "lightbox/{$ARG_COLLECTION_ID}"
+
+        fun create(collectionId: String) = "lightbox/$collectionId"
+    }
+}
+
 class GlobalViewModel(
     configurationRepository: ConfigurationRepository
 ) : ViewModel() {
@@ -156,9 +171,9 @@ fun MainNavigation(
     val httpClient = httpClientProvider.httpClient.collectAsState()
 
     val startDestination = if (httpClient.value == null) {
-        Screen.Configuration.name
+        Routes.Configuration
     } else {
-        Screen.Collections.name
+        Routes.Collections
     }
 
     MaterialTheme {
@@ -168,7 +183,7 @@ fun MainNavigation(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            composable(route = Screen.Configuration.name) {
+            composable(route = Routes.Configuration) {
                 val configuration = globalViewModel.configuration.collectAsState(Configuration())
 
                 ConfigurationScreen(
@@ -176,21 +191,21 @@ fun MainNavigation(
                     onNavigateBack = { navController.popBackStack() },
                 )
             }
-            composable(route = Screen.Collections.name) {
+            composable(route = Routes.Collections) {
                 CollectionsScreen(
                     onCollectionSelected = {
                         globalViewModel.currentCollection.value = it
-                        navController.navigate(Screen.Lightbox.name)
+                        navController.navigate(Routes.Lightbox.create(it.id.toString()))
                     },
                     onCollectionInfo = {
                         globalViewModel.currentCollection.value = it
-                        navController.navigate(Screen.CollectionDetails.name)
+                        navController.navigate(Routes.CollectionDetails)
                     },
-                    onNewCollection = { navController.navigate(Screen.NewCollection.name) },
-                    onOpenConfiguration = { navController.navigate(Screen.Configuration.name) }
+                    onNewCollection = { navController.navigate(Routes.NewCollection) },
+                    onOpenConfiguration = { navController.navigate(Routes.Configuration) }
                 )
             }
-            composable(route = Screen.Lightbox.name) {
+            composable(route = Routes.Lightbox.pattern) {
                 val currentCollection = globalViewModel.currentCollection.value
                 if (currentCollection == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
@@ -202,12 +217,12 @@ fun MainNavigation(
                     onNavigateBack = { navController.popBackStack() },
                     onViewAsset = { asset ->
                         globalViewModel.selectAssets(listOf(asset))
-                        navController.navigate(Screen.Asset.name)
+                        navController.navigate(Routes.Asset)
                     },
                     onAssetsSelected = { (assets) -> Unit },
                 )
             }
-            composable(route = Screen.CollectionDetails.name) {
+            composable(route = Routes.CollectionDetails) {
                 val currentCollection = globalViewModel.currentCollection.value
                 if (currentCollection == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
@@ -219,14 +234,14 @@ fun MainNavigation(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            composable(route = Screen.NewCollection.name) {
+            composable(route = Routes.NewCollection) {
                 CollectionDetailsScreen(
                     collection { },
                     isNew = true,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            composable(route = Screen.Asset.name) {
+            composable(route = Routes.Asset) {
                 val selectedAsset = globalViewModel.selectedAssets.collectAsState().value.firstOrNull()
                 if (selectedAsset == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
