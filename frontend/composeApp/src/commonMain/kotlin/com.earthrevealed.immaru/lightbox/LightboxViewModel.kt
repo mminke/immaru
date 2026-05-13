@@ -9,6 +9,8 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
+import com.earthrevealed.immaru.collections.CollectionId
+import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import io.github.vinceglb.filekit.PlatformFile
@@ -26,8 +28,10 @@ import kotlinx.io.buffered
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
-    private val currentCollection: Collection
+    private val collectionRepository: CollectionRepository,
+    private val collectionId: CollectionId,
 ) : ViewModel() {
+    val collection = mutableStateOf<Collection?>(null)
     val assets = mutableStateListOf<Asset>()
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
@@ -36,20 +40,50 @@ class LightboxViewModel(
     val selectedAssets = _selectedAssets.asStateFlow()
 
     init {
-        refreshAssets()
+        refreshCollection()
     }
 
-    private fun refreshAssets() {
+    private fun refreshCollection() {
         viewModelScope.launch {
+            isLoading.value = true
             try {
-                val retrievedAssets = assetRepository.findAllFor(currentCollection.id)
-                assets.clear()
-                assets.addAll(retrievedAssets)
-            } catch (exception: AssetRetrievalException) {
+                val loadedCollection = collectionRepository.get(collectionId)
+                if (loadedCollection == null) {
+                    errorMessage.value = "Cannot retrieve collection!"
+                    return@launch
+                }
+
+                collection.value = loadedCollection
+                refreshAssetsFor(loadedCollection)
+            } catch (exception: Throwable) {
                 exception.printStackTrace()
-                errorMessage.value = "Cannot retrieve assets!"
+                errorMessage.value = "Cannot retrieve collection!"
+            } finally {
+                isLoading.value = false
             }
-            isLoading.value = false
+        }
+    }
+
+    private suspend fun refreshAssetsFor(currentCollection: Collection) {
+        try {
+            val retrievedAssets = assetRepository.findAllFor(currentCollection.id)
+            assets.clear()
+            assets.addAll(retrievedAssets)
+        } catch (exception: AssetRetrievalException) {
+            exception.printStackTrace()
+            errorMessage.value = "Cannot retrieve assets!"
+        }
+    }
+
+    fun refreshAssets() {
+        viewModelScope.launch {
+            val currentCollection = collection.value ?: return@launch
+            isLoading.value = true
+            try {
+                refreshAssetsFor(currentCollection)
+            } finally {
+                isLoading.value = false
+            }
         }
     }
 
@@ -64,6 +98,7 @@ class LightboxViewModel(
     }
 
     fun createAssetFor(file: PlatformFile) {
+        val currentCollection = collection.value ?: return
         val newAsset = FileAsset(
             currentCollection.id,
             file.name,

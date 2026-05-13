@@ -13,12 +13,15 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.earthrevealed.immaru.assets.Asset
-import com.earthrevealed.immaru.collections.Collection
+import com.earthrevealed.immaru.collections.CollectionId
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
+import com.earthrevealed.immaru.common.ErrorMessage
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.BROWSE
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.BY_DATE
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.PEOPLE
@@ -37,12 +40,28 @@ enum class LightboxDestinations(
 
 @Composable
 fun LightboxScreen(
-    collection: Collection,
+    collectionId: CollectionId,
     onNavigateBack: () -> Unit,
     onViewAsset: (Asset) -> Unit,
     onAssetsSelected: (List<Asset>) -> Unit,
-    viewModel: LightboxViewModel = koinViewModel { parametersOf(collection) },
+    viewModel: LightboxViewModel = koinViewModel { parametersOf(collectionId) },
 ) {
+    if (viewModel.isLoading.value && viewModel.collection.value == null) {
+        CenteredProgressIndicator()
+        return
+    }
+
+    if (viewModel.errorMessage.value.isNotBlank()) {
+        ErrorMessage(viewModel.errorMessage.value)
+        return
+    }
+
+    val collection = viewModel.collection.value
+    if (collection == null) {
+        LaunchedEffect(Unit) { onNavigateBack() }
+        return
+    }
+
     val currentDestination = rememberSaveable { mutableStateOf(BROWSE) }
 
     NavigationSuiteScaffold(

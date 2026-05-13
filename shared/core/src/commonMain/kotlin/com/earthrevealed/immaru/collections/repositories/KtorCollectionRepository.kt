@@ -8,6 +8,7 @@ import com.earthrevealed.immaru.collections.DeleteCollectionException
 import com.earthrevealed.immaru.collections.SaveCollectionException
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.get
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.put
@@ -16,10 +17,20 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
+import com.earthrevealed.immaru.assets.api.Collections
+import io.ktor.client.plugins.defaultRequest
 
 class KtorCollectionRepository(
     private val httpClientProvider: HttpClientProvider
 ) : CollectionRepository {
+
+    private fun apiHtpClient() = httpClientProvider.httpClient.value?.config {
+        defaultRequest {
+            url {
+                appendPathSegments("api/")
+            }
+        }
+    }
 
     override suspend fun all(): List<Collection> {
         return try {
@@ -48,7 +59,13 @@ class KtorCollectionRepository(
     }
 
     override suspend fun get(id: CollectionId): Collection? {
-        TODO("Not yet implemented")
+        return try {
+            apiHtpClient()
+                ?.get(Collections.ById(id1 = id))
+                ?.body<Collection>()
+        } catch (throwable: Throwable) {
+            throw CollectionRetrievalException(throwable)
+        }
     }
 
     override suspend fun exists(id: CollectionId): Boolean {

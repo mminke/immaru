@@ -213,7 +213,7 @@ fun MainNavigation(
                 }
 
                 LightboxScreen(
-                    currentCollection,
+                    currentCollection.id,
                     onNavigateBack = { navController.popBackStack() },
                     onViewAsset = { asset ->
                         globalViewModel.selectAssets(listOf(asset))
