@@ -15,22 +15,47 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.collections.CollectionId
+import com.earthrevealed.immaru.common.CenteredProgressIndicator
+import com.earthrevealed.immaru.common.ErrorMessage
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssetScreen(
-    asset: Asset,
+    collectionId: CollectionId,
+    assetId: AssetId,
     onNavigateBack: () -> Unit,
+    viewModel: AssetDetailsViewModel = koinViewModel { parametersOf(collectionId, assetId) },
 ) {
+    if (viewModel.isLoading.value && viewModel.asset.value == null) {
+        CenteredProgressIndicator()
+        return
+    }
+
+    if (viewModel.errorMessage.value.isNotBlank()) {
+        ErrorMessage(viewModel.errorMessage.value)
+        return
+    }
+
+    val asset = viewModel.asset.value
+    if (asset == null) {
+        LaunchedEffect(Unit) { onNavigateBack() }
+        return
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,11 +74,12 @@ fun AssetScreen(
         },
         content = { innerPadding ->
             Box(
-                modifier = Modifier.consumeWindowInsets(innerPadding)
+                modifier = Modifier
+                    .consumeWindowInsets(innerPadding)
                     .padding(innerPadding),
             ) {
                 Asset(
-                    asset
+                    asset,
                 )
             }
         },

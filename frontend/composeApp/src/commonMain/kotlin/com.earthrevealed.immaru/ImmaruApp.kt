@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.earthrevealed.immaru.asset.AssetDetailsViewModel
 import com.earthrevealed.immaru.asset.AssetScreen
 import com.earthrevealed.immaru.asset.AssetViewModel
 import com.earthrevealed.immaru.assets.Asset
@@ -42,9 +43,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,7 +73,13 @@ private object Routes {
     const val Collections = "collections"
     const val NewCollection = "new_collection"
     const val CollectionDetails = "collection_details"
-    const val Asset = "asset"
+    object Asset {
+        const val ARG_COLLECTION_ID = "collectionId"
+        const val ARG_ASSET_ID = "assetId"
+        const val pattern = "asset/{$ARG_COLLECTION_ID}/{$ARG_ASSET_ID}"
+
+        fun create(collectionId: String, assetId: String) = "asset/$collectionId/$assetId"
+    }
 
     object Lightbox {
         const val ARG_COLLECTION_ID = "collectionId"
@@ -90,13 +95,7 @@ class GlobalViewModel(
     val configuration = configurationRepository.configuration
 
     val currentCollection = mutableStateOf<Collection?>(null)
-
-    private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
-    val selectedAssets: StateFlow<List<Asset>> = _selectedAssets
-
-    fun selectAssets(assets: List<Asset>) {
-        _selectedAssets.value = assets
-    }
+    val currentAsset = mutableStateOf<Asset?>(null)
 }
 
 val appModule = module {
@@ -114,6 +113,7 @@ val appModule = module {
         CollectionDetailsViewModel(get(), get(), get())
     }
     viewModelOf(::LightboxViewModel)
+    viewModelOf(::AssetDetailsViewModel)
     viewModelOf(::AssetViewModel)
     viewModelOf(::BrowseByDateViewViewModel)
 }
@@ -216,8 +216,13 @@ fun MainNavigation(
                     currentCollection.id,
                     onNavigateBack = { navController.popBackStack() },
                     onViewAsset = { asset ->
-                        globalViewModel.selectAssets(listOf(asset))
-                        navController.navigate(Routes.Asset)
+                        globalViewModel.currentAsset.value = asset
+                        navController.navigate(
+                            Routes.Asset.create(
+                                asset.collectionId.value.toString(),
+                                asset.id.value.toString(),
+                            )
+                        )
                     },
                     onAssetsSelected = { (assets) -> Unit },
                 )
@@ -241,15 +246,16 @@ fun MainNavigation(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            composable(route = Routes.Asset) {
-                val selectedAsset = globalViewModel.selectedAssets.collectAsState().value.firstOrNull()
-                if (selectedAsset == null) {
+            composable(route = Routes.Asset.pattern) {
+                val currentAsset = globalViewModel.currentAsset.value
+                if (currentAsset == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
                     return@composable
                 }
 
                 AssetScreen(
-                    selectedAsset,
+                    collectionId = currentAsset.collectionId,
+                    assetId = currentAsset.id,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
