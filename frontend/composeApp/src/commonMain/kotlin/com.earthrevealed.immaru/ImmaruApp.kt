@@ -53,7 +53,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
@@ -109,9 +108,7 @@ val appModule = module {
     viewModelOf(::ConfigurationViewModel)
     viewModelOf(::GlobalViewModel)
     viewModelOf(::CollectionsViewModel)
-    viewModel {
-        CollectionDetailsViewModel(get(), get(), get())
-    }
+    viewModelOf(::CollectionDetailsViewModel)
     viewModelOf(::LightboxViewModel)
     viewModelOf(::AssetDetailsViewModel)
     viewModelOf(::AssetViewModel)
@@ -224,7 +221,7 @@ fun MainNavigation(
                             )
                         )
                     },
-                    onAssetsSelected = { (assets) -> Unit },
+                    onAssetsSelected = { (_) -> Unit },
                 )
             }
             composable(route = Routes.CollectionDetails) {
