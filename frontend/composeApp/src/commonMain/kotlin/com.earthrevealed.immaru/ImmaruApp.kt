@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,7 +43,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.Serializable
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -77,13 +75,6 @@ data class LightboxRoute(
 data class CollectionDetailsRoute(
     val collectionId: String,
 )
-
-class GlobalViewModel(
-    configurationRepository: ConfigurationRepository
-) : ViewModel() {
-    val configuration = configurationRepository.configuration
-}
-
 val appModule = module {
     singleOf(::DataStoreConfigurationRepository) { bind<ConfigurationRepository>() }
 
@@ -93,7 +84,6 @@ val appModule = module {
     singleOf(::KtorAssetRepository) { bind<AssetRepository>() }
 
     viewModelOf(::ConfigurationViewModel)
-    viewModelOf(::GlobalViewModel)
     viewModelOf(::CollectionsViewModel)
     viewModel { params ->
         CollectionDetailsViewModel(
@@ -153,10 +143,10 @@ fun ImmaruApp(platformSpecificModule: Module) {
 
 @Composable
 fun MainNavigation(
-    globalViewModel: GlobalViewModel = koinViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val httpClientProvider = koinInject<HttpClientProvider>()
+    val configurationRepository = koinInject<ConfigurationRepository>()
     val httpClient = httpClientProvider.httpClient.collectAsState()
 
     val startDestination = if (httpClient.value == null) ConfigurationRoute else CollectionsRoute
@@ -169,7 +159,7 @@ fun MainNavigation(
                 .fillMaxSize()
         ) {
             composable<ConfigurationRoute> {
-                val configuration = globalViewModel.configuration.collectAsState(Configuration())
+                val configuration = configurationRepository.configuration.collectAsState(Configuration())
 
                 ConfigurationScreen(
                     configuration.value,
