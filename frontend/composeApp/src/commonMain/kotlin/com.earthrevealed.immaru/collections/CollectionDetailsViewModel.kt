@@ -10,20 +10,49 @@ import kotlinx.coroutines.launch
 
 class CollectionDetailsViewModel(
     private val collectionRepository: CollectionRepository,
-    collection: Collection,
-    val isNew: Boolean = false
+    private val collectionId: CollectionId?,
 ) : ViewModel() {
-    private val _collection = MutableStateFlow(collection)
-    val collection: StateFlow<Collection> = _collection.asStateFlow()
+    private val _collection = MutableStateFlow<Collection?>(null)
+    val collection: StateFlow<Collection?> = _collection.asStateFlow()
 
     val errorMessage = mutableStateOf("")
     val state = mutableStateOf(State.READY)
+
+    init {
+        if (_collection.value == null && collectionId != null) {
+            refreshCollection()
+        } else {
+            _collection.value = collection { }
+        }
+    }
+
+    private fun refreshCollection() {
+        viewModelScope.launch {
+            state.value = State.PROCESSING
+            try {
+                val loadedCollection = collectionRepository.get(collectionId!!)
+                if (loadedCollection == null) {
+                    errorMessage.value = "Cannot retrieve collection!"
+                    state.value = State.ERROR
+                    return@launch
+                }
+
+                _collection.value = loadedCollection
+                state.value = State.READY
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
+                errorMessage.value = "Cannot retrieve collection!"
+                state.value = State.ERROR
+            }
+        }
+    }
 
     fun saveChanges(onSuccess: () -> Unit) {
         viewModelScope.launch {
             state.value = State.PROCESSING
             try {
-                collectionRepository.save(collection.value)
+                val currentCollection = collection.value ?: return@launch
+                collectionRepository.save(currentCollection)
                 onSuccess()
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
@@ -37,7 +66,8 @@ class CollectionDetailsViewModel(
         viewModelScope.launch {
             state.value = State.PROCESSING
             try {
-                collectionRepository.delete(collection.value.id)
+                val currentCollection = collection.value ?: return@launch
+                collectionRepository.delete(currentCollection.id)
                 state.value = State.READY
                 onSuccess()
             } catch (throwable: Throwable) {

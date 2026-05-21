@@ -5,26 +5,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.earthrevealed.immaru.asset.AssetDetailsViewModel
 import com.earthrevealed.immaru.asset.AssetScreen
 import com.earthrevealed.immaru.asset.AssetViewModel
-import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.repositories.KtorAssetRepository
-import com.earthrevealed.immaru.collections.Collection
-import com.earthrevealed.immaru.collections.CollectionDetailsScreen
-import com.earthrevealed.immaru.collections.CollectionDetailsViewModel
-import com.earthrevealed.immaru.collections.CollectionRepository
-import com.earthrevealed.immaru.collections.CollectionsScreen
-import com.earthrevealed.immaru.collections.CollectionsViewModel
-import com.earthrevealed.immaru.collections.collection
+import com.earthrevealed.immaru.collections.*
 import com.earthrevealed.immaru.collections.repositories.KtorCollectionRepository
 import com.earthrevealed.immaru.common.HttpClientProvider
 import com.earthrevealed.immaru.configuration.Configuration
@@ -36,65 +31,57 @@ import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import com.earthrevealed.immaru.lightbox.BrowseByDateViewViewModel
 import com.earthrevealed.immaru.lightbox.LightboxScreen
 import com.earthrevealed.immaru.lightbox.LightboxViewModel
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.resources.Resources
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.resources.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.serialization.Serializable
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 
+@Serializable
+data object ConfigurationRoute
 
-enum class Screen {
-    Configuration,
-    Collections,
-    NewCollection,
-    CollectionDetails,
-    Lightbox,
-    Asset,
-}
+@Serializable
+data object CollectionsRoute
 
-private object Routes {
-    const val Configuration = "configuration"
-    const val Collections = "collections"
-    const val NewCollection = "new_collection"
-    const val CollectionDetails = "collection_details"
-    object Asset {
-        const val ARG_COLLECTION_ID = "collectionId"
-        const val ARG_ASSET_ID = "assetId"
-        const val pattern = "asset/{$ARG_COLLECTION_ID}/{$ARG_ASSET_ID}"
+@Serializable
+data object NewCollectionRoute
 
-        fun create(collectionId: String, assetId: String) = "asset/$collectionId/$assetId"
-    }
+@Serializable
+data class AssetRoute(
+    val collectionId: String,
+    val assetId: String,
+)
 
-    object Lightbox {
-        const val ARG_COLLECTION_ID = "collectionId"
-        const val pattern = "lightbox/{$ARG_COLLECTION_ID}"
+@Serializable
+data class LightboxRoute(
+    val collectionId: String,
+)
 
-        fun create(collectionId: String) = "lightbox/$collectionId"
-    }
-}
+@Serializable
+data class CollectionDetailsRoute(
+    val collectionId: String,
+)
 
 class GlobalViewModel(
     configurationRepository: ConfigurationRepository
 ) : ViewModel() {
     val configuration = configurationRepository.configuration
-
-    val currentCollection = mutableStateOf<Collection?>(null)
-    val currentAsset = mutableStateOf<Asset?>(null)
 }
 
 val appModule = module {
@@ -108,7 +95,12 @@ val appModule = module {
     viewModelOf(::ConfigurationViewModel)
     viewModelOf(::GlobalViewModel)
     viewModelOf(::CollectionsViewModel)
-    viewModelOf(::CollectionDetailsViewModel)
+    viewModel { params ->
+        CollectionDetailsViewModel(
+            collectionRepository = get(),
+            collectionId = params.getOrNull()
+        )
+    }
     viewModelOf(::LightboxViewModel)
     viewModelOf(::AssetDetailsViewModel)
     viewModelOf(::AssetViewModel)
@@ -167,11 +159,7 @@ fun MainNavigation(
     val httpClientProvider = koinInject<HttpClientProvider>()
     val httpClient = httpClientProvider.httpClient.collectAsState()
 
-    val startDestination = if (httpClient.value == null) {
-        Routes.Configuration
-    } else {
-        Routes.Collections
-    }
+    val startDestination = if (httpClient.value == null) ConfigurationRoute else CollectionsRoute
 
     MaterialTheme {
         NavHost(
@@ -180,7 +168,7 @@ fun MainNavigation(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            composable(route = Routes.Configuration) {
+            composable<ConfigurationRoute> {
                 val configuration = globalViewModel.configuration.collectAsState(Configuration())
 
                 ConfigurationScreen(
@@ -188,71 +176,83 @@ fun MainNavigation(
                     onNavigateBack = { navController.popBackStack() },
                 )
             }
-            composable(route = Routes.Collections) {
+            composable<CollectionsRoute> {
                 CollectionsScreen(
                     onCollectionSelected = {
-                        globalViewModel.currentCollection.value = it
-                        navController.navigate(Routes.Lightbox.create(it.id.toString()))
+                        navController.navigate(LightboxRoute(it.id.toString()))
                     },
                     onCollectionInfo = {
-                        globalViewModel.currentCollection.value = it
-                        navController.navigate(Routes.CollectionDetails)
+                        navController.navigate(CollectionDetailsRoute(it.id.toString()))
                     },
-                    onNewCollection = { navController.navigate(Routes.NewCollection) },
-                    onOpenConfiguration = { navController.navigate(Routes.Configuration) }
+                    onNewCollection = { navController.navigate(NewCollectionRoute) },
+                    onOpenConfiguration = { navController.navigate(ConfigurationRoute) }
                 )
             }
-            composable(route = Routes.Lightbox.pattern) {
-                val currentCollection = globalViewModel.currentCollection.value
-                if (currentCollection == null) {
+            composable<LightboxRoute> { backStackEntry ->
+                val lightboxRoute = runCatching { backStackEntry.toRoute<LightboxRoute>() }.getOrNull()
+                val collectionId = lightboxRoute?.collectionId?.let {
+                    runCatching { CollectionId.fromString(it) }.getOrNull()
+                }
+
+                if (collectionId == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
                     return@composable
                 }
 
                 LightboxScreen(
-                    currentCollection.id,
+                    collectionId,
                     onNavigateBack = { navController.popBackStack() },
                     onViewAsset = { asset ->
-                        globalViewModel.currentAsset.value = asset
                         navController.navigate(
-                            Routes.Asset.create(
-                                asset.collectionId.value.toString(),
-                                asset.id.value.toString(),
+                            AssetRoute(
+                                collectionId = asset.collectionId.value.toString(),
+                                assetId = asset.id.value.toString(),
                             )
                         )
                     },
                     onAssetsSelected = { (_) -> Unit },
                 )
             }
-            composable(route = Routes.CollectionDetails) {
-                val currentCollection = globalViewModel.currentCollection.value
-                if (currentCollection == null) {
+            composable<CollectionDetailsRoute> { backStackEntry ->
+                val collectionRoute = runCatching { backStackEntry.toRoute<CollectionDetailsRoute>() }.getOrNull()
+                val collectionId = collectionRoute?.collectionId?.let {
+                    runCatching { CollectionId.fromString(it) }.getOrNull()
+                }
+
+                if (collectionId == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
                     return@composable
                 }
 
                 CollectionDetailsScreen(
-                    currentCollection,
+                    collectionId = collectionId,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            composable(route = Routes.NewCollection) {
+            composable<NewCollectionRoute> {
                 CollectionDetailsScreen(
-                    collection { },
                     isNew = true,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            composable(route = Routes.Asset.pattern) {
-                val currentAsset = globalViewModel.currentAsset.value
-                if (currentAsset == null) {
+            composable<AssetRoute> { backStackEntry ->
+                val assetRoute = runCatching { backStackEntry.toRoute<AssetRoute>() }.getOrNull()
+
+                val collectionId = assetRoute?.collectionId?.let {
+                    runCatching { CollectionId.fromString(it) }.getOrNull()
+                }
+                val assetId = assetRoute?.assetId?.let {
+                    runCatching { AssetId.fromString(it) }.getOrNull()
+                }
+
+                if (collectionId == null || assetId == null) {
                     LaunchedEffect(Unit) { navController.popBackStack() }
                     return@composable
                 }
 
                 AssetScreen(
-                    collectionId = currentAsset.collectionId,
-                    assetId = currentAsset.id,
+                    collectionId = collectionId,
+                    assetId = assetId,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
