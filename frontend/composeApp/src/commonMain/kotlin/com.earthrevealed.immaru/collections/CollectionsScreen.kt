@@ -17,6 +17,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
@@ -31,6 +32,10 @@ fun CollectionsScreen(
     onNewCollection: () -> Unit = {},
     onOpenConfiguration: () -> Unit = {},
 ) {
+    LaunchedEffect(Unit) {
+        collectionViewModel.refreshCollections()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

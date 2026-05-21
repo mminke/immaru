@@ -13,7 +13,13 @@ class CollectionsViewModel(
     val isLoading = mutableStateOf(true)
 
     init {
+        refreshCollections()
+    }
+
+    fun refreshCollections() {
         viewModelScope.launch {
+            isLoading.value = true
+            errorMessage.value = ""
             try {
                 collections.value = collectionRepository.all()
             } catch (exception: CollectionRetrievalException) {
