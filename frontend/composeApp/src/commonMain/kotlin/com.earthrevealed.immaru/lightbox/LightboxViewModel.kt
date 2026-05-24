@@ -11,6 +11,7 @@ import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
+import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import io.github.vinceglb.filekit.PlatformFile
@@ -133,7 +134,7 @@ class LightboxViewModel(
         file: PlatformFile,
         newAsset: FileAsset
     ) {
-            val contentSource = file.source().buffered().toFlow()
+        val contentSource = file.source().buffered().toFlow(32.kB)
             assetRepository.saveContentFor(newAsset, contentSource)
     }
 }

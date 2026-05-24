@@ -7,9 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.Source
 
-fun ByteReadChannel.toFlow(): Flow<ByteArray> {
+fun ByteReadChannel.toFlow(bufferSize: Int = 8.kB): Flow<ByteArray> {
     return flow {
-        val bufferSize = 2000
         val buffer = ByteArray(bufferSize)
 
         do {
@@ -22,9 +21,8 @@ fun ByteReadChannel.toFlow(): Flow<ByteArray> {
 }
 
 
-fun Source.toFlow(): Flow<ByteArray> {
+fun Source.toFlow(bufferSize: Int = 8.kB): Flow<ByteArray> {
     return flow {
-        val bufferSize = 2000
         val buffer = ByteArray(bufferSize)
 
         do {
@@ -40,3 +38,6 @@ fun Source.toFlow(): Flow<ByteArray> {
         this@toFlow.close()
     }
 }
+
+val Int.kB: Int
+    get() = this * 1024

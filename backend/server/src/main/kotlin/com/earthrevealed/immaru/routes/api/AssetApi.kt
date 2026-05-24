@@ -8,16 +8,21 @@ import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.api.Collections
 import com.earthrevealed.immaru.collections.CollectionRepository
+import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.ktor.extensions.common.expectContentType
-import io.ktor.http.*
+import io.ktor.http.ContentType
 import io.ktor.http.ContentType.Application.OctetStream
-import io.ktor.server.request.*
-import io.ktor.server.resources.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.request.receiveChannel
+import io.ktor.server.resources.get
 import io.ktor.server.resources.put
-import io.ktor.server.response.*
+import io.ktor.server.response.header
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytesWriter
 import io.ktor.server.routing.Route
-import io.ktor.utils.io.*
+import io.ktor.utils.io.writeByteArray
 import mu.KotlinLogging
 import kotlin.time.Instant
 
@@ -182,7 +187,7 @@ fun Route.assetApi(
             return@put
         }
 
-        val content = call.receiveChannel().toFlow()
+        val content = call.receiveChannel().toFlow(32.kB)
         assetRepository.saveContentFor(asset, content)
 
         call.respond(HttpStatusCode.OK, "File uploaded successfully")

@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru.assets.library
 
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.fold
@@ -33,7 +34,7 @@ class Library(private val libraryRoot: Path) {
             Path(
                 absoluteFileLocationFor(asset).toString()
             )
-        ).buffered().toFlow()
+        ).buffered().toFlow(32.kB)
     }
 
     suspend fun writeContentForAsset(asset: FileAsset, content: Flow<ByteArray>) {

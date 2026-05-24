@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru.assets.library
 
 import com.earthrevealed.immaru.assets.MediaType
+import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -107,7 +108,7 @@ class DetectMediaTypePluginTest {
 
 fun useResourceAsFlow(name: String, useFlowBlock: (flow: Flow<ByteArray>) -> Unit) {
     Test::class.java.classLoader?.getResourceAsStream(name)!!.use { inputStream ->
-        val inputFlow = inputStream.asSource().buffered().toFlow()
+        val inputFlow = inputStream.asSource().buffered().toFlow(32.kB)
 
         useFlowBlock(inputFlow)
     }
