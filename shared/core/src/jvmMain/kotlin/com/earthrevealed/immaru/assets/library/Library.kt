@@ -3,7 +3,7 @@ package com.earthrevealed.immaru.assets.library
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.common.io.toFlow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.fold
 import kotlinx.io.Source
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -36,25 +36,21 @@ class Library(private val libraryRoot: Path) {
         ).buffered().toFlow()
     }
 
-    fun writeContentForAsset(asset: FileAsset, content: Flow<ByteArray>) {
+    suspend fun writeContentForAsset(asset: FileAsset, content: Flow<ByteArray>) {
         val absoluteFileLocation = absoluteFileLocationFor(asset)
 
         require(!absoluteFileLocation.exists()) { "File already exists. overwriting content is not allowed." }
 
         SystemFileSystem.createDirectories(Path(absoluteDestinationFolderFor(asset).toString()))
 
-        SystemFileSystem.sink(Path(absoluteFileLocation.toString()))
-            .buffered()
-            .use { fileSink ->
-                runBlocking {
-                    content
-                        .collect { buffer ->
-                            fileSink.write(buffer)
-                        }
-                }
-            }
+        val fileSink = SystemFileSystem.sink(Path(absoluteFileLocation.toString())).buffered()
 
-        logger.info { "Finished writing content for ${asset.originalFilename}" }
+        val totalSize = content.fold(0) { acc, bytes ->
+            fileSink.write(bytes)
+            acc + bytes.size
+        }
+
+        logger.info { "Finished writing content for ${asset.originalFilename} [totalSize=$totalSize]" }
     }
 
     private fun absoluteFileLocationFor(asset: FileAsset): Path =

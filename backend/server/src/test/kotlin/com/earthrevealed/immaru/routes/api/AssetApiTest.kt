@@ -224,6 +224,35 @@ class AssetApiTest {
     }
 
     @Test
+    fun `put content succeeds for large octet-stream payload`() = testApplication {
+        val collectionId = CollectionId()
+        val fileAsset = FileAsset(collectionId, "demo.jpg")
+        val collectionRepository = InMemoryCollectionRepository(setOf(collectionId))
+        val assetRepository = InMemoryAssetRepository(listOf(fileAsset))
+        val payload = checkNotNull(javaClass.classLoader.getResourceAsStream("large.png")) {
+            "Missing test resource: large.png"
+        }
+
+        application {
+            install(Resources)
+            install(ContentNegotiation) { json() }
+            routing {
+                route("api") {
+                    assetApi(collectionRepository, assetRepository)
+                }
+            }
+        }
+
+        val response = client.put("/api/collections/$collectionId/assets/${fileAsset.id}/content") {
+            contentType(ContentType.Application.OctetStream)
+            setBody(payload)
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("File uploaded successfully", response.body<String>())
+    }
+
+    @Test
     fun `get content returns no content with no-cache header when media type is missing`() = testApplication {
         val collectionId = CollectionId()
         val fileAsset = FileAsset(collectionId, "demo.jpg")
