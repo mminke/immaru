@@ -31,11 +31,12 @@ kotlin {
     }
 
 
-    listOf(
-        iosX64(),
+    val iosTargets = listOf(
         iosArm64(),
         iosSimulatorArm64()
-    ).forEach { iosTarget ->
+    )
+
+    iosTargets.forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Immaru"
             isStatic = true
