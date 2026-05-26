@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.earthrevealed.immaru.assets.Asset
+import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
@@ -36,6 +38,10 @@ class LightboxViewModel(
     val assets = mutableStateListOf<Asset>()
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
+    val isLoadingMore = mutableStateOf(false)
+    val hasMoreAssets = mutableStateOf(false)
+
+    private var nextCursor: AssetCursor? = null
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
     val selectedAssets = _selectedAssets.asStateFlow()
@@ -67,9 +73,17 @@ class LightboxViewModel(
 
     private suspend fun refreshAssetsFor(currentCollection: Collection) {
         try {
-            val retrievedAssets = assetRepository.findAllFor(currentCollection.id)
+            nextCursor = null
+            val page = assetRepository.findPageFor(
+                collectionId = currentCollection.id,
+                limit = PAGE_SIZE,
+                cursor = null,
+                direction = PageDirection.FORWARD,
+            )
             assets.clear()
-            assets.addAll(retrievedAssets)
+            assets.addAll(page.items)
+            nextCursor = page.nextCursor
+            hasMoreAssets.value = page.hasMore
         } catch (exception: AssetRetrievalException) {
             exception.printStackTrace()
             errorMessage.value = "Cannot retrieve assets!"
@@ -84,6 +98,30 @@ class LightboxViewModel(
                 refreshAssetsFor(currentCollection)
             } finally {
                 isLoading.value = false
+            }
+        }
+    }
+
+    fun loadNextPage() {
+        val currentCollection = collection.value ?: return
+        if (!hasMoreAssets.value || isLoadingMore.value) return
+        viewModelScope.launch {
+            isLoadingMore.value = true
+            try {
+                val page = assetRepository.findPageFor(
+                    collectionId = currentCollection.id,
+                    limit = PAGE_SIZE,
+                    cursor = nextCursor,
+                    direction = PageDirection.FORWARD,
+                )
+                assets.addAll(page.items)
+                nextCursor = page.nextCursor
+                hasMoreAssets.value = page.hasMore
+            } catch (exception: AssetRetrievalException) {
+                exception.printStackTrace()
+                errorMessage.value = "Cannot retrieve assets!"
+            } finally {
+                isLoadingMore.value = false
             }
         }
     }
@@ -136,5 +174,9 @@ class LightboxViewModel(
     ) {
         val contentSource = file.source().buffered().toFlow(32.kB)
             assetRepository.saveContentFor(newAsset, contentSource)
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 50
     }
 }

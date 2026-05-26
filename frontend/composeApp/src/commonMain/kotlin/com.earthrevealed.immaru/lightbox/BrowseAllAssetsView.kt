@@ -104,6 +104,9 @@ fun BrowseAllAssetsView(
                             if (selectedAssets.value.isEmpty()) false else showInformation.value,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
+                            hasMore = viewModel.hasMoreAssets.value,
+                            isLoadingMore = viewModel.isLoadingMore.value,
+                            onLoadMore = { viewModel.loadNextPage() },
                         )
                     }
                 }
@@ -132,6 +135,9 @@ fun LightboxInformationPaneScaffold(
     showInformation: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
+    hasMore: Boolean = false,
+    isLoadingMore: Boolean = false,
+    onLoadMore: () -> Unit = {},
 ) {
     val navigator = rememberSupportingPaneScaffoldNavigator(
         scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()).let {
@@ -160,7 +166,10 @@ fun LightboxInformationPaneScaffold(
                     assets,
                     selectedAssets,
                     onAssetClicked = onAssetClicked,
-                    onAssetDoubleClicked = onAssetDoubleClicked
+                    onAssetDoubleClicked = onAssetDoubleClicked,
+                    hasMore = hasMore,
+                    isLoadingMore = isLoadingMore,
+                    onLoadMore = onLoadMore,
                 )
             }
         },
