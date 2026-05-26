@@ -136,9 +136,9 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
+            packageName = "Immaru"
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.earthrevealed.immaru"
-            packageVersion = "1.0.0"
 
             linux {
                 modules("jdk.security.auth")
