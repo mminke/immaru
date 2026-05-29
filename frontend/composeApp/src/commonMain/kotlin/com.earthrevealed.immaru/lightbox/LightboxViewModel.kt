@@ -1,15 +1,14 @@
 package com.earthrevealed.immaru.lightbox
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.earthrevealed.immaru.assets.Asset
-import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetRepository
-import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.FileAsset
-import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
@@ -35,13 +34,28 @@ class LightboxViewModel(
     private val collectionId: CollectionId,
 ) : ViewModel() {
     val collection = mutableStateOf<Collection?>(null)
-    val assets = mutableStateListOf<Asset>()
     val errorMessage = mutableStateOf("")
     val isLoading = mutableStateOf(true)
-    val isLoadingMore = mutableStateOf(false)
-    val hasMoreAssets = mutableStateOf(false)
 
-    private var nextCursor: AssetCursor? = null
+    private var activePagingSource: AssetPagingSource? = null
+
+    val pagedAssets = Pager(
+        config = PagingConfig(
+            pageSize = PAGE_SIZE,
+            initialLoadSize = PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            maxSize = MAX_PAGING_WINDOW_SIZE,
+            enablePlaceholders = false,
+        ),
+        pagingSourceFactory = {
+            AssetPagingSource(
+                collectionId = collectionId,
+                assetRepository = assetRepository,
+            ).also {
+                activePagingSource = it
+            }
+        },
+    ).flow.cachedIn(viewModelScope)
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
     val selectedAssets = _selectedAssets.asStateFlow()
@@ -71,23 +85,12 @@ class LightboxViewModel(
         }
     }
 
-    private suspend fun refreshAssetsFor(currentCollection: Collection) {
-        try {
-            nextCursor = null
-            val page = assetRepository.findPageFor(
-                collectionId = currentCollection.id,
-                limit = PAGE_SIZE,
-                cursor = null,
-                direction = PageDirection.FORWARD,
-            )
-            assets.clear()
-            assets.addAll(page.items)
-            nextCursor = page.nextCursor
-            hasMoreAssets.value = page.hasMore
-        } catch (exception: AssetRetrievalException) {
-            exception.printStackTrace()
+    private fun refreshAssetsFor(currentCollection: Collection) {
+        if (currentCollection.id != collectionId) {
             errorMessage.value = "Cannot retrieve assets!"
+            return
         }
+        activePagingSource?.invalidate()
     }
 
     fun refreshAssets() {
@@ -102,33 +105,9 @@ class LightboxViewModel(
         }
     }
 
-    fun loadNextPage() {
-        val currentCollection = collection.value ?: return
-        if (!hasMoreAssets.value || isLoadingMore.value) return
-        viewModelScope.launch {
-            isLoadingMore.value = true
-            try {
-                val page = assetRepository.findPageFor(
-                    collectionId = currentCollection.id,
-                    limit = PAGE_SIZE,
-                    cursor = nextCursor,
-                    direction = PageDirection.FORWARD,
-                )
-                assets.addAll(page.items)
-                nextCursor = page.nextCursor
-                hasMoreAssets.value = page.hasMore
-            } catch (exception: AssetRetrievalException) {
-                exception.printStackTrace()
-                errorMessage.value = "Cannot retrieve assets!"
-            } finally {
-                isLoadingMore.value = false
-            }
-        }
-    }
-
     fun toggleAssetSelected(asset: Asset) {
         _selectedAssets.update {
-            if(it.contains(asset)) {
+            if (it.contains(asset)) {
                 it - asset
             } else {
                 it + asset
@@ -158,7 +137,7 @@ class LightboxViewModel(
         directory.list().forEach { file ->
             if (file.isRegularFile()) {
                 println("Processing file: ${file.name}")
-                if(file.size() <= 0) {
+                if (file.size() <= 0) {
                     println("File ignored [length=${file.size()}]")
                     //TODO: Give feedback to user about this
                 } else {
@@ -173,10 +152,12 @@ class LightboxViewModel(
         newAsset: FileAsset
     ) {
         val contentSource = file.source().buffered().toFlow(32.kB)
-            assetRepository.saveContentFor(newAsset, contentSource)
+        assetRepository.saveContentFor(newAsset, contentSource)
     }
 
     companion object {
         private const val PAGE_SIZE = 50
+        private const val PREFETCH_DISTANCE = 10
+        private const val MAX_PAGING_WINDOW_SIZE = 200
     }
 }

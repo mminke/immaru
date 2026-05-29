@@ -26,6 +26,7 @@ compose-material3-adaptive = "1.2.0"
 coil3 = "3.4.0"
 filekit = "0.14.1"
 koin = "4.2.1"
+paging = "3.5.0"
 
 r2dbc = "1.0.0.RELEASE"
 postgresql_r2dbc_version = "1.1.1.RELEASE"
@@ -70,6 +71,8 @@ lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifec
 
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 filekit-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
+paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 microutils-kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }

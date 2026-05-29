@@ -34,6 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
@@ -52,6 +55,7 @@ fun BrowseAllAssetsView(
 ) {
     val showInformation = mutableStateOf(false)
     val selectedAssets = viewModel.selectedAssets.collectAsState()
+    val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
 
     fun toggleShowInformation() {
         showInformation.value = !showInformation.value
@@ -97,16 +101,17 @@ fun BrowseAllAssetsView(
                 } else {
                     if (viewModel.errorMessage.value.isNotBlank()) {
                         ErrorMessage(viewModel.errorMessage.value)
+                    } else if (assets.loadState.refresh is LoadState.Error) {
+                        ErrorMessage("Cannot retrieve assets!")
+                    } else if (assets.loadState.refresh is LoadState.Loading) {
+                        CenteredProgressIndicator()
                     } else {
                         LightboxInformationPaneScaffold(
-                            viewModel.assets,
+                            assets,
                             selectedAssets.value,
                             if (selectedAssets.value.isEmpty()) false else showInformation.value,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
-                            hasMore = viewModel.hasMoreAssets.value,
-                            isLoadingMore = viewModel.isLoadingMore.value,
-                            onLoadMore = { viewModel.loadNextPage() },
                         )
                     }
                 }
@@ -130,14 +135,11 @@ fun BrowseAllAssetsView(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun LightboxInformationPaneScaffold(
-    assets: List<Asset>,
+    assets: LazyPagingItems<Asset>,
     selectedAssets: List<Asset>,
     showInformation: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
-    hasMore: Boolean = false,
-    isLoadingMore: Boolean = false,
-    onLoadMore: () -> Unit = {},
 ) {
     val navigator = rememberSupportingPaneScaffoldNavigator(
         scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()).let {
@@ -167,9 +169,6 @@ fun LightboxInformationPaneScaffold(
                     selectedAssets,
                     onAssetClicked = onAssetClicked,
                     onAssetDoubleClicked = onAssetDoubleClicked,
-                    hasMore = hasMore,
-                    isLoadingMore = isLoadingMore,
-                    onLoadMore = onLoadMore,
                 )
             }
         },

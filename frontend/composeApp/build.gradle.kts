@@ -85,6 +85,8 @@ kotlin {
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.lifecycle.runtime.compose)
             implementation(libs.navigation.compose)
+            implementation(libs.paging.common)
+            implementation(libs.paging.compose)
             implementation(libs.koin.compose.viewmodel.nav)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.logging)
@@ -103,6 +105,10 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test)
             }
+        }
+
+        jvmTest.dependencies {
+            implementation(libs.kotlin.test.junit)
         }
 
         androidMain.dependencies {
