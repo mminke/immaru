@@ -58,15 +58,17 @@ fun AssetThumbnail(
         if (asset is FileAsset) {
             val contentUrl = assetViewModel.contentUrlForAsset(asset).collectAsState(null)
 
-            AsyncImage(
-                model = contentUrl.value,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                onError = { println("ERROR: Something went wrong loading the image: ${it.result.throwable} [asset.id=${asset.id}]") }
-            )
+            if (contentUrl.value != null) {
+                AsyncImage(
+                    model = contentUrl.value,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    onError = { println("ERROR: Something went wrong loading the image: ${it.result.throwable} [asset.id=${asset.id}]") }
+                )
+            }
         } else {
             TODO("Not a file asset, define an image placeholder")
         }
