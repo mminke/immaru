@@ -16,6 +16,7 @@ import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
 import com.earthrevealed.immaru.configuration.Configuration
 import com.earthrevealed.immaru.configuration.ConfigurationRepository
+import com.earthrevealed.immaru.configuration.LightboxConfiguration
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.isRegularFile
@@ -159,14 +160,25 @@ class LightboxViewModel(
     }
 
     fun setShowAssetFilenameCaption(show: Boolean) {
+        updateLightboxConfiguration {
+            it.copy(showAssetFilenameCaption = show)
+        }
+    }
+
+    fun setThumbnailZoomPercent(percent: Int) {
+        val safePercent = percent.coerceIn(MIN_THUMBNAIL_ZOOM_PERCENT, MAX_THUMBNAIL_ZOOM_PERCENT)
+        updateLightboxConfiguration {
+            it.copy(thumbnailZoomPercent = safePercent)
+        }
+    }
+
+    private fun updateLightboxConfiguration(update: (LightboxConfiguration) -> LightboxConfiguration) {
         viewModelScope.launch {
             val current = configuration.value
             configurationRepository.save(
                 current.copy(
                     uiConfiguration = current.uiConfiguration.copy(
-                        lightbox = current.uiConfiguration.lightbox.copy(
-                            showAssetFilenameCaption = show
-                        )
+                        lightbox = update(current.uiConfiguration.lightbox)
                     )
                 )
             )
@@ -185,5 +197,7 @@ class LightboxViewModel(
         private const val PAGE_SIZE = 50
         private const val PREFETCH_DISTANCE = 10
         private const val MAX_PAGING_WINDOW_SIZE = 200
+        const val MIN_THUMBNAIL_ZOOM_PERCENT = 50
+        const val MAX_THUMBNAIL_ZOOM_PERCENT = 200
     }
 }

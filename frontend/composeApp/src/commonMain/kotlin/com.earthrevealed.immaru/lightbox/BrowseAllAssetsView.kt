@@ -18,6 +18,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -49,6 +50,7 @@ import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +64,8 @@ fun BrowseAllAssetsView(
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
     val configuration = viewModel.configuration.collectAsState()
+    val thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent
+    val thumbnailZoomSlider = remember(thumbnailZoomPercent) { mutableStateOf(thumbnailZoomPercent.toFloat()) }
 
     if (showViewSettingsDialog.value) {
         AlertDialog(
@@ -73,6 +77,19 @@ fun BrowseAllAssetsView(
                     Switch(
                         checked = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
                         onCheckedChange = { viewModel.setShowAssetFilenameCaption(it) },
+                    )
+
+                    Text(
+                        text = "Thumbnail size: ${thumbnailZoomSlider.value.roundToInt()}%",
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    Slider(
+                        value = thumbnailZoomSlider.value,
+                        onValueChange = { thumbnailZoomSlider.value = it },
+                        valueRange = LightboxViewModel.MIN_THUMBNAIL_ZOOM_PERCENT.toFloat()..LightboxViewModel.MAX_THUMBNAIL_ZOOM_PERCENT.toFloat(),
+                        onValueChangeFinished = {
+                            viewModel.setThumbnailZoomPercent(thumbnailZoomSlider.value.roundToInt())
+                        }
                     )
                 }
             },
@@ -146,6 +163,7 @@ fun BrowseAllAssetsView(
                             selectedAssets.value,
                             if (selectedAssets.value.isEmpty()) false else showInformation.value,
                             showAssetFilenameCaption = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
+                            thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
                         )
@@ -175,6 +193,7 @@ fun LightboxInformationPaneScaffold(
     selectedAssets: List<Asset>,
     showInformation: Boolean,
     showAssetFilenameCaption: Boolean,
+    thumbnailZoomPercent: Int,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
 ) {
@@ -205,6 +224,7 @@ fun LightboxInformationPaneScaffold(
                     assets,
                     selectedAssets,
                     showAssetFilenameCaption = showAssetFilenameCaption,
+                    thumbnailZoomPercent = thumbnailZoomPercent,
                     onAssetClicked = onAssetClicked,
                     onAssetDoubleClicked = onAssetDoubleClicked,
                 )

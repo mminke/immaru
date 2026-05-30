@@ -26,6 +26,7 @@ data class UiConfiguration(
 @Serializable
 data class LightboxConfiguration(
     val showAssetFilenameCaption: Boolean = true,
+    val thumbnailZoomPercent: Int = 100,
 )
 
 @Serializable

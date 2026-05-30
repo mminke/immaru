@@ -23,11 +23,13 @@ fun Lightbox(
     assets: LazyPagingItems<Asset>,
     selectedAssets: List<Asset>,
     showAssetFilenameCaption: Boolean,
+    thumbnailZoomPercent: Int,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gridState = rememberLazyGridState()
+    val thumbnailMinSize = (DEFAULT_THUMBNAIL_SIZE_DP * (thumbnailZoomPercent / 100f)).dp
 
     Box(modifier = modifier) {
         LazyVerticalGrid(
@@ -35,7 +37,7 @@ fun Lightbox(
                 .fillMaxSize()
                 .testTag("lightbox-grid"),
             state = gridState,
-            columns = GridCells.Adaptive(minSize = 128.dp)
+            columns = GridCells.Adaptive(minSize = thumbnailMinSize)
         ) {
             items(
                 count = assets.itemCount,
@@ -86,3 +88,5 @@ fun Lightbox(
         }
     }
 }
+
+private const val DEFAULT_THUMBNAIL_SIZE_DP = 128f
