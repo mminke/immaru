@@ -11,6 +11,7 @@ class ConfigurationViewModel(
 ) : ViewModel() {
     val serverConfigurations = mutableStateOf(initialConfiguration.serverConfigurations)
     val activeServerConfigurationName = mutableStateOf(initialConfiguration.activeServerConfigurationName)
+    val uiConfiguration = mutableStateOf(initialConfiguration.uiConfiguration)
 
     val state = mutableStateOf(State.READY)
     val nameError = mutableStateOf<String?>(null)
@@ -19,6 +20,7 @@ class ConfigurationViewModel(
     fun setConfiguration(configuration: Configuration) {
         serverConfigurations.value = configuration.serverConfigurations
         activeServerConfigurationName.value = configuration.activeServerConfigurationName
+        uiConfiguration.value = configuration.uiConfiguration
         state.value = State.READY
     }
 
@@ -87,7 +89,8 @@ class ConfigurationViewModel(
             configurationRepository.save(
                 Configuration(
                     serverConfigurations = serverConfigurations.value,
-                    activeServerConfigurationName = activeServerConfigurationName.value
+                    activeServerConfigurationName = activeServerConfigurationName.value,
+                    uiConfiguration = uiConfiguration.value,
                 )
             )
             onSuccess()

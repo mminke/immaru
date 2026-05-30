@@ -12,10 +12,21 @@ interface ConfigurationRepository {
 @Serializable
 data class Configuration(
     val serverConfigurations: List<ServerConfiguration> = emptyList(),
-    val activeServerConfigurationName: String? = null
+    val activeServerConfigurationName: String? = null,
+    val uiConfiguration: UiConfiguration = UiConfiguration(),
 ) {
     val activeServerConfiguration = serverConfigurations.firstOrNull { it.name == activeServerConfigurationName }
 }
+
+@Serializable
+data class UiConfiguration(
+    val lightbox: LightboxConfiguration = LightboxConfiguration(),
+)
+
+@Serializable
+data class LightboxConfiguration(
+    val showAssetFilenameCaption: Boolean = true,
+)
 
 @Serializable
 data class ServerConfiguration(

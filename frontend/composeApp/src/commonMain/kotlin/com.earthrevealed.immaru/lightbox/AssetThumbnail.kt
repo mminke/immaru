@@ -35,6 +35,7 @@ import org.koin.compose.koinInject
 @Composable
 fun AssetThumbnail(
     asset: Asset,
+    showAssetFilenameCaption: Boolean,
     selected: Boolean,
     onClick: (Asset) -> Unit,
     onDoubleClick: (Asset) -> Unit,
@@ -73,15 +74,17 @@ fun AssetThumbnail(
             TODO("Not a file asset, define an image placeholder")
         }
 
-        Box(
-            modifier = Modifier
-                .background(Color.LightGray.copy(alpha = 0.5f))
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
-            FilenameWithHoverTooltip(
-                name = asset.name,
-            )
+        if (showAssetFilenameCaption) {
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray.copy(alpha = 0.5f))
+                    .fillMaxWidth()
+                    .padding(4.dp)
+            ) {
+                FilenameWithHoverTooltip(
+                    name = asset.name,
+                )
+            }
         }
     }
 }

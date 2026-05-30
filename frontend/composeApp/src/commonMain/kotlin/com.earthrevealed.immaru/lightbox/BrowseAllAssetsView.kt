@@ -9,15 +9,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -54,8 +58,31 @@ fun BrowseAllAssetsView(
     viewModel: LightboxViewModel
 ) {
     val showInformation = mutableStateOf(false)
+    val showViewSettingsDialog = remember { mutableStateOf(false) }
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
+    val configuration = viewModel.configuration.collectAsState()
+
+    if (showViewSettingsDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showViewSettingsDialog.value = false },
+            title = { Text("View settings") },
+            text = {
+                Column {
+                    Text(text = "Show filename captions")
+                    Switch(
+                        checked = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
+                        onCheckedChange = { viewModel.setShowAssetFilenameCaption(it) },
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showViewSettingsDialog.value = false }) {
+                    Text("Done")
+                }
+            }
+        )
+    }
 
     fun toggleShowInformation() {
         showInformation.value = !showInformation.value
@@ -78,6 +105,14 @@ fun BrowseAllAssetsView(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { showViewSettingsDialog.value = true }
+                    ) {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Open view settings"
+                        )
+                    }
                     IconButton(
                         enabled = selectedAssets.value.isNotEmpty(),
                         onClick = { toggleShowInformation() })
@@ -110,6 +145,7 @@ fun BrowseAllAssetsView(
                             assets,
                             selectedAssets.value,
                             if (selectedAssets.value.isEmpty()) false else showInformation.value,
+                            showAssetFilenameCaption = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
                             onAssetClicked = onViewAsset,
                             onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
                         )
@@ -138,6 +174,7 @@ fun LightboxInformationPaneScaffold(
     assets: LazyPagingItems<Asset>,
     selectedAssets: List<Asset>,
     showInformation: Boolean,
+    showAssetFilenameCaption: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
 ) {
@@ -167,6 +204,7 @@ fun LightboxInformationPaneScaffold(
                 Lightbox(
                     assets,
                     selectedAssets,
+                    showAssetFilenameCaption = showAssetFilenameCaption,
                     onAssetClicked = onAssetClicked,
                     onAssetDoubleClicked = onAssetDoubleClicked,
                 )

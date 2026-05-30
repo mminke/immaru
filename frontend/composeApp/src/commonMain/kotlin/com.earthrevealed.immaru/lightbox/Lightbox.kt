@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -23,6 +22,7 @@ import com.earthrevealed.immaru.assets.Asset
 fun Lightbox(
     assets: LazyPagingItems<Asset>,
     selectedAssets: List<Asset>,
+    showAssetFilenameCaption: Boolean,
     onAssetClicked: (Asset) -> Unit,
     onAssetDoubleClicked: (Asset) -> Unit,
     modifier: Modifier = Modifier,
@@ -45,6 +45,7 @@ fun Lightbox(
                 if (asset != null) {
                     AssetThumbnail(
                         asset,
+                        showAssetFilenameCaption = showAssetFilenameCaption,
                         selected = selectedAssets.contains(asset),
                         onClick = onAssetClicked,
                         onDoubleClick = onAssetDoubleClicked,

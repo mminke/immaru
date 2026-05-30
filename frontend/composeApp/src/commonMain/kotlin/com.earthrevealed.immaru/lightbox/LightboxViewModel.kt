@@ -14,6 +14,8 @@ import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
+import com.earthrevealed.immaru.configuration.Configuration
+import com.earthrevealed.immaru.configuration.ConfigurationRepository
 import com.earthrevealed.immaru.coroutines.DispatcherProvider
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.isRegularFile
@@ -22,7 +24,9 @@ import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +35,7 @@ import kotlinx.io.buffered
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
     private val collectionRepository: CollectionRepository,
+    private val configurationRepository: ConfigurationRepository,
     private val collectionId: CollectionId,
 ) : ViewModel() {
     val collection = mutableStateOf<Collection?>(null)
@@ -38,6 +43,12 @@ class LightboxViewModel(
     val isLoading = mutableStateOf(true)
 
     private var activePagingSource: AssetPagingSource? = null
+
+    val configuration = configurationRepository.configuration.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = Configuration(),
+    )
 
     val pagedAssets = Pager(
         config = PagingConfig(
@@ -144,6 +155,21 @@ class LightboxViewModel(
                     createAssetFor(file)
                 }
             }
+        }
+    }
+
+    fun setShowAssetFilenameCaption(show: Boolean) {
+        viewModelScope.launch {
+            val current = configuration.value
+            configurationRepository.save(
+                current.copy(
+                    uiConfiguration = current.uiConfiguration.copy(
+                        lightbox = current.uiConfiguration.lightbox.copy(
+                            showAssetFilenameCaption = show
+                        )
+                    )
+                )
+            )
         }
     }
 
