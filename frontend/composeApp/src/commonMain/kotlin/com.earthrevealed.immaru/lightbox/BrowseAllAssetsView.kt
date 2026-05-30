@@ -12,17 +12,13 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
@@ -50,7 +46,6 @@ import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,40 +59,14 @@ fun BrowseAllAssetsView(
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
     val configuration = viewModel.configuration.collectAsState()
-    val thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent
-    val thumbnailZoomSlider = remember(thumbnailZoomPercent) { mutableStateOf(thumbnailZoomPercent.toFloat()) }
 
     if (showViewSettingsDialog.value) {
-        AlertDialog(
-            onDismissRequest = { showViewSettingsDialog.value = false },
-            title = { Text("View settings") },
-            text = {
-                Column {
-                    Text(text = "Show filename captions")
-                    Switch(
-                        checked = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
-                        onCheckedChange = { viewModel.setShowAssetFilenameCaption(it) },
-                    )
-
-                    Text(
-                        text = "Thumbnail size: ${thumbnailZoomSlider.value.roundToInt()}%",
-                        modifier = Modifier.padding(top = 12.dp)
-                    )
-                    Slider(
-                        value = thumbnailZoomSlider.value,
-                        onValueChange = { thumbnailZoomSlider.value = it },
-                        valueRange = LightboxViewModel.MIN_THUMBNAIL_ZOOM_PERCENT.toFloat()..LightboxViewModel.MAX_THUMBNAIL_ZOOM_PERCENT.toFloat(),
-                        onValueChangeFinished = {
-                            viewModel.setThumbnailZoomPercent(thumbnailZoomSlider.value.roundToInt())
-                        }
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showViewSettingsDialog.value = false }) {
-                    Text("Done")
-                }
-            }
+        LightboxViewSettingsDialog(
+            showAssetFilenameCaption = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
+            thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent,
+            onShowAssetFilenameCaptionChange = { viewModel.setShowAssetFilenameCaption(it) },
+            onThumbnailZoomPercentChange = { viewModel.setThumbnailZoomPercent(it) },
+            onDismiss = { showViewSettingsDialog.value = false },
         )
     }
 
