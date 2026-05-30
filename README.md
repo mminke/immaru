@@ -1,5 +1,9 @@
 # Immaru Media Library
 
+## AI agent project layout guide
+
+If you are an AI agent looking for a quick overview of the repository structure, see `AGENTS.md` in the project root.
+
 ## Project setup
 
 Immaru is a Kotlin multiplatform project which consists of the following main parts:
