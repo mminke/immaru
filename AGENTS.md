@@ -13,6 +13,9 @@ Immaru is a Kotlin Multiplatform media library application composed of:
 
 The project uses Gradle Kotlin DSL and a central `settings.gradle.kts` to wire module names to physical directories.
 
+A folder called 'legacy' exists, but this contains older code which does not need any updates or modifications.
+It can be ignored for all tasks.
+
 ## Repository map
 
 ### Root files you should know
