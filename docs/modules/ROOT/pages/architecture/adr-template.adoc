@@ -1,0 +1,37 @@
+= ADR Template
+:page-description: Template for architecture decision records.
+
+// Copy this file when creating a new ADR.
+// Suggested location and filename: architecture/adrs/adr-XXXX-short-title.adoc
+
+[cols="1,4",options="header"]
+|===
+| Field | Value
+
+| Status
+| ⚙️ `proposed` {vbar} 🚫 `rejected` {vbar} ✅ `accepted` {vbar} ☑️ `deprecated` {vbar} ⏭️ `superseded` {vbar} 🗑️ `discarded`
+
+| Created
+| YYYY-MM-DD
+|===
+
+== Context
+
+What is the problem or constraint that requires a decision?
+
+== Decision
+
+What was decided?
+
+== Alternatives Considered
+
+* Option A
+* Option B
+
+== Consequences
+
+What are the expected trade-offs, risks, and follow-up work?
+
+== Related
+
+* Link to issue, PR, or design note

@@ -1,0 +1,8 @@
+= Overview
+:page-description: High-level architecture and module overview.
+
+Immaru is a Kotlin Multiplatform media library application with:
+
+* Shared domain logic in `shared/core`
+* Frontend UI in `frontend/composeApp`
+* Backend API in `backend/server`

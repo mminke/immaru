@@ -1,0 +1,5 @@
+* xref:index.adoc[Documentation Home]
+* xref:overview.adoc[Overview]
+* xref:architecture/index.adoc[Architecture]
+** xref:architecture/adrs.adoc[Architecture Decision Records (ADRs)]
+** xref:architecture/adr-template.adoc[ADR Template]

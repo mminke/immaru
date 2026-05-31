@@ -1,0 +1,6 @@
+= Architecture
+:page-description: System architecture and decision records.
+
+This section captures the technical architecture of Immaru and the key decisions behind it.
+
+See xref:architecture/adrs.adoc[Architecture Decision Records (ADRs)] for the decision log and templates.

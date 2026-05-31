@@ -1,0 +1,6 @@
+name: immaru
+title: Immaru Documentation
+version: ~
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc

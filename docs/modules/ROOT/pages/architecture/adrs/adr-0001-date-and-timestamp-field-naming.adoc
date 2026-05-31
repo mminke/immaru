@@ -1,0 +1,70 @@
+= ADR-0001: Date and Timestamp Field Naming
+:page-description: Standard naming rules for date and timestamp fields.
+
+[cols="1,4",options="header"]
+|===
+| Field | Value
+
+| Status
+| ✅ `accepted`
+
+| Created
+| 2026-05-31
+|===
+
+== Context
+
+The codebase contains both date-only values and point-in-time values.
+Without a naming convention, field intent is ambiguous and can lead to incorrect parsing, serialization, and timezone handling.
+
+== Decision
+
+Use suffix-based naming for temporal fields:
+
+* Use `On` for date-only fields (calendar date, no time of day).
+* Use `At` for timestamp fields (a specific instant in time).
+
+=== Date-only fields (`On`)
+
+Date-only fields represent a day-level value and should map to a date type.
+
+Examples:
+
+* `createdOn`
+* `publishedOn`
+* `expiresOn`
+* `capturedOn`
+
+=== Timestamp fields (`At`)
+
+Timestamp fields represent an exact moment and should map to an instant/datetime type.
+
+Examples:
+
+* `createdAt`
+* `updatedAt`
+* `deletedAt`
+* `processedAt`
+
+=== Additional guidance
+
+* Do not use mixed or ambiguous suffixes such as `Date`, `Time`, or `Timestamp` unless required by an external API contract.
+* If an external API requires different names, translate at the boundary and keep internal model names aligned with this ADR.
+
+== Alternatives Considered
+
+* Suffix all temporal fields with `Date`/`DateTime`.
+* Use no suffix and rely on type information only.
+
+Both options were rejected because they reduce readability and make intent less obvious in query parameters, JSON payloads, and DB column names.
+
+== Consequences
+
+* Temporal field intent is explicit at call sites.
+* Reviewers can quickly spot model inconsistencies.
+* Existing fields that do not follow this convention should be migrated opportunistically or during relevant refactors.
+
+== Related
+
+* xref:architecture/adr-template.adoc[ADR Template]
+* https://english.stackexchange.com/questions/104740/created-at-or-created-in#104745[Background: "created at" vs "created on"]

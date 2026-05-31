@@ -1,0 +1,11 @@
+= Immaru Documentation
+:page-description: Main entry point for Immaru project documentation.
+
+Welcome to the Immaru documentation site.
+
+Use the navigation to explore guides and references.
+
+Quick links:
+
+* xref:overview.adoc[Overview]
+* xref:architecture/index.adoc[Architecture]

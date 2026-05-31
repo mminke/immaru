@@ -1,0 +1,59 @@
+= Architecture Decision Records (ADRs)
+:page-description: Decision log for architecture choices.
+
+ADRs are lightweight records that document important technical decisions, context, and consequences.
+
+== ADR Register
+
+[cols="1,4,2,3",options="header"]
+|===
+| ID | Title | Status | Date
+
+| ADR-0001
+| Date and timestamp field naming (`On` vs `At`)
+| Accepted
+| 2026-05-31
+|===
+
+== Add a New ADR
+
+. Copy xref:architecture/adr-template.adoc[ADR Template]
+. Create the new ADR under `architecture/adrs/` using `adr-XXXX-short-title.adoc` (increment `XXXX`)
+. Add it to the register table above
+. Link it from this page using `xref:architecture/adrs/adr-XXXX-short-title.adoc[...]`
+
+== Entries
+
+* xref:architecture/adrs/adr-0001-date-and-timestamp-field-naming.adoc[ADR-0001: Date and Timestamp Field Naming]
+* xref:architecture/adr-template.adoc[ADR Template]
+
+== Allowed Status Values
+
+[cols="1,2,7",options="header"]
+|===
+| Emoji | Status | Description
+
+| ⚙️
+| proposed
+| The ADR is currently WIP or proposed for approval. If the ADR is complex, it is usually written on a feature-branch with an MR.
+
+| 🚫
+| rejected
+| The ADR got rejected and the proposed changes will not be implemented.
+
+| ✅
+| accepted
+| The ADR is accepted, the changes are getting or already being implemented.
+
+| ☑️
+| deprecated
+| The ADR is not relevant anymore.
+
+| ⏭️
+| superseded
+| An ADR with a similar topic has been accepted and overrides the decisions taken.
+
+| 🗑️
+| discarded
+| The ADR has been created but never got finished, usually due to changed context.
+|===
