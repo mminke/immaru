@@ -1,15 +1,15 @@
 package com.earthrevealed.immaru.assets.repositories.r2dbc
 
 import com.earthrevealed.immaru.assets.AssetRepository
-import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
+import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.library.useResourceAsFlow
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.collection
-import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
+import com.earthrevealed.immaru.common.ClockProvider
 import com.earthrevealed.immaru.support.FixedClock
 import com.earthrevealed.immaru.support.truncateNanos
 import io.r2dbc.spi.ConnectionFactories
@@ -20,16 +20,16 @@ import kotlinx.io.files.SystemTemporaryDirectory
 import org.flywaydb.core.Flyway
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.PostgreSQLContainer.POSTGRESQL_PORT
-import kotlin.time.Clock
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
@@ -130,8 +130,8 @@ class R2dbcAssetRepositoryIT {
             assertEquals("1234.jpg", assetToModify.name)
             assertNull(assetToModify.mediaType)
             assertEquals(
-                fileAsset.auditFields.lastModifiedOn.truncateNanos(),
-                assetToModify.auditFields.createdOn.truncateNanos()
+                fileAsset.auditFields.lastModifiedAt.truncateNanos(),
+                assetToModify.auditFields.createdAt.truncateNanos()
             )
 
             delay(1000.milliseconds)
@@ -146,8 +146,8 @@ class R2dbcAssetRepositoryIT {
             assertEquals("my new name", result.name)
             assertEquals(IMAGE_JPEG, result.mediaType)
             assertNotEquals(
-                result.auditFields.lastModifiedOn.truncateNanos(),
-                result.auditFields.createdOn.truncateNanos()
+                result.auditFields.lastModifiedAt.truncateNanos(),
+                result.auditFields.createdAt.truncateNanos()
             )
         }
     }

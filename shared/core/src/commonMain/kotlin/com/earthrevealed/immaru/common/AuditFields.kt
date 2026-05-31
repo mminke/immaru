@@ -4,16 +4,16 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 @Serializable
-class AuditFields(val createdOn: Instant = ClockProvider.clock.now()) {
+class AuditFields(val createdAt: Instant = ClockProvider.clock.now()) {
 
-    var lastModifiedOn: Instant = createdOn
+    var lastModifiedAt: Instant = createdAt
         private set
 
-    internal constructor(createdOn: Instant, lastModifiedOn: Instant) : this(createdOn) {
-        this.lastModifiedOn = lastModifiedOn
+    internal constructor(createdAt: Instant, lastModifiedAt: Instant) : this(createdAt) {
+        this.lastModifiedAt = lastModifiedAt
     }
 
     fun registerModification() {
-        lastModifiedOn = ClockProvider.clock.now()
+        lastModifiedAt = ClockProvider.clock.now()
     }
 }

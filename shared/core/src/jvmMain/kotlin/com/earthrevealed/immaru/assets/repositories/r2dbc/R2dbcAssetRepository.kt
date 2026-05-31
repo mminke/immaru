@@ -202,11 +202,10 @@ class R2dbcAssetRepository(
         val last = items.lastOrNull()
 
         val prevCursor = first?.let {
-            // use auditFields.createdOn if that maps to assets.created_at in your model
-            AssetCursor(it.auditFields.createdOn, it.id)
+            AssetCursor(it.auditFields.createdAt, it.id)
         }
         val nextCursor = last?.let {
-            AssetCursor(it.auditFields.createdOn, it.id)
+            AssetCursor(it.auditFields.createdAt, it.id)
         }
 
         return AssetPage(
@@ -310,8 +309,8 @@ class R2dbcAssetRepository(
             .bind("$3", asset.name)
             .bind("$4", Instant.now()) // TODO: Remove here and add to some kind of metadata area
             .bind("$5", asset.originalFilename)
-            .bind("$6", asset.auditFields.createdOn.toJavaInstant())
-            .bind("$7", asset.auditFields.lastModifiedOn.toJavaInstant())
+            .bind("$6", asset.auditFields.createdAt.toJavaInstant())
+            .bind("$7", asset.auditFields.lastModifiedAt.toJavaInstant())
             .bindNullable("$8", asset.mediaType?.toString(), String::class.java)
             .bindNullable("$9", asset.contentHash, ByteArray::class.java)
             .execute()
@@ -385,8 +384,8 @@ class R2dbcAssetRepository(
 
 private fun Row.toAuditFields(): AuditFields {
     return AuditFields(
-        createdOn = getTimestamp("created_at")!!,
-        lastModifiedOn = getTimestamp("last_modified_at")!!
+        createdAt = getTimestamp("created_at")!!,
+        lastModifiedAt = getTimestamp("last_modified_at")!!
     )
 }
 

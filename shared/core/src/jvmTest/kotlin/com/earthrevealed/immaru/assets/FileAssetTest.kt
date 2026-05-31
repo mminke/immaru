@@ -41,8 +41,8 @@ class FileAssetTest {
         assertEquals("1234.jpg", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
         assertNull(fileAsset.mediaType)
-        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdOn)
-        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.lastModifiedOn)
+        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdAt)
+        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.lastModifiedAt)
     }
 
     @Test
@@ -63,8 +63,8 @@ class FileAssetTest {
         assertEquals("a new name", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
         assertEquals(IMAGE_JPEG, fileAsset.mediaType)
-        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdOn)
-        assertEquals(FixedClock.DEFAULT_INSTANT.plus(1, HOUR), fileAsset.auditFields.lastModifiedOn)
+        assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdAt)
+        assertEquals(FixedClock.DEFAULT_INSTANT.plus(1, HOUR), fileAsset.auditFields.lastModifiedAt)
     }
 
     @Test
@@ -84,7 +84,7 @@ class FileAssetTest {
         val asset = Json.decodeFromString<Asset>(jsonText)
         assertEquals(fileAsset.id, asset.id)
         assertEquals("some name", asset.name)
-        assertNotNull(asset.auditFields.lastModifiedOn)
+        assertNotNull(asset.auditFields.lastModifiedAt)
         if (asset is FileAsset) {
             assertEquals("1234.jpg", asset.originalFilename)
             assertEquals(IMAGE_JPEG, asset.mediaType)

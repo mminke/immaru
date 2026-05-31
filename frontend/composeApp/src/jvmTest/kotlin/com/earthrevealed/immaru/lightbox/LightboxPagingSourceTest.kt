@@ -191,7 +191,7 @@ class AssetPagingSourceTest {
 
         private fun cursorFor(asset: Asset): AssetCursor {
             return AssetCursor(
-                createdAt = asset.auditFields.createdOn,
+                createdAt = asset.auditFields.createdAt,
                 id = asset.id,
             )
         }

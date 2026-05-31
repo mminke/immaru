@@ -59,7 +59,7 @@ class AssetPagingSource(
         val anchorItem = state.closestItemToPosition(anchorPosition) ?: return null
         return AssetPagingKey(
             cursor = AssetCursor(
-                createdAt = anchorItem.auditFields.createdOn,
+                createdAt = anchorItem.auditFields.createdAt,
                 id = anchorItem.id,
             ),
             direction = PageDirection.FORWARD,

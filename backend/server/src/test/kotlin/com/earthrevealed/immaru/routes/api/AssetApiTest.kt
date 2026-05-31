@@ -465,7 +465,7 @@ private class InMemoryAssetRepository(
         direction: PageDirection,
     ): AssetPage {
         // mirror R2DBC ordering: created_at DESC, id DESC (UUID string for tie-breaking)
-        val descComparator = compareByDescending<Asset> { it.auditFields.createdOn }
+        val descComparator = compareByDescending<Asset> { it.auditFields.createdAt }
             .thenByDescending { it.id.value.toString() }
 
         val allForCollection = assets.values.filter { it.collectionId == collectionId }
@@ -476,15 +476,15 @@ private class InMemoryAssetRepository(
 
             direction == PageDirection.FORWARD ->
                 allForCollection.sortedWith(descComparator).filter { a ->
-                    a.auditFields.createdOn < cursor.createdAt ||
-                            (a.auditFields.createdOn == cursor.createdAt &&
+                    a.auditFields.createdAt < cursor.createdAt ||
+                            (a.auditFields.createdAt == cursor.createdAt &&
                                     a.id.value.toString() < cursor.id.value.toString())
                 }
 
             else -> // BACKWARD
                 allForCollection.sortedWith(descComparator.reversed()).filter { a ->
-                    a.auditFields.createdOn > cursor.createdAt ||
-                            (a.auditFields.createdOn == cursor.createdAt &&
+                    a.auditFields.createdAt > cursor.createdAt ||
+                            (a.auditFields.createdAt == cursor.createdAt &&
                                     a.id.value.toString() > cursor.id.value.toString())
                 }
         }.take(limit + 1)
@@ -495,8 +495,8 @@ private class InMemoryAssetRepository(
 
         return AssetPage(
             items = items,
-            nextCursor = items.lastOrNull()?.let { AssetCursor(it.auditFields.createdOn, it.id) },
-            prevCursor = items.firstOrNull()?.let { AssetCursor(it.auditFields.createdOn, it.id) },
+            nextCursor = items.lastOrNull()?.let { AssetCursor(it.auditFields.createdAt, it.id) },
+            prevCursor = items.firstOrNull()?.let { AssetCursor(it.auditFields.createdAt, it.id) },
             hasMore = hasMore,
         )
     }
