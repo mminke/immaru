@@ -15,7 +15,7 @@ kotlin {
     androidLibrary {
         namespace = "com.earthrevealed.immaru.core"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
-        
+
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
@@ -51,6 +51,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.reactive)
             implementation(libs.microutils.kotlin.logging.jvm)
             implementation(libs.apache.tika.core)
+            implementation(libs.apache.tika.parsers.standard.`package`)
             compileOnly(libs.r2dbc.spi)
         }
         jvmTest.dependencies {

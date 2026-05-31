@@ -14,6 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.time.Clock
+import kotlin.time.Instant
 
 class FileAssetTest {
 
@@ -89,5 +90,18 @@ class FileAssetTest {
             assertEquals("1234.jpg", asset.originalFilename)
             assertEquals(IMAGE_JPEG, asset.mediaType)
         }
+    }
+
+    @Test
+    fun `test register original created at`() {
+        val fileAsset = FileAsset(
+            collectionId = CollectionId(),
+            originalFilename = "1234.jpg",
+        )
+
+        val originalCreatedAt = Instant.parse("2023-07-01T10:00:00Z")
+        fileAsset.registerOriginalCreatedAt(originalCreatedAt)
+
+        assertEquals(originalCreatedAt, fileAsset.originalCreatedAt)
     }
 }

@@ -9,9 +9,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSource
 import kotlinx.io.buffered
+import org.apache.tika.metadata.Metadata
+import org.apache.tika.metadata.TikaCoreProperties
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertNull
 import kotlin.test.fail
 
 class DetectMediaTypePluginTest {
@@ -103,6 +106,39 @@ class DetectMediaTypePluginTest {
 
             assertEquals(MediaType.IMAGE_PNG, detectMediaTypePlugin.result())
         }
+    }
+
+    @Test
+    fun `test extracting original creation date from exif metadata`() {
+        val metadata = Metadata().apply {
+            set("Date/Time Original", "2024:01:02 03:04:05")
+        }
+
+        val result = detectOriginalCreatedAt(metadata)
+
+        assertEquals(kotlin.time.Instant.parse("2024-01-02T03:04:05Z"), result)
+    }
+
+    @Test
+    fun `test extracting original creation date from tika metadata`() {
+        val metadata = Metadata().apply {
+            set(TikaCoreProperties.CREATED, "2024-01-02T03:04:05+02:00")
+        }
+
+        val result = detectOriginalCreatedAt(metadata)
+
+        assertEquals(kotlin.time.Instant.parse("2024-01-02T01:04:05Z"), result)
+    }
+
+    @Test
+    fun `test extracting original creation date returns null when missing`() {
+        val metadata = Metadata().apply {
+            set("resourceName", "test.jpg")
+        }
+
+        val result = detectOriginalCreatedAt(metadata)
+
+        assertNull(result)
     }
 }
 

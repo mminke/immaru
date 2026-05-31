@@ -57,7 +57,8 @@ sealed class Asset {
 @SerialName("FileAsset")
 class FileAsset : Asset {
     val originalFilename: String
-    val originalCreatedAt: Instant
+    var originalCreatedAt: Instant
+        private set
 
     var mediaType: MediaType? = null
         private set(value) {
@@ -110,6 +111,10 @@ class FileAsset : Asset {
         this.contentHash = hash
 
         this.touch()
+    }
+
+    fun registerOriginalCreatedAt(originalCreatedAt: Instant) {
+        this.originalCreatedAt = originalCreatedAt
     }
 
     fun changeName(name: String) {

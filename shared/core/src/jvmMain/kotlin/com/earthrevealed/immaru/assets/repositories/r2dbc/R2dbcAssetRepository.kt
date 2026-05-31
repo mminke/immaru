@@ -14,6 +14,7 @@ import com.earthrevealed.immaru.assets.SelectableDay
 import com.earthrevealed.immaru.assets.SelectableMonth
 import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.assets.library.DetectMediaTypePlugin
+import com.earthrevealed.immaru.assets.library.DetectOriginalCreatedAtPlugin
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.library.MessageDigestPlugin
 import com.earthrevealed.immaru.collections.CollectionId
@@ -225,8 +226,9 @@ class R2dbcAssetRepository(
 
         val messageDigestPlugin = MessageDigestPlugin()
         val detectMediaTypePlugin = DetectMediaTypePlugin()
+        val detectOriginalCreatedAtPlugin = DetectOriginalCreatedAtPlugin()
 
-        val plugins = listOf(messageDigestPlugin, detectMediaTypePlugin)
+        val plugins = listOf(messageDigestPlugin, detectMediaTypePlugin, detectOriginalCreatedAtPlugin)
 
         try {
             plugins.forEach { plugin ->
@@ -250,11 +252,15 @@ class R2dbcAssetRepository(
             }
         }
 
+        val detectedOriginalCreatedAt = detectOriginalCreatedAtPlugin.result()
+
         logger.debug {
             "Finished import asset [id=${asset.id}, sha256=${
                 messageDigestPlugin.result().toHexString()
-            }, mediaType=${detectMediaTypePlugin.result()}]"
+            }, mediaType=${detectMediaTypePlugin.result()}, originalCreatedAt=$detectedOriginalCreatedAt]"
         }
+
+        detectedOriginalCreatedAt?.let(asset::registerOriginalCreatedAt)
 
         asset.registerContentDetails(detectMediaTypePlugin.result(), messageDigestPlugin.result())
 
@@ -298,6 +304,7 @@ class R2dbcAssetRepository(
                 ON CONFLICT (id)
                 DO UPDATE SET 
                     name = EXCLUDED.name,
+                    original_created_at = EXCLUDED.original_created_at,
                     media_type = $8,
                     content_hash = $9,
                     last_modified_at = EXCLUDED.last_modified_at
