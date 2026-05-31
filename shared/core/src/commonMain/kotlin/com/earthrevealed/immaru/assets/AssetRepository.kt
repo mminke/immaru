@@ -25,7 +25,7 @@ interface AssetRepository {
 
 @Serializable
 data class AssetCursor(
-    val createdAt: Instant,
+    val originalCreatedAt: Instant,
     val id: AssetId,
 )
 

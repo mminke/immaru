@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.common.GenericId
 import com.earthrevealed.immaru.common.GenericIdSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Serializable
@@ -56,6 +57,7 @@ sealed class Asset {
 @SerialName("FileAsset")
 class FileAsset : Asset {
     val originalFilename: String
+    val originalCreatedAt: Instant
 
     var mediaType: MediaType? = null
         private set(value) {
@@ -78,6 +80,7 @@ class FileAsset : Asset {
     ) : super(collectionId = collectionId, name = originalFilename) {
         this.name = originalFilename
         this.originalFilename = originalFilename
+        this.originalCreatedAt = auditFields.createdAt
     }
 
     // This constructor is needed to recreate an existing asset from persistence
@@ -87,6 +90,7 @@ class FileAsset : Asset {
         name: String,
         mediaType: MediaType?,
         originalFilename: String,
+        originalCreatedAt: Instant,
         contentHash: ByteArray?,
         auditFields: AuditFields,
     ) : super(
@@ -96,6 +100,7 @@ class FileAsset : Asset {
         auditFields = auditFields
     ) {
         this.originalFilename = originalFilename
+        this.originalCreatedAt = originalCreatedAt
         this.mediaType = mediaType
         this.contentHash = contentHash
     }

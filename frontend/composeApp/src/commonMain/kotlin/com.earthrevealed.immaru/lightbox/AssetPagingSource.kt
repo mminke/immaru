@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.CollectionId
 
@@ -59,7 +60,8 @@ class AssetPagingSource(
         val anchorItem = state.closestItemToPosition(anchorPosition) ?: return null
         return AssetPagingKey(
             cursor = AssetCursor(
-                createdAt = anchorItem.auditFields.createdAt,
+                originalCreatedAt = (anchorItem as? FileAsset)?.originalCreatedAt
+                    ?: anchorItem.auditFields.createdAt,
                 id = anchorItem.id,
             ),
             direction = PageDirection.FORWARD,

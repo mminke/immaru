@@ -41,7 +41,7 @@ fun Route.assetApi(
 
         val paginationRequested =
             request.limit != null ||
-                    request.cursorCreatedAt != null ||
+                    request.cursorOriginalCreatedAt != null ||
                     request.cursorId != null ||
                     request.direction.uppercase() != PageDirection.FORWARD.name
 
@@ -63,11 +63,11 @@ fun Route.assetApi(
             }
 
         val cursor = when {
-            request.cursorCreatedAt == null && request.cursorId == null -> null
-            request.cursorCreatedAt != null && request.cursorId != null -> {
-                val createdAt = runCatching { Instant.parse(request.cursorCreatedAt!!) }
+            request.cursorOriginalCreatedAt == null && request.cursorId == null -> null
+            request.cursorOriginalCreatedAt != null && request.cursorId != null -> {
+                val originalCreatedAt = runCatching { Instant.parse(request.cursorOriginalCreatedAt!!) }
                     .getOrElse {
-                        call.respond(HttpStatusCode.BadRequest, "Invalid cursorCreatedAt")
+                        call.respond(HttpStatusCode.BadRequest, "Invalid cursorOriginalCreatedAt")
                         return@get
                     }
 
@@ -77,11 +77,11 @@ fun Route.assetApi(
                         return@get
                     }
 
-                AssetCursor(createdAt, assetId)
+                AssetCursor(originalCreatedAt, assetId)
             }
 
             else -> {
-                call.respond(HttpStatusCode.BadRequest, "Both cursorCreatedAt and cursorId must be provided")
+                call.respond(HttpStatusCode.BadRequest, "Both cursorOriginalCreatedAt and cursorId must be provided")
                 return@get
             }
         }

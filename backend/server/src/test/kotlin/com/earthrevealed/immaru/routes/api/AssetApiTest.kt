@@ -324,7 +324,7 @@ class AssetApiTest {
     }
 
     @Test
-    fun `get paged assets returns first page ordered by created_at descending`() = testApplication {
+    fun `get paged assets returns first page ordered by original_created_at descending`() = testApplication {
         val collectionId = CollectionId()
         val oldest = FileAsset(collectionId, "oldest.jpg")
         val middle = FileAsset(collectionId, "middle.jpg")
@@ -386,7 +386,7 @@ class AssetApiTest {
             client.get(
                 "/api/collections/$collectionId/assets" +
                         "?limit=2" +
-                        "&cursorCreatedAt=${nextCursor.createdAt}" +
+                        "&cursorOriginalCreatedAt=${nextCursor.originalCreatedAt}" +
                         "&cursorId=${nextCursor.id}"
             ).body<String>()
         )
@@ -464,8 +464,9 @@ private class InMemoryAssetRepository(
         cursor: AssetCursor?,
         direction: PageDirection,
     ): AssetPage {
-        // mirror R2DBC ordering: created_at DESC, id DESC (UUID string for tie-breaking)
-        val descComparator = compareByDescending<Asset> { it.auditFields.createdAt }
+        // mirror R2DBC ordering: original_created_at DESC, id DESC (UUID string for tie-breaking)
+        fun originalCreatedAt(a: Asset) = (a as? FileAsset)?.originalCreatedAt ?: a.auditFields.createdAt
+        val descComparator = compareByDescending<Asset> { originalCreatedAt(it) }
             .thenByDescending { it.id.value.toString() }
 
         val allForCollection = assets.values.filter { it.collectionId == collectionId }
@@ -476,15 +477,15 @@ private class InMemoryAssetRepository(
 
             direction == PageDirection.FORWARD ->
                 allForCollection.sortedWith(descComparator).filter { a ->
-                    a.auditFields.createdAt < cursor.createdAt ||
-                            (a.auditFields.createdAt == cursor.createdAt &&
+                    originalCreatedAt(a) < cursor.originalCreatedAt ||
+                            (originalCreatedAt(a) == cursor.originalCreatedAt &&
                                     a.id.value.toString() < cursor.id.value.toString())
                 }
 
             else -> // BACKWARD
                 allForCollection.sortedWith(descComparator.reversed()).filter { a ->
-                    a.auditFields.createdAt > cursor.createdAt ||
-                            (a.auditFields.createdAt == cursor.createdAt &&
+                    originalCreatedAt(a) > cursor.originalCreatedAt ||
+                            (originalCreatedAt(a) == cursor.originalCreatedAt &&
                                     a.id.value.toString() > cursor.id.value.toString())
                 }
         }.take(limit + 1)
@@ -495,8 +496,8 @@ private class InMemoryAssetRepository(
 
         return AssetPage(
             items = items,
-            nextCursor = items.lastOrNull()?.let { AssetCursor(it.auditFields.createdAt, it.id) },
-            prevCursor = items.firstOrNull()?.let { AssetCursor(it.auditFields.createdAt, it.id) },
+            nextCursor = items.lastOrNull()?.let { AssetCursor(originalCreatedAt(it), it.id) },
+            prevCursor = items.firstOrNull()?.let { AssetCursor(originalCreatedAt(it), it.id) },
             hasMore = hasMore,
         )
     }

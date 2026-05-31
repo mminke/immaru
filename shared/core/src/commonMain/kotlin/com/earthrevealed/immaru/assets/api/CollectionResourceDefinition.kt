@@ -15,7 +15,7 @@ class Collections {
             val collection: Collections.ById,
             val limit: Int? = null,
             val direction: String = "FORWARD",
-            val cursorCreatedAt: String? = null,
+            val cursorOriginalCreatedAt: String? = null,
             val cursorId: String? = null,
         ) {
 

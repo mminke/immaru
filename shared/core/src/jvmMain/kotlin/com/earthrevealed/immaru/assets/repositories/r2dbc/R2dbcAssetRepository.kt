@@ -37,7 +37,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import mu.KotlinLogging
-import java.time.Instant
 import kotlin.time.toJavaInstant
 import kotlin.uuid.toJavaUuid
 
@@ -64,7 +63,7 @@ class R2dbcAssetRepository(
             $selectColumns
         from assets
         where collection_id = $1
-        order by assets.created_at
+        order by assets.original_created_at
     """.trimIndent()
     private val selectAssetByIdQuery = """
         select 
@@ -153,7 +152,7 @@ class R2dbcAssetRepository(
                                 from assets
                                 where collection_id = $1
                                 
-                                order by created_at desc, id desc
+                                order by original_created_at desc, id desc
                                 limit $2        
                             """.trimIndent()
 
@@ -161,8 +160,8 @@ class R2dbcAssetRepository(
                                 select $selectColumns
                                 from assets            
                                 where collection_id = $1        
-                                and (created_at, id) < ($2, $3)            
-                                order by created_at desc, id desc            
+                                and (original_created_at, id) < ($2, $3)            
+                                order by original_created_at desc, id desc            
                                 limit $4        
                             """.trimIndent()
 
@@ -170,8 +169,8 @@ class R2dbcAssetRepository(
                                 select $selectColumns            
                                 from assets            
                                 where collection_id = $1              
-                                and (created_at, id) > ($2, $3)            
-                                order by created_at asc, id asc            
+                                and (original_created_at, id) > ($2, $3)            
+                                order by original_created_at asc, id asc            
                                 limit $4        
                     """.trimIndent()
         }
@@ -184,7 +183,7 @@ class R2dbcAssetRepository(
                 cursor == null -> stmt
                     .bind("$2", limit + 1) // fetch one extra to detect hasMore
                 else -> stmt
-                    .bind("$2", cursor.createdAt.toJavaInstant())
+                    .bind("$2", cursor.originalCreatedAt.toJavaInstant())
                     .bind("$3", cursor.id.value.toJavaUuid())
                     .bind("$4", limit + 1)
             }
@@ -202,10 +201,10 @@ class R2dbcAssetRepository(
         val last = items.lastOrNull()
 
         val prevCursor = first?.let {
-            AssetCursor(it.auditFields.createdAt, it.id)
+            AssetCursor((it as FileAsset).originalCreatedAt, it.id)
         }
         val nextCursor = last?.let {
-            AssetCursor(it.auditFields.createdAt, it.id)
+            AssetCursor((it as FileAsset).originalCreatedAt, it.id)
         }
 
         return AssetPage(
@@ -307,7 +306,7 @@ class R2dbcAssetRepository(
             .bind("$1", asset.id.value.toJavaUuid())
             .bind("$2", asset.collectionId.value.toJavaUuid())
             .bind("$3", asset.name)
-            .bind("$4", Instant.now()) // TODO: Remove here and add to some kind of metadata area
+            .bind("$4", asset.originalCreatedAt.toJavaInstant())
             .bind("$5", asset.originalFilename)
             .bind("$6", asset.auditFields.createdAt.toJavaInstant())
             .bind("$7", asset.auditFields.lastModifiedAt.toJavaInstant())
@@ -337,6 +336,7 @@ class R2dbcAssetRepository(
             collectionId = CollectionId(getUuid("collection_id")!!),
             name = getString("name")!!,
             originalFilename = getString("original_filename")!!,
+            originalCreatedAt = getTimestamp("original_created_at")!!,
             mediaType = mediaType,
             contentHash = getByteArray("content_hash"),
             auditFields = toAuditFields()

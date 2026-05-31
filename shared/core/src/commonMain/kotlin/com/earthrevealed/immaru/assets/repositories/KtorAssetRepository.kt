@@ -167,7 +167,7 @@ class KtorAssetRepository(
                         collection = Collections.ById(id1 = collectionId),
                         limit = limit,
                         direction = direction.name,
-                        cursorCreatedAt = cursor?.createdAt?.toString(),
+                        cursorOriginalCreatedAt = cursor?.originalCreatedAt?.toString(),
                         cursorId = cursor?.id?.toString()
                     )
                 )?.body<AssetPage>()
