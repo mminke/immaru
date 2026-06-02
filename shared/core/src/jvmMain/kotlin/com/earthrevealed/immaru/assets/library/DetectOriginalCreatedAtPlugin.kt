@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.assets.library
 import com.earthrevealed.immaru.assets.AssetProcessingPlugin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaCoreProperties
 import org.apache.tika.parser.AutoDetectParser
@@ -18,6 +19,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.concurrent.thread
 import kotlin.time.Instant
+
+private val logger = KotlinLogging.logger {}
 
 class DetectOriginalCreatedAtPlugin : AssetProcessingPlugin {
     private val pipedOutputStream = PipedOutputStream()
@@ -67,14 +70,29 @@ class DetectOriginalCreatedAtPlugin : AssetProcessingPlugin {
 
 internal fun detectOriginalCreatedAt(metadata: Metadata): Instant? {
     val candidates = buildList {
-        addAll(metadata.getValues(TikaCoreProperties.CREATED).toList())
         addAll(metadata.getValues("Date/Time Original").toList())
+        addAll(metadata.getValues("Exif IFD0:Date/Time Original").toList())
+        addAll(metadata.getValues("exif:DateTimeOriginal").toList())
+        addAll(metadata.getValues("Date/Time Digitized").toList())
+        addAll(metadata.getValues("Exif IFD0:Date/Time Digitized").toList())
         addAll(metadata.getValues("Creation-Date").toList())
-        addAll(metadata.getValues("dcterms:created").toList())
+        addAll(metadata.getValues(TikaCoreProperties.CREATED).toList())
         addAll(metadata.getValues("date").toList())
+        addAll(metadata.getValues("Text TextEntry").mapNotNull(::extractValueFromTextEntry))
+        addAll(metadata.getValues("tEXt tEXtEntry").mapNotNull(::extractValueFromTextEntry))
     }
+    logger.info { "Candidate metadata values for original created at: ${candidates.joinToString(", ")}" }
 
     return candidates.firstNotNullOfOrNull(::parseMetadataInstant)
+}
+
+private fun extractValueFromTextEntry(textEntry: String): String? {
+    // Tika represents PNG text entries as "keyword=date, value=..., ...".
+    return Regex("""(?:^|,\s*)value=([^,]+)""")
+        .find(textEntry)
+        ?.groupValues
+        ?.get(1)
+        ?.trim()
 }
 
 internal fun parseMetadataInstant(value: String): Instant? {
@@ -94,10 +112,15 @@ internal fun parseMetadataInstant(value: String): Instant? {
                         .toString()
                 )
             }.getOrNull()
+        }.also {
+            if (it == null) {
+                logger.warn { "Could not parse original created at '$value'" }
+            }
         }
 }
 
 private val exifDateFormats = listOf(
+    DateTimeFormatter.ISO_LOCAL_DATE_TIME,
     DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss"),
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
 )
