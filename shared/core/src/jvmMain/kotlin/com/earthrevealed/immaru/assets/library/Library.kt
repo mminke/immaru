@@ -3,13 +3,17 @@ package com.earthrevealed.immaru.assets.library
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.fold
 import kotlinx.io.Source
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
 import kotlinx.io.files.SystemFileSystem
 import mu.KotlinLogging
+import java.nio.file.Files
 
 private val logger = KotlinLogging.logger { }
 
@@ -36,6 +40,18 @@ class Library(private val libraryRoot: Path) {
             )
         ).buffered().toFlow(32.kB)
     }
+
+    fun browseAllFiles(): Flow<Path> = flow {
+        Files.walk(java.nio.file.Path.of(libraryRoot.toString())).use { stream ->
+            val iterator = stream.iterator()
+            while (iterator.hasNext()) {
+                val next = iterator.next()
+                if (Files.isRegularFile(next)) {
+                    emit(Path(next.toString()))
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO)
 
     suspend fun writeContentForAsset(asset: FileAsset, content: Flow<ByteArray>) {
         val absoluteFileLocation = absoluteFileLocationFor(asset)

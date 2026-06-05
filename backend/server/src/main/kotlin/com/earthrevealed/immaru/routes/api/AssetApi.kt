@@ -7,6 +7,7 @@ import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.api.Collections
+import com.earthrevealed.immaru.assets.api.Maintenance
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.common.io.kB
 import com.earthrevealed.immaru.common.io.toFlow
@@ -23,6 +24,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytesWriter
 import io.ktor.server.routing.Route
 import io.ktor.utils.io.writeByteArray
+import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import kotlin.time.Instant
 
@@ -87,6 +89,14 @@ fun Route.assetApi(
         }
 
         call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction))
+    }
+
+    get<Maintenance.OrphanedFiles> {
+        call.respond(
+            assetRepository.findFilesWithoutAsset()
+                .toList()
+                .map { it.toString() }
+        )
     }
 
     put<Collections.ById.Assets> { request ->
