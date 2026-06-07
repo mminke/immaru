@@ -6,6 +6,7 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetCursor
+import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
@@ -130,6 +131,9 @@ class AssetPagingSourceTest {
         override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> = emptyFlow()
 
         override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) = Unit
+        override suspend fun findFilesWithoutAsset(): Flow<AssetId> {
+            TODO("Not yet implemented")
+        }
 
         override suspend fun findSelectableDates(collectionId: CollectionId): List<com.earthrevealed.immaru.assets.SelectableYear> {
             return emptyList()

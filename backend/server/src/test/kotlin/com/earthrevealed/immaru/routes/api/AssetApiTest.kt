@@ -455,6 +455,10 @@ private class InMemoryAssetRepository(
         this.content[asset.id] = flatten(content)
     }
 
+    override suspend fun findFilesWithoutAsset(): Flow<AssetId> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun findSelectableDates(collectionId: CollectionId) =
         emptyList<com.earthrevealed.immaru.assets.SelectableYear>()
 
