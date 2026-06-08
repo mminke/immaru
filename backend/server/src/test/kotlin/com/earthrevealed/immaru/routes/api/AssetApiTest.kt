@@ -448,15 +448,13 @@ private class InMemoryAssetRepository(
         content.remove(id)
     }
 
+    override suspend fun assetExists(assetId: AssetId): Boolean = assets.containsKey(assetId)
+
     override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> =
         flowOf(content[asset.id] ?: ByteArray(0))
 
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
         this.content[asset.id] = flatten(content)
-    }
-
-    override suspend fun findFilesWithoutAsset(): Flow<AssetId> {
-        TODO("Not yet implemented")
     }
 
     override suspend fun findSelectableDates(collectionId: CollectionId) =

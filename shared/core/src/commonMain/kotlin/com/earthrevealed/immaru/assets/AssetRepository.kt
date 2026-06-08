@@ -11,9 +11,9 @@ interface AssetRepository {
     suspend fun findAllFor(collectionId: CollectionId): List<Asset>
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
+    suspend fun assetExists(assetId: AssetId): Boolean
     suspend fun getContentFor(asset: FileAsset): Flow<ByteArray>
     suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>)
-    suspend fun findFilesWithoutAsset(): Flow<AssetId>
 
     suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear>
     suspend fun findPageFor(

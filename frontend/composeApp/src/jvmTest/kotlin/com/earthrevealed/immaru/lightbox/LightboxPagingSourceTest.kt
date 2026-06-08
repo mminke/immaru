@@ -128,12 +128,11 @@ class AssetPagingSourceTest {
 
         override suspend fun delete(id: com.earthrevealed.immaru.assets.AssetId) = Unit
 
+        override suspend fun assetExists(assetId: AssetId): Boolean = false
+
         override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> = emptyFlow()
 
         override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) = Unit
-        override suspend fun findFilesWithoutAsset(): Flow<AssetId> {
-            TODO("Not yet implemented")
-        }
 
         override suspend fun findSelectableDates(collectionId: CollectionId): List<com.earthrevealed.immaru.assets.SelectableYear> {
             return emptyList()

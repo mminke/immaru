@@ -12,7 +12,6 @@ import com.earthrevealed.immaru.assets.RetrievalException
 import com.earthrevealed.immaru.assets.SaveAssetException
 import com.earthrevealed.immaru.assets.SelectableYear
 import com.earthrevealed.immaru.assets.api.Collections
-import com.earthrevealed.immaru.assets.api.Maintenance
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.HttpClientProvider
 import io.ktor.client.call.body
@@ -27,9 +26,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.map
 
 class KtorAssetRepository(
     private val httpClientProvider: HttpClientProvider
@@ -45,13 +41,13 @@ class KtorAssetRepository(
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? {
         return try {
             apiHtpClient()?.get(
-                    Collections.ById.Assets.ById(
-                        parent = Collections.ById.Assets(
-                            collection = Collections.ById(id1 = collectionId)
-                        ),
-                        id2 = assetId
-                    )
-                )?.body<Asset>()
+                Collections.ById.Assets.ById(
+                    parent = Collections.ById.Assets(
+                        collection = Collections.ById(id1 = collectionId)
+                    ),
+                    id2 = assetId
+                )
+            )?.body<Asset>()
         } catch (throwable: Throwable) {
             throw AssetRetrievalException(throwable)
         }
@@ -60,10 +56,10 @@ class KtorAssetRepository(
     override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
         return try {
             apiHtpClient()?.get(
-                    Collections.ById.Assets(
-                        collection = Collections.ById(id1 = collectionId)
-                    )
-                )?.body<List<Asset>>()
+                Collections.ById.Assets(
+                    collection = Collections.ById(id1 = collectionId)
+                )
+            )?.body<List<Asset>>()
                 ?: emptyList()
         } catch (throwable: Throwable) {
             throw AssetRetrievalException(throwable)
@@ -140,17 +136,12 @@ class KtorAssetRepository(
 //        }
     }
 
-    override suspend fun delete(id: AssetId) {
+    override suspend fun assetExists(assetId: AssetId): Boolean {
         TODO("Not yet implemented")
     }
 
-    override suspend fun findFilesWithoutAsset(): Flow<AssetId> {
-        val ids = apiHtpClient()
-            ?.get(Maintenance.OrphanedFiles())
-            ?.body<List<String>>()
-            ?: return emptyFlow()
-
-        return ids.asFlow().map { AssetId.fromString(it) }
+    override suspend fun delete(id: AssetId) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun findSelectableDates(collectionId: CollectionId): List<SelectableYear> {

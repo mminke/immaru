@@ -33,14 +33,11 @@ import io.r2dbc.spi.Result
 import io.r2dbc.spi.Row
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.io.files.Path
 import mu.KotlinLogging
-import java.util.UUID
 import kotlin.time.toJavaInstant
 import kotlin.uuid.toJavaUuid
 
@@ -96,6 +93,18 @@ class R2dbcAssetRepository(
                 .awaitSingle()
                 .mapToDomain()
                 .toList()
+        }
+    }
+
+    override suspend fun assetExists(assetId: AssetId): Boolean {
+        return connectionFactory.useConnection {
+            createStatement("SELECT 1 FROM assets WHERE id = $1")
+                .bind("$1", assetId.value.toJavaUuid())
+                .execute()
+                .awaitSingle()
+                .map { _, _ -> true }
+                .asFlow()
+                .firstOrNull() ?: false
         }
     }
 
@@ -221,15 +230,6 @@ class R2dbcAssetRepository(
 
     override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
         return library.readContentForAssetAsFlow(asset)
-    }
-
-    override suspend fun findFilesWithoutAsset(): Flow<AssetId> = flow {
-        library.browseAllFiles().collect { path ->
-            val candidateId = extractIdFromFileName(path)
-            if (candidateId != null && !assetExists(candidateId)) {
-                emit(AssetId.fromString(candidateId.toString()))
-            }
-        }
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -400,28 +400,6 @@ class R2dbcAssetRepository(
         return Triple(parts[0], parts[1], parts[2])
     }
 
-    private suspend fun assetExists(assetId: UUID): Boolean {
-        return connectionFactory.useConnection {
-            createStatement("SELECT 1 FROM assets WHERE id = $1")
-                .bind("$1", assetId)
-                .execute()
-                .awaitSingle()
-                .map { _, _ -> true }
-                .asFlow()
-                .firstOrNull() ?: false
-        }
-    }
-
-    private fun extractIdFromFileName(path: Path): UUID? {
-        val filename = java.nio.file.Path.of(path.toString()).fileName.toString()
-        val basename = filename.substringBeforeLast(".", filename)
-
-        return try {
-            UUID.fromString(basename)
-        } catch (_: IllegalArgumentException) {
-            null
-        }
-    }
 }
 
 private fun Row.toAuditFields(): AuditFields {

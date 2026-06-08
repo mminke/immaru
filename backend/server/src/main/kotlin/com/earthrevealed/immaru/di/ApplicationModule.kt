@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.repositories.r2dbc.R2dbcAssetRepository
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
+import com.earthrevealed.immaru.maintenance.MaintenanceService
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import org.koin.dsl.module
@@ -22,5 +23,8 @@ val applicationModule = module {
     }
     single<AssetRepository> {
         R2dbcAssetRepository(get(), get())
+    }
+    single {
+        MaintenanceService(get(), get())
     }
 }
