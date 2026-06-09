@@ -4,3 +4,54 @@
 This section captures the technical architecture of Immaru and the key decisions behind it.
 
 See xref:architecture/adrs.adoc[Architecture Decision Records (ADRs)] for the decision log and templates.
+
+== Domain
+
+=== Asset lifecycle
+
+[plantuml,asset-lifecycle,svg]
+----
+@startuml
+scale 1.5
+
+[*] --> CREATED
+
+CREATED --> CONTENT_READY: content uploaded
+CREATED --> DELETED: delete asset
+
+CONTENT_READY -[dotted]-> ORPHANED: content file missing
+CONTENT_READY --> DELETED: delete asset
+
+'ORPHANED --> CONTENT_READY: restore content
+ORPHANED --> [*]: Permanent delete asset
+
+CONTENT_READY -[dotted]-> ORPHANED_FILE: asset removed, content file remains
+ORPHANED_FILE --> DELETED: delete asset
+ORPHANED_FILE --> CONTENT_READY: restore asset
+
+DELETED --> [*]: Permanent delete asset
+
+@enduml
+----
+
+==== Asset Lifecycle States
+
+CREATED::
+The asset has been created but content has not yet been uploaded.
+
+CONTENT_READY::
+The asset has content that has been successfully uploaded and processed (media type detected, hash calculated).
+
+ORPHANED_FILE::
+The asset (metadata) does not exist anymore, but a file still exists on storage.
+
+ORPHANED::
+The asset is orphaned because the file is missing or inaccessible from storage.
+
+DELETED::
+The asset is marked as deleted and is excluded from any normal query results.
+From the DELETED state the asset can either be restored, or permanently deleted in which case all existence is removed.
+
+==== Transitions
+
+NOTE: The dashed transition in the diagram indicate transitions which are not supported by application logic, but are results of inconsistent state which can occur when files are removed from storage without deleting the corresponding asset, or when assets are deleted without removing the corresponding file from storage.
