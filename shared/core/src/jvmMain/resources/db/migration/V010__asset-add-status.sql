@@ -1,0 +1,6 @@
+ALTER TABLE assets
+    ADD COLUMN status TEXT NOT NULL DEFAULT 'CREATED';
+
+UPDATE assets
+SET status = 'CONTENT_READY'
+WHERE media_type IS NOT NULL;
