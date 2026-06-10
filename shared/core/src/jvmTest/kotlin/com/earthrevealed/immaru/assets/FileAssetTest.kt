@@ -42,6 +42,7 @@ class FileAssetTest {
         assertEquals("1234.jpg", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
         assertNull(fileAsset.mediaType)
+        assertEquals(AssetStatus.CREATED, fileAsset.status)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdAt)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.lastModifiedAt)
     }
@@ -64,6 +65,7 @@ class FileAssetTest {
         assertEquals("a new name", fileAsset.name)
         assertEquals("1234.jpg", fileAsset.originalFilename)
         assertEquals(IMAGE_JPEG, fileAsset.mediaType)
+        assertEquals(AssetStatus.CONTENT_READY, fileAsset.status)
         assertEquals(FixedClock.DEFAULT_INSTANT, fileAsset.auditFields.createdAt)
         assertEquals(FixedClock.DEFAULT_INSTANT.plus(1, HOUR), fileAsset.auditFields.lastModifiedAt)
     }
@@ -89,6 +91,7 @@ class FileAssetTest {
         if (asset is FileAsset) {
             assertEquals("1234.jpg", asset.originalFilename)
             assertEquals(IMAGE_JPEG, asset.mediaType)
+            assertEquals(AssetStatus.CONTENT_READY, asset.status)
         }
     }
 

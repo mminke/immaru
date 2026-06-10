@@ -5,6 +5,7 @@ import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
 import com.earthrevealed.immaru.assets.PageDirection
@@ -117,7 +118,7 @@ class AssetApiTest {
         }
 
         assertEquals(HttpStatusCode.NoContent, response.status)
-        assertEquals(1, assetRepository.findAllFor(collectionId).size)
+        assertNotNull(assetRepository.findById(collectionId, fileAsset.id))
     }
 
     @Test
@@ -329,6 +330,9 @@ class AssetApiTest {
         val oldest = FileAsset(collectionId, "oldest.jpg")
         val middle = FileAsset(collectionId, "middle.jpg")
         val newest = FileAsset(collectionId, "newest.jpg")
+        oldest.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(1))
+        middle.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(2))
+        newest.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(3))
 
         val collectionRepository = InMemoryCollectionRepository(setOf(collectionId))
         val assetRepository = InMemoryAssetRepository(listOf(oldest, middle, newest))
@@ -363,6 +367,9 @@ class AssetApiTest {
         val oldest = FileAsset(collectionId, "oldest.jpg")
         val middle = FileAsset(collectionId, "middle.jpg")
         val newest = FileAsset(collectionId, "newest.jpg")
+        oldest.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(1))
+        middle.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(2))
+        newest.registerContentDetails(MediaType.IMAGE_JPEG, byteArrayOf(3))
 
         val collectionRepository = InMemoryCollectionRepository(setOf(collectionId))
         val assetRepository = InMemoryAssetRepository(listOf(oldest, middle, newest))
@@ -437,7 +444,10 @@ private class InMemoryAssetRepository(
         assets[assetId]?.takeIf { it.collectionId == collectionId }
 
     override suspend fun findAllFor(collectionId: CollectionId): List<Asset> =
-        assets.values.filter { it.collectionId == collectionId }
+        assets.values.filter {
+            it.collectionId == collectionId &&
+                    (it as? FileAsset)?.status == AssetStatus.CONTENT_READY
+        }
 
     override suspend fun save(asset: Asset) {
         assets[asset.id] = asset
@@ -454,7 +464,12 @@ private class InMemoryAssetRepository(
         flowOf(content[asset.id] ?: ByteArray(0))
 
     override suspend fun saveContentFor(asset: FileAsset, content: Flow<ByteArray>) {
-        this.content[asset.id] = flatten(content)
+        val flattened = flatten(content)
+        this.content[asset.id] = flattened
+
+        if (asset.mediaTypeIsNotDefined) {
+            asset.registerContentDetails(MediaType.IMAGE_JPEG, flattened)
+        }
     }
 
     override suspend fun findSelectableDates(collectionId: CollectionId) =
@@ -471,7 +486,10 @@ private class InMemoryAssetRepository(
         val descComparator = compareByDescending<Asset> { originalCreatedAt(it) }
             .thenByDescending { it.id.value.toString() }
 
-        val allForCollection = assets.values.filter { it.collectionId == collectionId }
+        val allForCollection = assets.values.filter {
+            it.collectionId == collectionId &&
+                    (it as? FileAsset)?.status == AssetStatus.CONTENT_READY
+        }
 
         val fetched = when {
             cursor == null ->

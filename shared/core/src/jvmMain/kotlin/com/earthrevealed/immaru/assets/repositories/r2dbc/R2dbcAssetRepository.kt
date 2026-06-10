@@ -5,6 +5,7 @@ import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.DeleteAssetException
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType
@@ -51,6 +52,7 @@ class R2dbcAssetRepository(
             assets.id, 
             collection_id, 
             name,
+            status,
             media_type, 
             content_hash,
             original_created_at, 
@@ -64,6 +66,7 @@ class R2dbcAssetRepository(
             $selectColumns
         from assets
         where collection_id = $1
+            and status = 'CONTENT_READY'
         order by assets.original_created_at
     """.trimIndent()
     private val selectAssetByIdQuery = """
@@ -164,6 +167,7 @@ class R2dbcAssetRepository(
                                 select $selectColumns
                                 from assets
                                 where collection_id = $1
+                                and status = 'CONTENT_READY'
                                 
                                 order by original_created_at desc, id desc
                                 limit $2        
@@ -173,6 +177,7 @@ class R2dbcAssetRepository(
                                 select $selectColumns
                                 from assets            
                                 where collection_id = $1        
+                                and status = 'CONTENT_READY'
                                 and (original_created_at, id) < ($2, $3)            
                                 order by original_created_at desc, id desc            
                                 limit $4        
@@ -182,6 +187,7 @@ class R2dbcAssetRepository(
                                 select $selectColumns            
                                 from assets            
                                 where collection_id = $1              
+                                and status = 'CONTENT_READY'
                                 and (original_created_at, id) > ($2, $3)            
                                 order by original_created_at asc, id asc            
                                 limit $4        
@@ -307,30 +313,33 @@ class R2dbcAssetRepository(
                     id, 
                     collection_id, 
                     name,
+                    status,
                     original_created_at, 
                     original_filename,
                     created_at, 
                     last_modified_at
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 ON CONFLICT (id)
                 DO UPDATE SET 
                     name = EXCLUDED.name,
+                    status = EXCLUDED.status,
                     original_created_at = EXCLUDED.original_created_at,
-                    media_type = $8,
-                    content_hash = $9,
+                    media_type = $9,
+                    content_hash = $10,
                     last_modified_at = EXCLUDED.last_modified_at
             """.trimIndent()
         )
             .bind("$1", asset.id.value.toJavaUuid())
             .bind("$2", asset.collectionId.value.toJavaUuid())
             .bind("$3", asset.name)
-            .bind("$4", asset.originalCreatedAt.toJavaInstant())
-            .bind("$5", asset.originalFilename)
-            .bind("$6", asset.auditFields.createdAt.toJavaInstant())
-            .bind("$7", asset.auditFields.lastModifiedAt.toJavaInstant())
-            .bindNullable("$8", asset.mediaType?.toString(), String::class.java)
-            .bindNullable("$9", asset.contentHash, ByteArray::class.java)
+            .bind("$4", asset.status.name)
+            .bind("$5", asset.originalCreatedAt.toJavaInstant())
+            .bind("$6", asset.originalFilename)
+            .bind("$7", asset.auditFields.createdAt.toJavaInstant())
+            .bind("$8", asset.auditFields.lastModifiedAt.toJavaInstant())
+            .bindNullable("$9", asset.mediaType?.toString(), String::class.java)
+            .bindNullable("$10", asset.contentHash, ByteArray::class.java)
             .execute()
             .awaitSingle()
             .rowsUpdated
@@ -349,11 +358,13 @@ class R2dbcAssetRepository(
 
     private fun Row.toAsset(): Asset {
         val mediaType = getString("media_type")?.let { MediaType.parse(it) }
+        val status = AssetStatus.valueOf(getString("status")!!)
 
         return FileAsset(
             id = AssetId(getUuid("id")!!),
             collectionId = CollectionId(getUuid("collection_id")!!),
             name = getString("name")!!,
+            status = status,
             originalFilename = getString("original_filename")!!,
             originalCreatedAt = getTimestamp("original_created_at")!!,
             mediaType = mediaType,

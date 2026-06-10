@@ -10,6 +10,15 @@ import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Serializable
+enum class AssetStatus {
+    CREATED,
+    CONTENT_READY,
+    ORPHANED_FILE,
+    ORPHANED,
+    DELETED,
+}
+
+@Serializable
 sealed class Asset {
     val id: AssetId
     val collectionId: CollectionId
@@ -72,6 +81,9 @@ class FileAsset : Asset {
             field = value
         }
 
+    var status: AssetStatus = AssetStatus.CREATED
+        private set
+
     val mediaTypeIsNotDefined: Boolean
         get() = mediaType == null
 
@@ -90,6 +102,7 @@ class FileAsset : Asset {
         collectionId: CollectionId,
         name: String,
         mediaType: MediaType?,
+        status: AssetStatus,
         originalFilename: String,
         originalCreatedAt: Instant,
         contentHash: ByteArray?,
@@ -104,11 +117,13 @@ class FileAsset : Asset {
         this.originalCreatedAt = originalCreatedAt
         this.mediaType = mediaType
         this.contentHash = contentHash
+        this.status = status
     }
 
     fun registerContentDetails(mediaType: MediaType, hash: ByteArray) {
         this.mediaType = mediaType
         this.contentHash = hash
+        this.status = AssetStatus.CONTENT_READY
 
         this.touch()
     }

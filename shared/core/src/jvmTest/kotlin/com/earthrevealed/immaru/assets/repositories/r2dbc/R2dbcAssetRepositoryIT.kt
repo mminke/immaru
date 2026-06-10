@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru.assets.repositories.r2dbc
 
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.PageDirection
@@ -91,8 +92,14 @@ class R2dbcAssetRepositoryIT {
             assetRepository.save(fileAsset)
 
             val results = assetRepository.findAllFor(collection.id)
-            assertEquals(1, results.size)
-            assertEquals(fileAsset, results[0])
+            assertEquals(0, results.size)
+
+            fileAsset.registerContentDetails(IMAGE_JPEG, ByteArray(0))
+            assetRepository.save(fileAsset)
+
+            val readyResults = assetRepository.findAllFor(collection.id)
+            assertEquals(1, readyResults.size)
+            assertEquals(fileAsset, readyResults[0])
 
             val result = assetRepository.findById(collection.id, fileAsset.id)
             assertNotNull(result)
@@ -168,6 +175,7 @@ class R2dbcAssetRepositoryIT {
                 val result = assetRepository.findById(collection.id, fileAsset.id)!! as FileAsset
 
                 assertEquals(IMAGE_JPEG, result.mediaType)
+                assertEquals(AssetStatus.CONTENT_READY, result.status)
                 assertEquals(
                     "9a44941679e7111fe3d35409017ba488a8f592b8a8692c91926d3e914a3ada23",
                     result.contentHash!!.toHexString()
@@ -346,7 +354,10 @@ class R2dbcAssetRepositoryIT {
             FileAsset(
                 collectionId = collection.id,
                 originalFilename = "asset-$index.jpg",
-            ).also { assetRepository.save(it) }
+            ).also {
+                it.registerContentDetails(IMAGE_JPEG, byteArrayOf(index.toByte()))
+                assetRepository.save(it)
+            }
         }
     }
 
