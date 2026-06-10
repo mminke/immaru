@@ -3,6 +3,8 @@ updates:
   - package-ecosystem: "gradle"
     open-pull-requests-limit: 10
     directory: "/"
+    commit-message:
+      prefix: "build(deps)"
     groups:
       all|minor-patch:
         update-types:
@@ -22,8 +24,11 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    open-pull-requests-limit: 10
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "ci(deps)"
     groups:
       all:
         patterns:
@@ -31,6 +36,8 @@ updates:
 
   - package-ecosystem: "docker-compose"
     directory: "/"
+    commit-message:
+      prefix: "build(deps)"
     schedule:
       interval: "weekly"
     groups:
