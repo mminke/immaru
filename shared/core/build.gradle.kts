@@ -81,4 +81,7 @@ tasks {
         dependsOn(fixMissingResources)
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
+    val jvmTest by getting {
+        dependsOn(fixMissingResources)
+    }
 }
