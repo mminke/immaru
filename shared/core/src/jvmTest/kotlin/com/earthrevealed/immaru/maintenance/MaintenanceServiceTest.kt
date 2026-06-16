@@ -70,7 +70,7 @@ class MaintenanceServiceTest {
 
         override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? = null
 
-        override suspend fun findAllFor(collectionId: CollectionId): List<Asset> = emptyList()
+        override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> = emptyList()
 
         override suspend fun save(asset: Asset) {
             savedAssets += asset
@@ -94,6 +94,7 @@ class MaintenanceServiceTest {
             limit: Int,
             cursor: AssetCursor?,
             direction: PageDirection,
+            status: AssetStatus?
         ): AssetPage = AssetPage(
             items = emptyList(),
             nextCursor = null,

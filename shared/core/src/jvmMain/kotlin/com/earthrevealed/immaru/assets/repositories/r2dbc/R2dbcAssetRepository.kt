@@ -61,14 +61,7 @@ class R2dbcAssetRepository(
             last_modified_at
     """.trimIndent()
 
-    private val selectAssetsQuery = """
-        select 
-            $selectColumns
-        from assets
-        where collection_id = $1
-            and status = 'CONTENT_READY'
-        order by assets.original_created_at
-    """.trimIndent()
+    // selectAssetsQuery removed; query is constructed dynamically in methods to allow optional status filtering
     private val selectAssetByIdQuery = """
         select 
             $selectColumns
@@ -88,10 +81,20 @@ class R2dbcAssetRepository(
         }
     }
 
-    override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
+    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
+        val query = """
+            select 
+                $selectColumns
+            from assets
+            where collection_id = $1
+                and status = $2
+            order by assets.original_created_at
+        """.trimIndent()
+
         return connectionFactory.useConnection {
-            createStatement(selectAssetsQuery)
+            createStatement(query)
                 .bind("$1", collectionId.value.toJavaUuid())
+                .bind("$2", status?.name ?: AssetStatus.CONTENT_READY.name)
                 .execute()
                 .awaitSingle()
                 .mapToDomain()
@@ -159,6 +162,7 @@ class R2dbcAssetRepository(
         limit: Int,
         cursor: AssetCursor?,
         direction: PageDirection,
+        status: AssetStatus?,
     ): AssetPage {
         require(limit in 1..200) { "limit must be between 1 and 200" }
 
@@ -167,44 +171,45 @@ class R2dbcAssetRepository(
                                 select $selectColumns
                                 from assets
                                 where collection_id = $1
-                                and status = 'CONTENT_READY'
+                                and status = $2
                                 
                                 order by original_created_at desc, id desc
-                                limit $2        
+                                limit $3        
                             """.trimIndent()
 
             direction == PageDirection.FORWARD -> """
                                 select $selectColumns
                                 from assets            
                                 where collection_id = $1        
-                                and status = 'CONTENT_READY'
-                                and (original_created_at, id) < ($2, $3)            
+                                and status = $2
+                                and (original_created_at, id) < ($3, $4)            
                                 order by original_created_at desc, id desc            
-                                limit $4        
+                                limit $5        
                             """.trimIndent()
 
             else -> """            
                                 select $selectColumns            
                                 from assets            
                                 where collection_id = $1              
-                                and status = 'CONTENT_READY'
-                                and (original_created_at, id) > ($2, $3)            
+                                and status = $2
+                                and (original_created_at, id) > ($3, $4)            
                                 order by original_created_at asc, id asc            
-                                limit $4        
+                                limit $5        
                     """.trimIndent()
         }
 
         val fetched = connectionFactory.useConnection {
             val stmt = createStatement(query)
                 .bind("$1", collectionId.value.toJavaUuid())
+                .bind("$2", status?.name ?: AssetStatus.CONTENT_READY.name)
 
             when {
                 cursor == null -> stmt
-                    .bind("$2", limit + 1) // fetch one extra to detect hasMore
+                    .bind("$3", limit + 1) // fetch one extra to detect hasMore
                 else -> stmt
-                    .bind("$2", cursor.originalCreatedAt.toJavaInstant())
-                    .bind("$3", cursor.id.value.toJavaUuid())
-                    .bind("$4", limit + 1)
+                    .bind("$3", cursor.originalCreatedAt.toJavaInstant())
+                    .bind("$4", cursor.id.value.toJavaUuid())
+                    .bind("$5", limit + 1)
             }
                 .execute()
                 .awaitSingle()
@@ -264,7 +269,7 @@ class R2dbcAssetRepository(
             plugins.forEach { plugin ->
                 try {
                     plugin.finish()
-                } catch (exception: RuntimeException) {
+                } catch (_: RuntimeException) {
                     logger.error { "Could not close plugin: ${plugin::class.simpleName}" }
                 }
             }
@@ -410,7 +415,6 @@ class R2dbcAssetRepository(
         val parts = date.split("-")
         return Triple(parts[0], parts[1], parts[2])
     }
-
 }
 
 private fun Row.toAuditFields(): AuditFields {

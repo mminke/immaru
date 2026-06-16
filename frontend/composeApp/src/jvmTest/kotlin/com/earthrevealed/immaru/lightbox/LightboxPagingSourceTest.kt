@@ -10,6 +10,7 @@ import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.CollectionId
@@ -120,7 +121,7 @@ class AssetPagingSourceTest {
             return allAssets.firstOrNull { it.collectionId == collectionId && it.id == assetId }
         }
 
-        override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
+        override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
             return allAssets.filter { it.collectionId == collectionId }
         }
 
@@ -143,6 +144,7 @@ class AssetPagingSourceTest {
             limit: Int,
             cursor: AssetCursor?,
             direction: PageDirection,
+            status: AssetStatus?
         ): AssetPage {
             if (collectionId != allAssets.firstOrNull()?.collectionId) {
                 return AssetPage(emptyList(), nextCursor = null, prevCursor = null, hasMore = false)
