@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetPage
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.RetrievalException
@@ -53,11 +54,12 @@ class KtorAssetRepository(
         }
     }
 
-    override suspend fun findAllFor(collectionId: CollectionId): List<Asset> {
+    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
         return try {
             apiHtpClient()?.get(
                 Collections.ById.Assets(
-                    collection = Collections.ById(id1 = collectionId)
+                    collection = Collections.ById(id1 = collectionId),
+                    status = status?.name
                 )
             )?.body<List<Asset>>()
                 ?: emptyList()
@@ -162,7 +164,8 @@ class KtorAssetRepository(
         collectionId: CollectionId,
         limit: Int,
         cursor: AssetCursor?,
-        direction: PageDirection
+        direction: PageDirection,
+        status: AssetStatus?
     ): AssetPage {
         return try {
             apiHtpClient()
@@ -170,6 +173,7 @@ class KtorAssetRepository(
                     Collections.ById.Assets(
                         collection = Collections.ById(id1 = collectionId),
                         limit = limit,
+                        status = status?.name,
                         direction = direction.name,
                         cursorOriginalCreatedAt = cursor?.originalCreatedAt?.toString(),
                         cursorId = cursor?.id?.toString()

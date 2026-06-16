@@ -443,10 +443,10 @@ private class InMemoryAssetRepository(
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? =
         assets[assetId]?.takeIf { it.collectionId == collectionId }
 
-    override suspend fun findAllFor(collectionId: CollectionId): List<Asset> =
+    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> =
         assets.values.filter {
             it.collectionId == collectionId &&
-                    (it as? FileAsset)?.status == AssetStatus.CONTENT_READY
+                    ((it as? FileAsset)?.status == (status ?: AssetStatus.CONTENT_READY))
         }
 
     override suspend fun save(asset: Asset) {
@@ -480,6 +480,7 @@ private class InMemoryAssetRepository(
         limit: Int,
         cursor: AssetCursor?,
         direction: PageDirection,
+        status: AssetStatus?
     ): AssetPage {
         // mirror R2DBC ordering: original_created_at DESC, id DESC (UUID string for tie-breaking)
         fun originalCreatedAt(a: Asset) = (a as? FileAsset)?.originalCreatedAt ?: a.auditFields.createdAt
@@ -488,7 +489,7 @@ private class InMemoryAssetRepository(
 
         val allForCollection = assets.values.filter {
             it.collectionId == collectionId &&
-                    (it as? FileAsset)?.status == AssetStatus.CONTENT_READY
+                    ((it as? FileAsset)?.status == (status ?: AssetStatus.CONTENT_READY))
         }
 
         val fetched = when {

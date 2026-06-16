@@ -4,6 +4,7 @@ import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetId
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.api.Collections
@@ -39,6 +40,13 @@ fun Route.assetApi(
             return@get
         }
 
+        val status: AssetStatus? = request.status?.let { s ->
+            runCatching { AssetStatus.valueOf(s.uppercase()) }.getOrElse {
+                call.respond(HttpStatusCode.BadRequest, "Unsupported status '${s}'")
+                return@get
+            }
+        }
+
         val paginationRequested =
             request.limit != null ||
                     request.cursorOriginalCreatedAt != null ||
@@ -46,7 +54,7 @@ fun Route.assetApi(
                     request.direction.uppercase() != PageDirection.FORWARD.name
 
         if (!paginationRequested) {
-            call.respond(assetRepository.findAllFor(collectionId))
+            call.respond(assetRepository.findAllFor(collectionId, status))
             return@get
         }
 
@@ -86,7 +94,7 @@ fun Route.assetApi(
             }
         }
 
-        call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction))
+        call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction, status))
     }
 
     put<Collections.ById.Assets> { request ->

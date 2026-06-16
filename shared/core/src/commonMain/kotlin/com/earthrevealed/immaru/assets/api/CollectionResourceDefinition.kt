@@ -14,6 +14,7 @@ class Collections {
         class Assets(
             val collection: Collections.ById,
             val limit: Int? = null,
+            val status: String? = null,
             val direction: String = "FORWARD",
             val cursorOriginalCreatedAt: String? = null,
             val cursorId: String? = null,
