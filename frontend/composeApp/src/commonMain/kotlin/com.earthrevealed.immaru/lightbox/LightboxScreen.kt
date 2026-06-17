@@ -3,6 +3,7 @@ package com.earthrevealed.immaru.lightbox
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarViewMonth
+import androidx.compose.material.icons.filled.Handyman
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.BROWSE
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.BY_DATE
+import com.earthrevealed.immaru.lightbox.LightboxDestinations.MAINTENANCE
 import com.earthrevealed.immaru.lightbox.LightboxDestinations.PEOPLE
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -36,6 +38,7 @@ enum class LightboxDestinations(
     BROWSE("Browse", Icons.Filled.Home, "Browse all media"),
     BY_DATE("By date", Icons.Filled.CalendarViewMonth, "View by month"),
     PEOPLE("People", Icons.Filled.People, "By people"),
+    MAINTENANCE("Maintenance", Icons.Filled.Handyman, "Maintenance tools"),
 }
 
 @Composable
@@ -80,6 +83,7 @@ fun LightboxScreen(
         when (currentDestination.value) {
             BROWSE -> BrowseAllAssetsView(onNavigateBack, onViewAsset, viewModel)
             BY_DATE -> BrowseByDateView(collection, onNavigateBack)
+            MAINTENANCE -> MaintenanceView(onNavigateBack, onViewAsset, viewModel)
             PEOPLE -> Column { Text("People") }
         }
     }

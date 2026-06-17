@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetRepository
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.collections.CollectionId
@@ -24,9 +25,11 @@ import io.github.vinceglb.filekit.list
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,6 +47,8 @@ class LightboxViewModel(
     val isLoading = mutableStateOf(true)
 
     private var activePagingSource: AssetPagingSource? = null
+    private val _status = MutableStateFlow<AssetStatus?>(null)
+    val status = _status.asStateFlow()
 
     val configuration = configurationRepository.configuration.stateIn(
         scope = viewModelScope,
@@ -51,23 +56,27 @@ class LightboxViewModel(
         initialValue = Configuration(),
     )
 
-    val pagedAssets = Pager(
-        config = PagingConfig(
-            pageSize = PAGE_SIZE,
-            initialLoadSize = PAGE_SIZE,
-            prefetchDistance = PREFETCH_DISTANCE,
-            maxSize = MAX_PAGING_WINDOW_SIZE,
-            enablePlaceholders = false,
-        ),
-        pagingSourceFactory = {
-            AssetPagingSource(
-                collectionId = collectionId,
-                assetRepository = assetRepository,
-            ).also {
-                activePagingSource = it
-            }
-        },
-    ).flow.cachedIn(viewModelScope)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val pagedAssets = _status.flatMapLatest { currentStatus ->
+        Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE,
+                initialLoadSize = PAGE_SIZE,
+                prefetchDistance = PREFETCH_DISTANCE,
+                maxSize = MAX_PAGING_WINDOW_SIZE,
+                enablePlaceholders = false,
+            ),
+            pagingSourceFactory = {
+                AssetPagingSource(
+                    collectionId = collectionId,
+                    assetRepository = assetRepository,
+                    status = currentStatus,
+                ).also {
+                    activePagingSource = it
+                }
+            },
+        ).flow
+    }.cachedIn(viewModelScope)
 
     private val _selectedAssets = MutableStateFlow<List<Asset>>(emptyList())
     val selectedAssets = _selectedAssets.asStateFlow()
@@ -115,6 +124,10 @@ class LightboxViewModel(
                 isLoading.value = false
             }
         }
+    }
+
+    fun setStatus(newStatus: AssetStatus?) {
+        _status.value = newStatus
     }
 
     fun toggleAssetSelected(asset: Asset) {

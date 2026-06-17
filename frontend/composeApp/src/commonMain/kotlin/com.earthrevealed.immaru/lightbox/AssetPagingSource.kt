@@ -6,6 +6,7 @@ import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.assets.AssetCursor
 import com.earthrevealed.immaru.assets.AssetRepository
 import com.earthrevealed.immaru.assets.AssetRetrievalException
+import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.collections.CollectionId
@@ -13,6 +14,7 @@ import com.earthrevealed.immaru.collections.CollectionId
 class AssetPagingSource(
     private val collectionId: CollectionId,
     private val assetRepository: AssetRepository,
+    private val status: AssetStatus? = null,
 ) : PagingSource<AssetPagingKey, Asset>() {
 
     override suspend fun load(params: LoadParams<AssetPagingKey>): LoadResult<AssetPagingKey, Asset> {
@@ -29,6 +31,7 @@ class AssetPagingSource(
                 limit = params.loadSize.coerceAtMost(MAX_PAGE_SIZE),
                 cursor = cursor,
                 direction = direction,
+                status = status,
             )
 
             val forwardKey = page.nextCursor?.let { AssetPagingKey(it, PageDirection.FORWARD) }
