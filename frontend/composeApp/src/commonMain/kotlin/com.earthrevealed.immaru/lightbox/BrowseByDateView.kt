@@ -16,19 +16,16 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.earthrevealed.immaru.assets.Category
-import com.earthrevealed.immaru.assets.DateFilter
 import com.earthrevealed.immaru.collections.Collection
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
@@ -40,28 +37,24 @@ import org.koin.core.parameter.parametersOf
 fun BrowseByDateView(
     collection: Collection,
     onNavigateBack: () -> Unit,
+    parentViewModel: LightboxViewModel,
     viewModel: BrowseByDateViewViewModel = koinViewModel { parametersOf(collection) },
 ) {
     val items = viewModel.items.collectAsState()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Browse by Date")
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        onNavigateBack()
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to overview"
-                        )
-                    }
-                },
+    LaunchedEffect(Unit) {
+        parentViewModel.updateTopAppBarState(
+            TopAppBarState(
+                title = "Browse all",
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationIconClick = { onNavigateBack() },
+                actions = emptyList()
             )
-        },
+        )
+    }
+
+
+    Scaffold(
         content = { innerPadding ->
             Column(
                 modifier = Modifier

@@ -9,11 +9,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,8 +35,33 @@ fun MaintenanceView(
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val configuration = viewModel.configuration.collectAsState()
 
-    LaunchedEffect(Unit) {
+    fun toggleShowInformation() {
+        showInformation.value = !showInformation.value
+    }
+
+    LaunchedEffect(showViewSettingsDialog.value, showInformation.value, selectedAssets.value.isNotEmpty()) {
         viewModel.setStatus(AssetStatus.ORPHANED_FILE)
+
+        viewModel.updateTopAppBarState(
+            TopAppBarState(
+                title = "Browse all",
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationIconClick = { onNavigateBack() },
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = Icons.Filled.Settings,
+                        onClick = { showViewSettingsDialog.value = true },
+                        contentDescription = "Open view settings"
+                    ),
+                    TopAppBarAction(
+                        enabled = selectedAssets.value.isNotEmpty(),
+                        icon = if (showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
+                        onClick = { toggleShowInformation() },
+                        contentDescription = "Show information about selected assets"
+                    )
+                )
+            )
+        )
     }
 
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
@@ -55,48 +76,7 @@ fun MaintenanceView(
         )
     }
 
-    fun toggleShowInformation() {
-        showInformation.value = !showInformation.value
-    }
-
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Orphaned files")
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.setStatus(null)
-                        onNavigateBack()
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to overview"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { showViewSettingsDialog.value = true }
-                    ) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Open view settings"
-                        )
-                    }
-                    IconButton(
-                        enabled = selectedAssets.value.isNotEmpty(),
-                        onClick = { toggleShowInformation() })
-                    {
-                        Icon(
-                            if (showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
-                            contentDescription = "Show Information"
-                        )
-                    }
-                }
-            )
-        },
         content = { innerPadding ->
             Box(
                 modifier = Modifier

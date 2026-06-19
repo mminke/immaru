@@ -1,6 +1,7 @@
 package com.earthrevealed.immaru.lightbox
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -28,6 +29,7 @@ import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -35,6 +37,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.io.buffered
+
+
+data class TopAppBarState(
+    val title: String,
+    val actions: List<TopAppBarAction> = emptyList(),
+    val navigationIcon: ImageVector? = null,
+    val onNavigationIconClick: () -> Unit = {}
+)
+
+data class TopAppBarAction(
+    val icon: ImageVector,
+    val onClick: () -> Unit,
+    val contentDescription: String? = null,
+    val enabled: Boolean = true,
+)
 
 class LightboxViewModel(
     private val assetRepository: AssetRepository,
@@ -49,6 +66,13 @@ class LightboxViewModel(
     private var activePagingSource: AssetPagingSource? = null
     private val _status = MutableStateFlow<AssetStatus?>(null)
     val status = _status.asStateFlow()
+
+    private val _topAppBarState = MutableStateFlow(TopAppBarState(title = "Immaru"))
+    val topAppBarState: StateFlow<TopAppBarState> = _topAppBarState.asStateFlow()
+
+    fun updateTopAppBarState(newState: TopAppBarState) {
+        _topAppBarState.value = newState
+    }
 
     val configuration = configurationRepository.configuration.stateIn(
         scope = viewModelScope,
