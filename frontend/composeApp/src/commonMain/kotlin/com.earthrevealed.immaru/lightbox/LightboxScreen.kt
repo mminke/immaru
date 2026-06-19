@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -22,6 +23,8 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -76,11 +79,22 @@ fun LightboxScreen(
     }
 
     val currentDestination = rememberSaveable { mutableStateOf(BROWSE) }
+    val topAppBarState by viewModel.topAppBarState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(collection.name) },
+                actions = {
+                    topAppBarState.actions.forEach { action ->
+                        IconButton(onClick = action.onClick, enabled = action.enabled) {
+                            Icon(
+                                imageVector = action.icon,
+                                contentDescription = action.contentDescription
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -117,7 +131,7 @@ fun LightboxScreen(
             ) {
                 when (currentDestination.value) {
                     BROWSE -> BrowseAllAssetsView(onNavigateBack, onViewAsset, viewModel)
-                    BY_DATE -> BrowseByDateView(collection, onNavigateBack)
+                    BY_DATE -> BrowseByDateView(collection, onNavigateBack, viewModel)
                     MAINTENANCE -> MaintenanceView(onNavigateBack, onViewAsset, viewModel)
                     PEOPLE -> Column { Text("People") }
                 }

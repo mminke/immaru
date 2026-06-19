@@ -1,5 +1,7 @@
 package com.earthrevealed.immaru.lightbox
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -15,11 +17,8 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AnimatedPane
@@ -54,15 +53,39 @@ fun BrowseAllAssetsView(
     onViewAsset: (Asset) -> Unit,
     viewModel: LightboxViewModel
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.setStatus(null)
-    }
-
-    val showInformation = mutableStateOf(false)
+    val showInformation = remember { mutableStateOf(false) }
     val showViewSettingsDialog = remember { mutableStateOf(false) }
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
     val configuration = viewModel.configuration.collectAsState()
+
+    fun toggleShowInformation() {
+        showInformation.value = !showInformation.value
+    }
+
+    LaunchedEffect(showViewSettingsDialog.value, showInformation.value, selectedAssets.value.isNotEmpty()) {
+        viewModel.setStatus(null)
+        viewModel.updateTopAppBarState(
+            TopAppBarState(
+                title = "Browse all",
+                navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+                onNavigationIconClick = { onNavigateBack() },
+                actions = listOf(
+                    TopAppBarAction(
+                        icon = Icons.Filled.Settings,
+                        onClick = { showViewSettingsDialog.value = true },
+                        contentDescription = "Open view settings"
+                    ),
+                    TopAppBarAction(
+                        enabled = selectedAssets.value.isNotEmpty(),
+                        icon = if (showInformation.value.also { println("icon show info value $it") }) Icons.Filled.Info else Icons.Outlined.Info,
+                        onClick = { toggleShowInformation() },
+                        contentDescription = "Show information about selected assets"
+                    )
+                )
+            )
+        )
+    }
 
     if (showViewSettingsDialog.value) {
         LightboxViewSettingsDialog(
@@ -74,47 +97,7 @@ fun BrowseAllAssetsView(
         )
     }
 
-    fun toggleShowInformation() {
-        showInformation.value = !showInformation.value
-    }
-
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text("Browse all")
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        onNavigateBack()
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back to overview"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { showViewSettingsDialog.value = true }
-                    ) {
-                        Icon(
-                            Icons.Filled.Settings,
-                            contentDescription = "Open view settings"
-                        )
-                    }
-                    IconButton(
-                        enabled = selectedAssets.value.isNotEmpty(),
-                        onClick = { toggleShowInformation() })
-                    {
-                        Icon(
-                            if (showInformation.value) Icons.Filled.Info else Icons.Outlined.Info,
-                            contentDescription = "Show Information"
-                        )
-                    }
-                }
-            )
-        },
         content = { innerPadding ->
             Box(
                 modifier = Modifier
@@ -192,7 +175,10 @@ fun LightboxInformationPaneScaffold(
         directive = navigator.scaffoldDirective,
         value = navigator.scaffoldValue,
         mainPane = {
-            AnimatedPane {
+            AnimatedPane(
+                enterTransition = EnterTransition.None,
+                exitTransition = ExitTransition.None,
+            ) {
                 Lightbox(
                     assets,
                     selectedAssets,
@@ -204,7 +190,10 @@ fun LightboxInformationPaneScaffold(
             }
         },
         supportingPane = {
-            AnimatedPane {
+            AnimatedPane(
+                enterTransition = EnterTransition.None,
+                exitTransition = ExitTransition.None,
+            ) {
                 AssetInformation(selectedAssets.lastOrNull())
             }
         },
