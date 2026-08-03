@@ -11,9 +11,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DriveFolderUpload
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,6 +42,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
+import com.earthrevealed.immaru.components.searchbar.ChipInputBarSample
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -54,6 +57,7 @@ fun BrowseAllAssetsView(
     viewModel: LightboxViewModel
 ) {
     val showInformation = remember { mutableStateOf(false) }
+    val showSearchBar = remember { mutableStateOf(false) }
     val showViewSettingsDialog = remember { mutableStateOf(false) }
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
@@ -71,6 +75,11 @@ fun BrowseAllAssetsView(
                 navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
                 onNavigationIconClick = { onNavigateBack() },
                 actions = listOf(
+                    TopAppBarAction(
+                        icon = if (showSearchBar.value) Icons.Outlined.Search else Icons.Filled.Search,
+                        onClick = { showSearchBar.value = !showSearchBar.value },
+                        contentDescription = "Toggle search bar"
+                    ),
                     TopAppBarAction(
                         icon = Icons.Filled.Settings,
                         onClick = { showViewSettingsDialog.value = true },
@@ -114,15 +123,20 @@ fun BrowseAllAssetsView(
                     } else if (assets.loadState.refresh is LoadState.Loading) {
                         CenteredProgressIndicator()
                     } else {
-                        LightboxInformationPaneScaffold(
-                            assets,
-                            selectedAssets.value,
-                            if (selectedAssets.value.isEmpty()) false else showInformation.value,
-                            showAssetFilenameCaption = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
-                            thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent,
-                            onAssetClicked = onViewAsset,
-                            onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
-                        )
+                        Column {
+                            if (showSearchBar.value) {
+                                ChipInputBarSample()
+                            }
+                            LightboxInformationPaneScaffold(
+                                assets,
+                                selectedAssets.value,
+                                if (selectedAssets.value.isEmpty()) false else showInformation.value,
+                                showAssetFilenameCaption = configuration.value.uiConfiguration.lightbox.showAssetFilenameCaption,
+                                thumbnailZoomPercent = configuration.value.uiConfiguration.lightbox.thumbnailZoomPercent,
+                                onAssetClicked = onViewAsset,
+                                onAssetDoubleClicked = { viewModel.toggleAssetSelected(it) },
+                            )
+                        }
                     }
                 }
             }
