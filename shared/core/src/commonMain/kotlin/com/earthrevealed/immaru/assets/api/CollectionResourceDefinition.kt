@@ -18,6 +18,7 @@ class Collections {
             val direction: String = "FORWARD",
             val cursorOriginalCreatedAt: String? = null,
             val cursorId: String? = null,
+            val searchQuery: String? = null,
         ) {
 
             @Resource("{id2}")

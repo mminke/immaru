@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -67,6 +68,9 @@ class LightboxViewModel(
     private val _status = MutableStateFlow<AssetStatus?>(null)
     val status = _status.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow<String?>(null)
+    val searchQuery = _searchQuery.asStateFlow()
+
     private val _topAppBarState = MutableStateFlow(TopAppBarState(title = "Immaru"))
     val topAppBarState: StateFlow<TopAppBarState> = _topAppBarState.asStateFlow()
 
@@ -81,7 +85,9 @@ class LightboxViewModel(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val pagedAssets = _status.flatMapLatest { currentStatus ->
+    val pagedAssets = _status.combine(_searchQuery) { currentStatus, currentSearchQuery ->
+        Pair(currentStatus, currentSearchQuery)
+    }.flatMapLatest { (currentStatus, currentSearchQuery) ->
         Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -95,6 +101,7 @@ class LightboxViewModel(
                     collectionId = collectionId,
                     assetRepository = assetRepository,
                     status = currentStatus,
+                    searchQuery = currentSearchQuery,
                 ).also {
                     activePagingSource = it
                 }
@@ -152,6 +159,10 @@ class LightboxViewModel(
 
     fun setStatus(newStatus: AssetStatus?) {
         _status.value = newStatus
+    }
+
+    fun setSearchQuery(query: String?) {
+        _searchQuery.value = query?.takeIf { it.isNotBlank() }
     }
 
     fun toggleAssetSelected(asset: Asset) {

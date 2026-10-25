@@ -15,6 +15,7 @@ class AssetPagingSource(
     private val collectionId: CollectionId,
     private val assetRepository: AssetRepository,
     private val status: AssetStatus? = null,
+    private val searchQuery: String? = null,
 ) : PagingSource<AssetPagingKey, Asset>() {
 
     override suspend fun load(params: LoadParams<AssetPagingKey>): LoadResult<AssetPagingKey, Asset> {
@@ -32,6 +33,7 @@ class AssetPagingSource(
                 cursor = cursor,
                 direction = direction,
                 status = status,
+                searchQuery = searchQuery,
             )
 
             val forwardKey = page.nextCursor?.let { AssetPagingKey(it, PageDirection.FORWARD) }

@@ -8,7 +8,11 @@ import kotlin.time.Instant
 
 interface AssetRepository {
     suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset?
-    suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus? = AssetStatus.CONTENT_READY): List<Asset>
+    suspend fun findAllFor(
+        collectionId: CollectionId,
+        status: AssetStatus? = AssetStatus.CONTENT_READY,
+        searchQuery: String? = null
+    ): List<Asset>
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
     suspend fun assetExists(assetId: AssetId): Boolean
@@ -21,7 +25,8 @@ interface AssetRepository {
         limit: Int,
         cursor: AssetCursor?,
         direction: PageDirection,
-        status: AssetStatus? = AssetStatus.CONTENT_READY
+        status: AssetStatus? = AssetStatus.CONTENT_READY,
+        searchQuery: String? = null
     ): AssetPage
 }
 

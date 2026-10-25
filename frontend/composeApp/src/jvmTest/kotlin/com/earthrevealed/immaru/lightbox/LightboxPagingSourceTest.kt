@@ -121,7 +121,11 @@ class AssetPagingSourceTest {
             return allAssets.firstOrNull { it.collectionId == collectionId && it.id == assetId }
         }
 
-        override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
+        override suspend fun findAllFor(
+            collectionId: CollectionId,
+            status: AssetStatus?,
+            searchQuery: String?
+        ): List<Asset> {
             return allAssets.filter { it.collectionId == collectionId }
         }
 
@@ -144,7 +148,8 @@ class AssetPagingSourceTest {
             limit: Int,
             cursor: AssetCursor?,
             direction: PageDirection,
-            status: AssetStatus?
+            status: AssetStatus?,
+            searchQuery: String?
         ): AssetPage {
             if (collectionId != allAssets.firstOrNull()?.collectionId) {
                 return AssetPage(emptyList(), nextCursor = null, prevCursor = null, hasMore = false)

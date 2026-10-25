@@ -54,7 +54,7 @@ fun Route.assetApi(
                     request.direction.uppercase() != PageDirection.FORWARD.name
 
         if (!paginationRequested) {
-            call.respond(assetRepository.findAllFor(collectionId, status))
+            call.respond(assetRepository.findAllFor(collectionId, status, request.searchQuery))
             return@get
         }
 
@@ -94,7 +94,7 @@ fun Route.assetApi(
             }
         }
 
-        call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction, status))
+        call.respond(assetRepository.findPageFor(collectionId, limit, cursor, direction, status, request.searchQuery))
     }
 
     put<Collections.ById.Assets> { request ->

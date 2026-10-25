@@ -443,7 +443,11 @@ private class InMemoryAssetRepository(
     override suspend fun findById(collectionId: CollectionId, assetId: AssetId): Asset? =
         assets[assetId]?.takeIf { it.collectionId == collectionId }
 
-    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> =
+    override suspend fun findAllFor(
+        collectionId: CollectionId,
+        status: AssetStatus?,
+        searchQuery: String?
+    ): List<Asset> =
         assets.values.filter {
             it.collectionId == collectionId &&
                     ((it as? FileAsset)?.status == (status ?: AssetStatus.CONTENT_READY))
@@ -480,7 +484,8 @@ private class InMemoryAssetRepository(
         limit: Int,
         cursor: AssetCursor?,
         direction: PageDirection,
-        status: AssetStatus?
+        status: AssetStatus?,
+        searchQuery: String?
     ): AssetPage {
         // mirror R2DBC ordering: original_created_at DESC, id DESC (UUID string for tie-breaking)
         fun originalCreatedAt(a: Asset) = (a as? FileAsset)?.originalCreatedAt ?: a.auditFields.createdAt

@@ -5,6 +5,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,7 +43,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.earthrevealed.immaru.assets.Asset
 import com.earthrevealed.immaru.common.CenteredProgressIndicator
 import com.earthrevealed.immaru.common.ErrorMessage
-import com.earthrevealed.immaru.components.searchbar.ChipInputBarSample
+import com.earthrevealed.immaru.components.searchbar.ChipData
+import com.earthrevealed.immaru.components.searchbar.ChipInputBar
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -59,6 +61,18 @@ fun BrowseAllAssetsView(
     val showInformation = remember { mutableStateOf(false) }
     val showSearchBar = remember { mutableStateOf(false) }
     val showViewSettingsDialog = remember { mutableStateOf(false) }
+
+    val searchQuery = viewModel.searchQuery.collectAsState()
+
+    val searchTerms = searchQuery.value?.let { listOf(ChipData(it)) } ?: emptyList()
+
+    val onSearchChipCreated: (ChipData) -> Unit = { chipData ->
+        viewModel.setSearchQuery(chipData.text)
+    }
+
+    val onSearchChipRemoved: (ChipData) -> Unit = { _ ->
+        viewModel.setSearchQuery(null)
+    }
     val selectedAssets = viewModel.selectedAssets.collectAsState()
     val assets = viewModel.pagedAssets.collectAsLazyPagingItems()
     val configuration = viewModel.configuration.collectAsState()
@@ -125,7 +139,12 @@ fun BrowseAllAssetsView(
                     } else {
                         Column {
                             if (showSearchBar.value) {
-                                ChipInputBarSample()
+                                ChipInputBar(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    searchTerms = searchTerms,
+                                    onChipCreated = onSearchChipCreated,
+                                    onChipRemoved = onSearchChipRemoved,
+                                )
                             }
                             LightboxInformationPaneScaffold(
                                 assets,

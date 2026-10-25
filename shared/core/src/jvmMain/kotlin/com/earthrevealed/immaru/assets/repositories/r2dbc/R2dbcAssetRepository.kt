@@ -81,21 +81,35 @@ class R2dbcAssetRepository(
         }
     }
 
-    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
+    override suspend fun findAllFor(
+        collectionId: CollectionId,
+        status: AssetStatus?,
+        searchQuery: String?
+    ): List<Asset> {
+        val statusFilter = status?.name ?: AssetStatus.CONTENT_READY.name
+        val searchFilter =
+            searchQuery?.let { "and (name ilike '%' || $3 || '%' or original_filename ilike '%' || $3 || '%')" } ?: ""
+
         val query = """
             select 
                 $selectColumns
             from assets
             where collection_id = $1
                 and status = $2
+                $searchFilter
             order by assets.original_created_at
         """.trimIndent()
 
         return connectionFactory.useConnection {
-            createStatement(query)
+            val stmt = createStatement(query)
                 .bind("$1", collectionId.value.toJavaUuid())
-                .bind("$2", status?.name ?: AssetStatus.CONTENT_READY.name)
-                .execute()
+                .bind("$2", statusFilter)
+
+            if (searchQuery != null) {
+                stmt.bind("$3", searchQuery)
+            }
+
+            stmt.execute()
                 .awaitSingle()
                 .mapToDomain()
                 .toList()
@@ -163,53 +177,94 @@ class R2dbcAssetRepository(
         cursor: AssetCursor?,
         direction: PageDirection,
         status: AssetStatus?,
+        searchQuery: String?,
     ): AssetPage {
         require(limit in 1..200) { "limit must be between 1 and 200" }
 
-        val query = when {
-            cursor == null -> """
-                                select $selectColumns
-                                from assets
-                                where collection_id = $1
-                                and status = $2
-                                
-                                order by original_created_at desc, id desc
-                                limit $3        
-                            """.trimIndent()
+        val statusFilter = status?.name ?: AssetStatus.CONTENT_READY.name
+        val (query, searchParamIndex) = when {
+            cursor == null -> {
+                val paramIndex = if (searchQuery != null) "$4" else null
+                val searchFilter = searchQuery?.let {
+                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
+                } ?: ""
+                val q = """
+                    select $selectColumns
+                    from assets
+                    where collection_id = $1
+                    and status = $2
+                    $searchFilter
+                    
+                    order by original_created_at desc, id desc
+                    limit $3        
+                """.trimIndent()
+                Pair(q, paramIndex)
+            }
 
-            direction == PageDirection.FORWARD -> """
-                                select $selectColumns
-                                from assets            
-                                where collection_id = $1        
-                                and status = $2
-                                and (original_created_at, id) < ($3, $4)            
-                                order by original_created_at desc, id desc            
-                                limit $5        
-                            """.trimIndent()
+            direction == PageDirection.FORWARD -> {
+                val paramIndex = "$6"
+                val searchFilter = searchQuery?.let {
+                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
+                } ?: ""
+                val q = """
+                    select $selectColumns
+                    from assets            
+                    where collection_id = $1        
+                    and status = $2
+                    $searchFilter
+                    and (original_created_at, id) < ($3, $4)            
+                    order by original_created_at desc, id desc            
+                    limit $5        
+                """.trimIndent()
+                Pair(q, paramIndex)
+            }
 
-            else -> """            
-                                select $selectColumns            
-                                from assets            
-                                where collection_id = $1              
-                                and status = $2
-                                and (original_created_at, id) > ($3, $4)            
-                                order by original_created_at asc, id asc            
-                                limit $5        
-                    """.trimIndent()
+            else -> {
+                val paramIndex = "$6"
+                val searchFilter = searchQuery?.let {
+                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
+                } ?: ""
+                val q = """            
+                    select $selectColumns            
+                    from assets            
+                    where collection_id = $1              
+                    and status = $2
+                    $searchFilter
+                    and (original_created_at, id) > ($3, $4)            
+                    order by original_created_at asc, id asc            
+                    limit $5        
+                """.trimIndent()
+                Pair(q, paramIndex)
+            }
         }
 
         val fetched = connectionFactory.useConnection {
             val stmt = createStatement(query)
                 .bind("$1", collectionId.value.toJavaUuid())
-                .bind("$2", status?.name ?: AssetStatus.CONTENT_READY.name)
+                .bind("$2", statusFilter)
 
             when {
-                cursor == null -> stmt
-                    .bind("$3", limit + 1) // fetch one extra to detect hasMore
-                else -> stmt
-                    .bind("$3", cursor.originalCreatedAt.toJavaInstant())
-                    .bind("$4", cursor.id.value.toJavaUuid())
-                    .bind("$5", limit + 1)
+                cursor == null -> {
+                    val stmtWithLimit = stmt.bind("$3", limit + 1)
+                    if (searchQuery != null) {
+                        stmtWithLimit.bind("$4", searchQuery)
+                    } else {
+                        stmtWithLimit
+                    }
+                }
+
+                else -> {
+                    val stmtWithCursor = stmt
+                        .bind("$3", cursor.originalCreatedAt.toJavaInstant())
+                        .bind("$4", cursor.id.value.toJavaUuid())
+                        .bind("$5", limit + 1)
+
+                    if (searchQuery != null) {
+                        stmtWithCursor.bind("$6", searchQuery)
+                    } else {
+                        stmtWithCursor
+                    }
+                }
             }
                 .execute()
                 .awaitSingle()

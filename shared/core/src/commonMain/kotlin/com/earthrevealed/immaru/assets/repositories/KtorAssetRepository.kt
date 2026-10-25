@@ -54,12 +54,17 @@ class KtorAssetRepository(
         }
     }
 
-    override suspend fun findAllFor(collectionId: CollectionId, status: AssetStatus?): List<Asset> {
+    override suspend fun findAllFor(
+        collectionId: CollectionId,
+        status: AssetStatus?,
+        searchQuery: String?
+    ): List<Asset> {
         return try {
             apiHtpClient()?.get(
                 Collections.ById.Assets(
                     collection = Collections.ById(id1 = collectionId),
-                    status = status?.name
+                    status = status?.name,
+                    searchQuery = searchQuery
                 )
             )?.body<List<Asset>>()
                 ?: emptyList()
@@ -165,7 +170,8 @@ class KtorAssetRepository(
         limit: Int,
         cursor: AssetCursor?,
         direction: PageDirection,
-        status: AssetStatus?
+        status: AssetStatus?,
+        searchQuery: String?
     ): AssetPage {
         return try {
             apiHtpClient()
@@ -176,7 +182,8 @@ class KtorAssetRepository(
                         status = status?.name,
                         direction = direction.name,
                         cursorOriginalCreatedAt = cursor?.originalCreatedAt?.toString(),
-                        cursorId = cursor?.id?.toString()
+                        cursorId = cursor?.id?.toString(),
+                        searchQuery = searchQuery
                     )
                 )?.body<AssetPage>()
                 ?: AssetPage(items = emptyList(), nextCursor = null, prevCursor = null, hasMore = false)
