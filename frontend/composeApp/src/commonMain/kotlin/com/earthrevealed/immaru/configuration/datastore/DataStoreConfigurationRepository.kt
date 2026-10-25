@@ -8,7 +8,6 @@ import com.earthrevealed.immaru.configuration.Configuration
 import com.earthrevealed.immaru.configuration.ConfigurationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class DataStoreConfigurationRepository(
