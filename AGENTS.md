@@ -125,6 +125,12 @@ Backend changes often need coordinated updates in `shared/core` models and `fron
 - Android frontend: `frontend/androidApp/src/main/kotlin/com/earthrevealed/immaru/MainActivity.kt`
 - Shared domain examples: `shared/core/src/commonMain/kotlin/com/earthrevealed/immaru/assets/Asset.kt`
 
+## After finalizing changes
+
+* Check the entire project compiles
+* Check all tests run correctly
+* Ask to verify the application runs correctly.
+
 ## When in doubt
 
 If a task touches multiple modules, inspect the shared domain first, then the backend API, then the frontend consumer
