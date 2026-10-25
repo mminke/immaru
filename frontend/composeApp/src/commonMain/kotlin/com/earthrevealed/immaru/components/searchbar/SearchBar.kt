@@ -1,10 +1,12 @@
 package com.earthrevealed.immaru.components.searchbar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -86,52 +89,63 @@ fun ChipInputBar(
         mutableStateOf("")
     }
 
-    FlowRow(
+    Box(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(32.dp)
+            )
+            .padding(horizontal = 8.dp, vertical = 0.dp)
+//            .padding(8.dp)
+    ) {
+        FlowRow(
 //        maxLines = 2,
 //        modifier = Modifier.padding(horizontal = 4.dp, vertical = 0.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
 //        verticalArrangement = Arrangement.spacedBy(0.dp),
-    ) {
-        searchTerms.forEachIndexed { index, item ->
-            key(item.text) {
-                InputBarChip(item, onDeleteClick = { onChipRemoved(item) })
-            }
-        }
-
-        Box(
-            modifier = Modifier.height(InputChipDefaults.Height + 16.dp)
-                // This minimum width that TextField can have
-                // if remaining space in same row is smaller it's moved to next line
-                .widthIn(min = 80.dp)
-                // TextField can grow as big as Composable width
-                .weight(1f),
-            contentAlignment = Alignment.CenterStart
         ) {
-            BasicTextField(
+            searchTerms.forEachIndexed { index, item ->
+                key(item.text) {
+                    InputBarChip(item, onDeleteClick = { onChipRemoved(item) })
+                }
+            }
+
+            Box(
+                modifier = Modifier.height(InputChipDefaults.Height + 16.dp)
+                    .padding(start = 8.dp)
+                    // This minimum width that TextField can have
+                    // if remaining space in same row is smaller it's moved to next line
+                    .widthIn(min = 80.dp)
+                    // TextField can grow as big as Composable width
+                    .weight(1f),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                BasicTextField(
 //                modifier = Modifier.focusRequester(focusRequester),
-                value = text,
+                    value = text,
 //                textStyle = TextStyle(
 //                    fontSize = 20.sp
 //                ),
 //                cursorBrush = SolidColor(backgroundColor),
-                singleLine = true,
-                onValueChange = { text = it },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        if (text.isNotEmpty()) {
-                            onChipCreated(
-                                ChipData(
-                                    text = text
+                    singleLine = true,
+                    onValueChange = { text = it },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (text.isNotEmpty()) {
+                                onChipCreated(
+                                    ChipData(
+                                        text = text
+                                    )
                                 )
-                            )
-                            text = ""
+                                text = ""
+                            }
                         }
-                    }
+                    )
                 )
-            )
+            }
         }
     }
 }

@@ -140,7 +140,9 @@ fun BrowseAllAssetsView(
                         Column {
                             if (showSearchBar.value) {
                                 ChipInputBar(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
                                     searchTerms = searchTerms,
                                     onChipCreated = onSearchChipCreated,
                                     onChipRemoved = onSearchChipRemoved,
