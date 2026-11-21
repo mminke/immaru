@@ -104,7 +104,6 @@ class MaintenanceServiceTest {
             items = emptyList(),
             nextCursor = null,
             prevCursor = null,
-            hasMore = false,
         )
     }
 }

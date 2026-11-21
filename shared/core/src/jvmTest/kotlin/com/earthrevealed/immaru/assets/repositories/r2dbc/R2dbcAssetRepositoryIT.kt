@@ -7,6 +7,7 @@ import com.earthrevealed.immaru.assets.MediaType.Companion.IMAGE_JPEG
 import com.earthrevealed.immaru.assets.PageDirection
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.library.useResourceAsFlow
+import com.earthrevealed.immaru.assets.toCursor
 import com.earthrevealed.immaru.collections.CollectionRepository
 import com.earthrevealed.immaru.collections.collection
 import com.earthrevealed.immaru.collections.repositories.r2dbc.R2dbcCollectionRepository
@@ -25,7 +26,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -207,8 +207,8 @@ class R2dbcAssetRepositoryIT {
             )
 
             assertEquals(listOf(createdAssets[4].id, createdAssets[3].id), firstPage.items.map { it.id })
-            assertTrue(firstPage.hasMore)
-            assertNotNull(firstPage.nextCursor)
+            assertNull(firstPage.prevCursor)
+            assertEquals(createdAssets[3].id, firstPage.nextCursor?.id)
 
             val secondPage = assetRepository.findPageFor(
                 collectionId = collection.id,
@@ -218,7 +218,7 @@ class R2dbcAssetRepositoryIT {
             )
 
             assertEquals(listOf(createdAssets[2].id, createdAssets[1].id), secondPage.items.map { it.id })
-            assertTrue(secondPage.hasMore)
+            assertNotNull(secondPage.prevCursor)
             assertNotNull(secondPage.nextCursor)
 
             val thirdPage = assetRepository.findPageFor(
@@ -229,7 +229,8 @@ class R2dbcAssetRepositoryIT {
             )
 
             assertEquals(listOf(createdAssets[0].id), thirdPage.items.map { it.id })
-            assertFalse(thirdPage.hasMore)
+            assertNotNull(thirdPage.prevCursor)
+            assertNull(thirdPage.nextCursor)
         }
     }
 
@@ -241,26 +242,25 @@ class R2dbcAssetRepositoryIT {
                     instants = listOf(
                         Instant.parse("2025-02-01T00:00:00Z"),
                         Instant.parse("2025-02-01T00:00:01Z"),
-                        Instant.parse("2025-02-01T00:00:02Z"),
+                        Instant.parse("2025-02-01T00:00:02.123456789Z"),
                         Instant.parse("2025-02-01T00:00:03Z"),
                         Instant.parse("2025-02-01T00:00:04Z"),
                     )
                 )
             }
-
-            val middlePage = assetRepository.findPageFor(
+            val firstPage = assetRepository.findPageFor(
                 collectionId = collection.id,
                 limit = 2,
                 cursor = null,
                 direction = PageDirection.FORWARD,
-            ).let {
-                assetRepository.findPageFor(
-                    collectionId = collection.id,
-                    limit = 2,
-                    cursor = it.nextCursor,
-                    direction = PageDirection.FORWARD,
-                )
-            }
+            )
+
+            val middlePage = assetRepository.findPageFor(
+                collectionId = collection.id,
+                limit = 2,
+                cursor = firstPage.nextCursor,
+                direction = PageDirection.FORWARD,
+            )
 
             val previousPage = assetRepository.findPageFor(
                 collectionId = collection.id,
@@ -270,7 +270,59 @@ class R2dbcAssetRepositoryIT {
             )
 
             assertEquals(listOf(createdAssets[4].id, createdAssets[3].id), previousPage.items.map { it.id })
-            assertFalse(previousPage.hasMore)
+            assertEquals(createdAssets[3].id, previousPage.nextCursor?.id)
+            assertNull(previousPage.prevCursor)
+        }
+    }
+
+    @Test
+    fun `test findPageFor supports backward paging from a middle page with equal dates`() {
+        runBlocking {
+            val createdAssets = withFixedClock {
+                createAssetsAt(
+                    instants = listOf(
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                        Instant.parse("2025-02-01T00:00:00Z"),
+                    )
+                )
+            }.sortedBy { "${it.originalCreatedAt}|${it.id}" }
+
+            val firstPage = assetRepository.findPageFor(
+                collectionId = collection.id,
+                limit = 4,
+                cursor = null,
+                direction = PageDirection.FORWARD,
+            )
+
+            assertEquals(
+                listOf(createdAssets[9].id, createdAssets[8].id, createdAssets[7].id, createdAssets[6].id),
+                firstPage.items.map { it.id })
+            assertNull(firstPage.prevCursor)
+            assertEquals(createdAssets[6].id, firstPage.nextCursor?.id)
+
+            val secondPage = assetRepository.findPageFor(
+                collectionId = collection.id,
+                limit = 4,
+                cursor = firstPage.nextCursor,
+                direction = PageDirection.FORWARD,
+            )
+
+            val previousPage = assetRepository.findPageFor(
+                collectionId = collection.id,
+                limit = 4,
+                cursor = secondPage.prevCursor,
+                direction = PageDirection.BACKWARD,
+            )
+
+            assertEquals(previousPage, firstPage)
         }
     }
 
@@ -300,14 +352,13 @@ class R2dbcAssetRepositoryIT {
             assertEquals(4, allPagedIds.size)
             assertEquals(4, allPagedIds.distinct().size)
             assertEquals(createdAssets.map { it.id }.toSet(), allPagedIds.toSet())
-            assertFalse(secondPage.hasMore)
         }
     }
 
     @Test
     fun `test findPageFor returns empty page when cursor is exhausted`() {
         runBlocking {
-            withFixedClock {
+            val createdAssets = withFixedClock {
                 createAssetsAt(
                     instants = listOf(
                         Instant.parse("2025-04-01T00:00:00Z"),
@@ -317,34 +368,16 @@ class R2dbcAssetRepositoryIT {
                 )
             }
 
-            val firstPage = assetRepository.findPageFor(
-                collectionId = collection.id,
-                limit = 2,
-                cursor = null,
-                direction = PageDirection.FORWARD,
-            )
-
-            val lastNonEmptyPage = assetRepository.findPageFor(
-                collectionId = collection.id,
-                limit = 2,
-                cursor = firstPage.nextCursor,
-                direction = PageDirection.FORWARD,
-            )
-
-            assertFalse(lastNonEmptyPage.hasMore)
-            assertNotNull(lastNonEmptyPage.nextCursor)
-
             val exhaustedPage = assetRepository.findPageFor(
                 collectionId = collection.id,
-                limit = 2,
-                cursor = lastNonEmptyPage.nextCursor,
+                limit = 3,
+                cursor = createdAssets[0].toCursor(),
                 direction = PageDirection.FORWARD,
             )
 
             assertTrue(exhaustedPage.items.isEmpty())
             assertNull(exhaustedPage.nextCursor)
             assertNull(exhaustedPage.prevCursor)
-            assertFalse(exhaustedPage.hasMore)
         }
     }
 

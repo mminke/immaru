@@ -186,7 +186,7 @@ class KtorAssetRepository(
                         searchQuery = searchQuery
                     )
                 )?.body<AssetPage>()
-                ?: AssetPage(items = emptyList(), nextCursor = null, prevCursor = null, hasMore = false)
+                ?: AssetPage(items = emptyList(), nextCursor = null, prevCursor = null)
         } catch (throwable: Throwable) {
             throw AssetRetrievalException(throwable)
         }

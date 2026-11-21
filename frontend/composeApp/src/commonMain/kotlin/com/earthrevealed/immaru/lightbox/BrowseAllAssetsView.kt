@@ -82,7 +82,7 @@ fun BrowseAllAssetsView(
     }
 
     LaunchedEffect(showViewSettingsDialog.value, showInformation.value, selectedAssets.value.isNotEmpty()) {
-        viewModel.setStatus(null)
+//        if (viewModel.status.value != null) viewModel.setStatus(null)
         viewModel.updateTopAppBarState(
             TopAppBarState(
                 title = "Browse all",

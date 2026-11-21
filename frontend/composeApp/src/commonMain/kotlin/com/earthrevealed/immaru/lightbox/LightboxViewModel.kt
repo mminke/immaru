@@ -242,9 +242,9 @@ class LightboxViewModel(
     }
 
     companion object {
-        private const val PAGE_SIZE = 50
-        private const val PREFETCH_DISTANCE = 10
-        private const val MAX_PAGING_WINDOW_SIZE = 200
+        private const val PAGE_SIZE = 20
+        private const val PREFETCH_DISTANCE = 5
+        private const val MAX_PAGING_WINDOW_SIZE = 3 * PAGE_SIZE
         const val MIN_THUMBNAIL_ZOOM_PERCENT = 50
         const val MAX_THUMBNAIL_ZOOM_PERCENT = 200
     }

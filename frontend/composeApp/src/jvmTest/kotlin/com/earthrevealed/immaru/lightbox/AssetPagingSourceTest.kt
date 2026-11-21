@@ -13,6 +13,7 @@ import com.earthrevealed.immaru.assets.AssetRetrievalException
 import com.earthrevealed.immaru.assets.AssetStatus
 import com.earthrevealed.immaru.assets.FileAsset
 import com.earthrevealed.immaru.assets.PageDirection
+import com.earthrevealed.immaru.assets.toCursor
 import com.earthrevealed.immaru.collections.CollectionId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -39,10 +40,10 @@ class AssetPagingSourceTest {
                 placeholdersEnabled = false,
             )
         )
-        val refreshPage = assertPage(refreshResult)
+        val refreshPage = loadResultPage(refreshResult)
         assertEquals((0 until 5).map { "Asset $it" }, refreshPage.data.map { it.name })
         assertNull(refreshPage.prevKey)
-        assertEquals(PageDirection.FORWARD, refreshPage.nextKey?.direction)
+        assertEquals((allAssets[4] as FileAsset).toCursor(), refreshPage.nextKey)
 
         val appendResult = source.load(
             LoadParams.Append(
@@ -51,9 +52,10 @@ class AssetPagingSourceTest {
                 placeholdersEnabled = false,
             )
         )
-        val appendPage = assertPage(appendResult)
+        val appendPage = loadResultPage(appendResult)
         assertEquals((5 until 10).map { "Asset $it" }, appendPage.data.map { it.name })
-        assertEquals(PageDirection.BACKWARD, appendPage.prevKey?.direction)
+        assertEquals((allAssets[5] as FileAsset).toCursor(), appendPage.prevKey)
+        assertEquals((allAssets[9] as FileAsset).toCursor(), appendPage.nextKey)
 
         val prependResult = source.load(
             LoadParams.Prepend(
@@ -62,8 +64,10 @@ class AssetPagingSourceTest {
                 placeholdersEnabled = false,
             )
         )
-        val prependPage = assertPage(prependResult)
+        val prependPage = loadResultPage(prependResult)
         assertEquals((0 until 5).map { "Asset $it" }, prependPage.data.map { it.name })
+        assertNull(prependPage.prevKey)
+        assertEquals((allAssets[4] as FileAsset).toCursor(), prependPage.nextKey)
         assertTrue(prependPage.data.map { it.id }.distinct().size == prependPage.data.size)
     }
 
@@ -73,11 +77,11 @@ class AssetPagingSourceTest {
         val assets = createAssets(collectionId, 8)
         val source = AssetPagingSource(collectionId, FakeAssetRepository(assets))
 
-        val state = PagingState<AssetPagingKey, Asset>(
+        val state = PagingState<AssetCursor, Asset>(
             pages = listOf(
                 LoadResult.Page(
                     data = assets,
-                    prevKey = null,
+                    prevKey = (assets[3] as FileAsset).toCursor(),
                     nextKey = null,
                 )
             ),
@@ -88,13 +92,12 @@ class AssetPagingSourceTest {
 
         val refreshKey = source.getRefreshKey(state)
         assertNotNull(refreshKey)
-        assertEquals(PageDirection.FORWARD, refreshKey.direction)
-        assertEquals(assets[3].id, refreshKey.cursor.id)
+        assertEquals((assets[3] as FileAsset).toCursor(), refreshKey)
     }
 
-    private fun assertPage(
-        result: LoadResult<AssetPagingKey, Asset>
-    ): LoadResult.Page<AssetPagingKey, Asset> {
+    private fun loadResultPage(
+        result: LoadResult<AssetCursor, Asset>
+    ): LoadResult.Page<AssetCursor, Asset> {
         return when (result) {
             is LoadResult.Page -> result
             is LoadResult.Error -> throw AssertionError("Expected page, got error", result.throwable)
@@ -152,7 +155,7 @@ class AssetPagingSourceTest {
             searchQuery: String?
         ): AssetPage {
             if (collectionId != allAssets.firstOrNull()?.collectionId) {
-                return AssetPage(emptyList(), nextCursor = null, prevCursor = null, hasMore = false)
+                return AssetPage(emptyList(), nextCursor = null, prevCursor = null)
             }
 
             return try {
@@ -190,12 +193,10 @@ class AssetPagingSourceTest {
         private fun buildPage(items: List<Asset>, startIndex: Int, endExclusive: Int): AssetPage {
             val prevCursor = if (startIndex > 0 && items.isNotEmpty()) cursorFor(items.first()) else null
             val nextCursor = if (endExclusive < allAssets.size && items.isNotEmpty()) cursorFor(items.last()) else null
-            val hasMore = endExclusive < allAssets.size || startIndex > 0
             return AssetPage(
                 items = items,
                 nextCursor = nextCursor,
                 prevCursor = prevCursor,
-                hasMore = hasMore,
             )
         }
 

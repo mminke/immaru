@@ -35,6 +35,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)
@@ -356,7 +357,6 @@ class AssetApiTest {
         val assetIds = pageResponse.items.map { it.id }.toSet()
         assertEquals(2, assetIds.size)
         assertEquals(true, assetIds.containsAll(listOf(newest.id, middle.id)))
-        assertEquals(true, pageResponse.hasMore)
         assertNotNull(pageResponse.nextCursor)
         assertEquals(middle.id, pageResponse.nextCursor!!.id)
     }
@@ -399,7 +399,7 @@ class AssetApiTest {
         )
 
         assertEquals(1, secondPage.items.size)
-        assertEquals(false, secondPage.hasMore)
+        assertNull(secondPage.nextCursor)
 
         val secondIds = secondPage.items.map { it.id }.toSet()
 
@@ -516,7 +516,6 @@ private class InMemoryAssetRepository(
                 }
         }.take(limit + 1)
 
-        val hasMore = fetched.size > limit
         val sliced = fetched.take(limit)
         val items = if (direction == PageDirection.BACKWARD && cursor != null) sliced.reversed() else sliced
 
@@ -524,7 +523,6 @@ private class InMemoryAssetRepository(
             items = items,
             nextCursor = items.lastOrNull()?.let { AssetCursor(originalCreatedAt(it), it.id) },
             prevCursor = items.firstOrNull()?.let { AssetCursor(originalCreatedAt(it), it.id) },
-            hasMore = hasMore,
         )
     }
 

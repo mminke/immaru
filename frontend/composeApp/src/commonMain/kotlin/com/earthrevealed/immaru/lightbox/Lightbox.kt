@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import com.earthrevealed.immaru.assets.Asset
 
 @Composable
@@ -41,7 +42,7 @@ fun Lightbox(
         ) {
             items(
                 count = assets.itemCount,
-                key = { index -> assets[index]?.id?.toString() ?: "placeholder_$index" },
+                key = assets.itemKey { it.id.toString() },
             ) { index ->
                 val asset = assets[index]
                 if (asset != null) {

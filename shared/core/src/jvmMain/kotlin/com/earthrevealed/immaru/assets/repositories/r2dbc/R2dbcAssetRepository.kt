@@ -18,6 +18,7 @@ import com.earthrevealed.immaru.assets.library.DetectMediaTypePlugin
 import com.earthrevealed.immaru.assets.library.DetectOriginalCreatedAtPlugin
 import com.earthrevealed.immaru.assets.library.Library
 import com.earthrevealed.immaru.assets.library.MessageDigestPlugin
+import com.earthrevealed.immaru.assets.toCursor
 import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.r2dbc.bindNullable
@@ -182,13 +183,11 @@ class R2dbcAssetRepository(
         require(limit in 1..200) { "limit must be between 1 and 200" }
 
         val statusFilter = status?.name ?: AssetStatus.CONTENT_READY.name
-        val (query, searchParamIndex) = when {
-            cursor == null -> {
-                val paramIndex = if (searchQuery != null) "$4" else null
-                val searchFilter = searchQuery?.let {
-                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
-                } ?: ""
-                val q = """
+        if (cursor == null) {
+            val searchFilter = searchQuery?.let {
+                "and (name ilike '%' || $4 || '%' or original_filename ilike '%' || $4 || '%')"
+            } ?: ""
+            val query = """
                     select $selectColumns
                     from assets
                     where collection_id = $1
@@ -198,15 +197,44 @@ class R2dbcAssetRepository(
                     order by original_created_at desc, id desc
                     limit $3        
                 """.trimIndent()
-                Pair(q, paramIndex)
+
+            val fetched = connectionFactory.useConnection {
+                createStatement(query)
+                    .bind("$1", collectionId.value.toJavaUuid())
+                    .bind("$2", statusFilter)
+                    .bind("$3", limit + 1)
+                    .apply {
+                        if (searchQuery != null) bind("$4", searchQuery)
+                    }
+                    .execute()
+                    .awaitSingle()
+                    .mapToDomain()
+                    .toList()
             }
 
-            direction == PageDirection.FORWARD -> {
-                val paramIndex = "$6"
+            val hasMore = fetched.size > limit
+            val sliced = fetched.take(limit)
+            val items = if (direction == PageDirection.BACKWARD) sliced.reversed() else sliced
+
+            val last = items.lastOrNull()
+
+            val prevCursor = null
+            val nextCursor = if (hasMore) last?.let {
+                AssetCursor((it as FileAsset).originalCreatedAt, it.id)
+            } else null
+
+            return AssetPage(
+                items = items,
+                nextCursor = nextCursor,
+                prevCursor = prevCursor,
+            )
+        }
+        if (direction == PageDirection.FORWARD) {
+            val fetched = connectionFactory.useConnection {
                 val searchFilter = searchQuery?.let {
-                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
+                    "and (name ilike '%' || $6 || '%' or original_filename ilike '%' || $6 || '%')"
                 } ?: ""
-                val q = """
+                val query = """
                     select $selectColumns
                     from assets            
                     where collection_id = $1        
@@ -216,83 +244,167 @@ class R2dbcAssetRepository(
                     order by original_created_at desc, id desc            
                     limit $5        
                 """.trimIndent()
-                Pair(q, paramIndex)
+
+                createStatement(query)
+                    .bind("$1", collectionId.value.toJavaUuid())
+                    .bind("$2", statusFilter)
+                    .bind("$3", cursor.originalCreatedAt.toJavaInstant())
+                    .bind("$4", cursor.id.value.toJavaUuid())
+                    .bind("$5", limit + 1)
+                    .apply {
+                        if (searchQuery != null) bind("$6", searchQuery)
+                    }
+                    .execute()
+                    .awaitSingle()
+                    .mapToDomain()
+                    .toList()
             }
 
-            else -> {
-                val paramIndex = "$6"
+            val hasPrevious: Boolean = fetched.firstOrNull()?.let {
+                connectionFactory.useConnection {
+                    val searchFilter = searchQuery?.let {
+                        "and (name ilike '%' || $5 || '%' or original_filename ilike '%' || $5 || '%')"
+                    } ?: ""
+
+                    val backwardsProbeQuery = """
+                        select exists(
+                            select 1
+                            from assets            
+                            where collection_id = $1        
+                            and status = $2
+                            $searchFilter
+                            and (original_created_at, id) > ($3, $4)            
+                            order by original_created_at asc, id asc            
+                            limit 1
+                        ) as has_previous
+                    """.trimIndent()
+
+                    createStatement(backwardsProbeQuery)
+                        .bind("$1", collectionId.value.toJavaUuid())
+                        .bind("$2", statusFilter)
+                        .bind("$3", cursor.originalCreatedAt.toJavaInstant())
+                        .bind("$4", cursor.id.value.toJavaUuid())
+                        .apply {
+                            if (searchQuery != null) bind("$5", searchQuery)
+                        }
+                        .execute()
+                        .awaitSingle()
+                        .map { row, _ -> row.get("has_previous", Boolean::class.java) }
+                        .awaitSingle()
+                }
+            } ?: false
+
+
+            val hasMore = fetched.size > limit
+            val sliced = fetched.take(limit)
+            val items = if (direction == PageDirection.BACKWARD) sliced.reversed() else sliced
+
+            val first = items.firstOrNull()
+            val last = items.lastOrNull()
+
+            val prevCursor = if (hasPrevious) first?.let {
+                AssetCursor((it as FileAsset).originalCreatedAt, it.id)
+            } else null
+            val nextCursor = if (hasMore) last?.let {
+                AssetCursor((it as FileAsset).originalCreatedAt, it.id)
+            } else null
+
+            return AssetPage(
+                items = items,
+                nextCursor = nextCursor,
+                prevCursor = prevCursor,
+            )
+        }
+
+        if (direction == PageDirection.BACKWARD) {
+            val fetched = connectionFactory.useConnection {
                 val searchFilter = searchQuery?.let {
-                    "and (name ilike '%' || $paramIndex || '%' or original_filename ilike '%' || $paramIndex || '%')"
+                    "and (name ilike '%' || $6 || '%' or original_filename ilike '%' || $6 || '%')"
                 } ?: ""
-                val q = """            
-                    select $selectColumns            
+                val query = """
+                    select $selectColumns
                     from assets            
-                    where collection_id = $1              
+                    where collection_id = $1        
                     and status = $2
                     $searchFilter
                     and (original_created_at, id) > ($3, $4)            
                     order by original_created_at asc, id asc            
                     limit $5        
                 """.trimIndent()
-                Pair(q, paramIndex)
-            }
-        }
 
-        val fetched = connectionFactory.useConnection {
-            val stmt = createStatement(query)
-                .bind("$1", collectionId.value.toJavaUuid())
-                .bind("$2", statusFilter)
-
-            when {
-                cursor == null -> {
-                    val stmtWithLimit = stmt.bind("$3", limit + 1)
-                    if (searchQuery != null) {
-                        stmtWithLimit.bind("$4", searchQuery)
-                    } else {
-                        stmtWithLimit
+                createStatement(query)
+                    .bind("$1", collectionId.value.toJavaUuid())
+                    .bind("$2", statusFilter)
+                    .bind("$3", cursor.originalCreatedAt.toJavaInstant())
+                    .bind("$4", cursor.id.value.toJavaUuid())
+                    .bind("$5", limit + 1)
+                    .apply {
+                        if (searchQuery != null) bind("$6", searchQuery)
                     }
-                }
+                    .execute()
+                    .awaitSingle()
+                    .mapToDomain()
+                    .toList()
+            }
 
-                else -> {
-                    val stmtWithCursor = stmt
+            val hasPrevious: Boolean = fetched.firstOrNull()?.let {
+                connectionFactory.useConnection {
+                    val searchFilter = searchQuery?.let {
+                        "and (name ilike '%' || $5 || '%' or original_filename ilike '%' || $5 || '%')"
+                    } ?: ""
+
+                    val backwardsProbeQuery = """
+                        select exists(
+                            select 1
+                            from assets            
+                            where collection_id = $1        
+                            and status = $2
+                            $searchFilter
+                            and (original_created_at, id) < ($3, $4)            
+                            order by original_created_at desc, id desc            
+                            limit 1
+                        ) as has_previous
+                    """.trimIndent()
+
+                    createStatement(backwardsProbeQuery)
+                        .bind("$1", collectionId.value.toJavaUuid())
+                        .bind("$2", statusFilter)
                         .bind("$3", cursor.originalCreatedAt.toJavaInstant())
                         .bind("$4", cursor.id.value.toJavaUuid())
-                        .bind("$5", limit + 1)
-
-                    if (searchQuery != null) {
-                        stmtWithCursor.bind("$6", searchQuery)
-                    } else {
-                        stmtWithCursor
-                    }
+                        .apply {
+                            if (searchQuery != null) bind("$5", searchQuery)
+                        }
+                        .execute()
+                        .awaitSingle()
+                        .map { row, _ -> row.get("has_previous", Boolean::class.java) }
+                        .awaitSingle()
                 }
-            }
-                .execute()
-                .awaitSingle()
-                .mapToDomain()
-                .toList()
+            } ?: false
+
+            val hasMore = fetched.size > limit
+            val sliced = fetched.take(limit)
+            val items = sliced.reversed()
+
+            val first = items.firstOrNull()
+            val last = items.lastOrNull()
+
+            val prevCursor = if (hasMore) first?.let {
+                (it as FileAsset).toCursor()
+            } else null
+            val nextCursor = if (hasPrevious) last?.let {
+                (it as FileAsset).toCursor()
+            } else null
+
+            return AssetPage(
+                items = items,
+                nextCursor = nextCursor,
+                prevCursor = prevCursor,
+            )
         }
 
-        val hasMore = fetched.size > limit
-        val sliced = fetched.take(limit)
-        val items = if (direction == PageDirection.BACKWARD) sliced.reversed() else sliced
-
-        val first = items.firstOrNull()
-        val last = items.lastOrNull()
-
-        val prevCursor = first?.let {
-            AssetCursor((it as FileAsset).originalCreatedAt, it.id)
-        }
-        val nextCursor = last?.let {
-            AssetCursor((it as FileAsset).originalCreatedAt, it.id)
-        }
-
-        return AssetPage(
-            items = items,
-            nextCursor = if (items.isEmpty()) null else nextCursor,
-            prevCursor = if (items.isEmpty()) null else prevCursor,
-            hasMore = hasMore
-        )
+        error("Illegal cursor configuration for paging")
     }
+
 
     override suspend fun getContentFor(asset: FileAsset): Flow<ByteArray> {
         return library.readContentForAssetAsFlow(asset)
