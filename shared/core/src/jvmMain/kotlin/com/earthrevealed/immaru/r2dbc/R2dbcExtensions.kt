@@ -9,7 +9,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
-import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 import kotlin.uuid.toKotlinUuid
 
 suspend fun <T> ConnectionFactory.useConnection(executeUsing: suspend Connection.() -> T): T {
@@ -44,10 +44,15 @@ fun <T> Statement.bindNullable(name: String, value: T?, clazz: Class<T>): Statem
 
 fun Row.getUuid(fieldName: String) = get(fieldName, UUID::class.java)?.toKotlinUuid()
 fun Row.getString(fieldName: String): String? = get(fieldName, String::class.java)
+
 fun Row.getTimestamp(fieldName: String) =
-    get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())?.let {
-        Instant.fromEpochMilliseconds(it.toInstant().toEpochMilli())
-    }
+    get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())?.toInstant()?.toKotlinInstant()
+//fun Row.getTimestamp(fieldName: String) =
+//    get(fieldName, LocalDateTime::class.java)?.atZone(ZoneId.systemDefault())
+//        ?.let {
+//            Instant.fromEpochMilliseconds(it.toInstant().toEpochMilli())
+//        }
+
 
 fun Row.getInt(fieldName: String) = get(fieldName, java.lang.Integer::class.java)?.toInt()
 fun Row.getByteArray(fieldName: String): ByteArray? = get(fieldName, ByteArray::class.java)

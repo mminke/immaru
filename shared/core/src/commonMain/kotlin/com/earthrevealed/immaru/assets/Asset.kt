@@ -4,6 +4,7 @@ import com.earthrevealed.immaru.collections.CollectionId
 import com.earthrevealed.immaru.common.AuditFields
 import com.earthrevealed.immaru.common.GenericId
 import com.earthrevealed.immaru.common.GenericIdSerializer
+import com.earthrevealed.immaru.common.truncatedToMicroseconds
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -54,11 +55,22 @@ sealed class Asset {
     }
 
     override fun equals(other: Any?): Boolean {
-        return if(other is Asset) {
-            this.id == other.id
+        return if (other is Asset) {
+            this.id == other.id &&
+                    this.collectionId.equals(other.collectionId) &&
+                    this.name == other.name &&
+                    this.auditFields == other.auditFields
         } else {
             false
         }
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + collectionId.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + auditFields.hashCode()
+        return result
     }
 }
 
@@ -129,7 +141,7 @@ class FileAsset : Asset {
     }
 
     fun registerOriginalCreatedAt(originalCreatedAt: Instant) {
-        this.originalCreatedAt = originalCreatedAt
+        this.originalCreatedAt = originalCreatedAt.truncatedToMicroseconds()
     }
 
     fun changeName(name: String) {
@@ -139,20 +151,34 @@ class FileAsset : Asset {
     }
 
     override fun equals(other: Any?) = when (other) {
-        is FileAsset -> this.id == other.id
+        is FileAsset -> {
+            super.equals(other) &&
+                    this.originalCreatedAt.equals(other.originalCreatedAt) &&
+                    this.originalFilename == other.originalFilename &&
+                    this.mediaType == other.mediaType &&
+                    this.contentHash.contentEquals(other.contentHash) &&
+                    this.status == other.status
+        }
+
         else -> false
     }
 
     override fun hashCode(): Int {
-        return id.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + originalCreatedAt.hashCode()
+        result = 31 * result + originalFilename.hashCode()
+        result = 31 * result + (mediaType?.hashCode() ?: 0)
+        result = 31 * result + (contentHash?.contentHashCode() ?: 0)
+        result = 31 * result + status.hashCode()
+        return result
     }
 }
 
 @Serializable(with = AssetIdSerializer::class)
-class AssetId(value: Uuid = Uuid.random()): GenericId(value) {
+class AssetId(value: Uuid = Uuid.random()) : GenericId(value) {
     companion object {
-         fun fromString(value: String) = AssetId(Uuid.parse(value))
+        fun fromString(value: String) = AssetId(Uuid.parse(value))
     }
 }
 
-object AssetIdSerializer : GenericIdSerializer<AssetId>({ value -> AssetId.fromString(value)})
+object AssetIdSerializer : GenericIdSerializer<AssetId>({ value -> AssetId.fromString(value) })

@@ -13,6 +13,7 @@ interface AssetRepository {
         status: AssetStatus? = AssetStatus.CONTENT_READY,
         searchQuery: String? = null
     ): List<Asset>
+
     suspend fun save(asset: Asset)
     suspend fun delete(id: AssetId)
     suspend fun assetExists(assetId: AssetId): Boolean
@@ -36,6 +37,8 @@ data class AssetCursor(
     val id: AssetId,
 )
 
+fun FileAsset.toCursor() = AssetCursor(this.originalCreatedAt, this.id)
+
 @Serializable
 enum class PageDirection {
     FORWARD,
@@ -47,7 +50,6 @@ data class AssetPage(
     val items: List<Asset>,
     val nextCursor: AssetCursor?,
     val prevCursor: AssetCursor?,
-    val hasMore: Boolean,
 )
 
 class RetrievalException : RuntimeException {

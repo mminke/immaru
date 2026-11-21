@@ -107,4 +107,16 @@ class FileAssetTest {
 
         assertEquals(originalCreatedAt, fileAsset.originalCreatedAt)
     }
+
+    @Test
+    fun `test register original created at truncates to microseconds`() {
+        val fileAsset = FileAsset(
+            collectionId = CollectionId(),
+            originalFilename = "1234.jpg",
+        )
+
+        fileAsset.registerOriginalCreatedAt(Instant.parse("2023-07-01T10:00:00.719903923Z"))
+
+        assertEquals(Instant.parse("2023-07-01T10:00:00.719903Z"), fileAsset.originalCreatedAt)
+    }
 }
