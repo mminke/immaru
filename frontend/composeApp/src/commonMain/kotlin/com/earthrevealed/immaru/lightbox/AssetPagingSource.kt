@@ -20,9 +20,9 @@ class AssetPagingSource(
     override suspend fun load(params: LoadParams<AssetCursor>): LoadResult<AssetCursor, Asset> {
         val cursor = params.key
         val direction = when (params) {
-            is LoadParams.Append -> PageDirection.FORWARD.also { println("Append") }
-            is LoadParams.Prepend -> PageDirection.BACKWARD.also { println("Prepend") }
-            is LoadParams.Refresh -> PageDirection.FORWARD.also { println("Refresh") }
+            is LoadParams.Append -> PageDirection.FORWARD
+            is LoadParams.Prepend -> PageDirection.BACKWARD
+            is LoadParams.Refresh -> PageDirection.FORWARD
         }
 
         return try {
